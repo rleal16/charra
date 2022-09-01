@@ -1,4 +1,4 @@
-# CHARRA: CHAllenge-Response based Remote Attestation withOUT TPM 2.0
+# CHARRA: CHAllenge-Response based Remote Attestation without TPM 2.0
 
 ![CHARRA Logo](charra-logo_small.png)
 
