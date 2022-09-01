@@ -1,6 +1,6 @@
 # Remote Attestation
 
-Remote Attestation component
+Remote Attestation Component
 
 ## Getting started
 
