@@ -18,6 +18,9 @@
  * BSD-3-Clause).
  */
 
+
+
+
 #include <arpa/inet.h>
 #include <coap2/coap.h>
 #include <getopt.h>
@@ -41,6 +44,11 @@
 #include "util/crypto_util.h"
 #include "util/io_util.h"
 #include "util/tpm2_util.h"
+
+/* ---------- Arcadian IoT Remote Attestation Libraries */
+#include "ra_iot_libs/ra_iot_dto.h"
+#include "ra_iot_libs/ra_iot_memory_mgmt.h"
+
 
 #define CHARRA_UNUSED __attribute__((unused))
 
@@ -112,8 +120,32 @@ static msg_attestation_response_dto last_response = {0};
 
 /* --- main --------------------------------------------------------------- */
 
+void alloc_nonce(uint8_t **nonce){
+	*nonce = malloc(sizeof(int)*3);
+}
+
 int main(int argc, char** argv) {
 	CHARRA_RC result = EXIT_FAILURE;
+
+	printf("\n\n\n[ ==>> In VERIFER's Main!]\n");
+	ra_iot_attest_dto *stuff;
+	new_attest_dto(&stuff);
+	stuff->nonce_len=100000;
+	printf("A new nonce_len appears: %d\n", stuff->nonce_len);
+	printf("The nonce is [%d], [%d]\n\n\n", stuff->nonce[0], stuff->nonce[1]);
+	free_attest_dto(&stuff);
+
+	printf("Nonce Test 2\n");
+	ra_iot_attest_dto new_stuff;
+	new_stuff.nonce_len = 234;
+	alloc_nonce(&(new_stuff.nonce));
+	new_stuff.nonce[0] = 9;
+	new_stuff.nonce[1] = 8;
+	new_stuff.nonce[2] = 7;
+	printf("A new nonce_len appears: %d\n", new_stuff.nonce_len);
+	printf("The nonce is [%d], [%d], [%d]\n\n\n", new_stuff.nonce[0], new_stuff.nonce[1], new_stuff.nonce[2]);
+	free(new_stuff.nonce);
+	printf("\n\n\n[In VERIFER's Main! ==>>]\n");
 
 	/* handle SIGINT */
 	signal(SIGINT, handle_sigint);
