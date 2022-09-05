@@ -126,7 +126,7 @@ void alloc_nonce(uint8_t **nonce){
 
 int main(int argc, char** argv) {
 	CHARRA_RC result = EXIT_FAILURE;
-
+	
 	printf("\n\n\n[ ==>> In VERIFER's Main!]\n");
 	ra_iot_attest_dto *stuff;
 	new_attest_dto(&stuff);
@@ -142,11 +142,12 @@ int main(int argc, char** argv) {
 	new_stuff.nonce[0] = 9;
 	new_stuff.nonce[1] = 8;
 	new_stuff.nonce[2] = 7;
+	printf("Testing local nonce\n");
 	printf("A new nonce_len appears: %d\n", new_stuff.nonce_len);
 	printf("The nonce is [%d], [%d], [%d]\n\n\n", new_stuff.nonce[0], new_stuff.nonce[1], new_stuff.nonce[2]);
 	free(new_stuff.nonce);
-	printf("\n\n\n[In VERIFER's Main! ==>>]\n");
-
+	printf("\n\n\n[In VERIFER ==>>]\n");
+	
 	/* handle SIGINT */
 	signal(SIGINT, handle_sigint);
 
