@@ -1,7 +1,16 @@
-.DS_Store
-docker/
-bin/
-obj/
-runCode.sh
-*valgrind*
-*.o
+# build artifacts
+bin/*
+obj/*
+
+# core dumps
+#core
+
+# keep core folder
+!src/core/*
+
+# keep folders
+!.gitkeep
+
+# VSCode
+.vscode/
+
