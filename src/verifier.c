@@ -18,6 +18,9 @@
  * BSD-3-Clause).
  */
 
+
+
+
 #include <arpa/inet.h>
 #include <coap2/coap.h>
 #include <getopt.h>
@@ -41,6 +44,12 @@
 #include "util/crypto_util.h"
 #include "util/io_util.h"
 #include "util/tpm2_util.h"
+
+/* ---------- Arcadian IoT Remote Attestation Libraries */
+#include "ra_iot_libs/ra_iot_dto.h"
+#include "ra_iot_libs/ra_iot_memory_mgmt.h"
+#include "ra_iot_libs/ra_iot_crypto.h"
+
 
 #define CHARRA_UNUSED __attribute__((unused))
 
@@ -114,7 +123,24 @@ static msg_attestation_response_dto last_response = {0};
 
 int main(int argc, char** argv) {
 	CHARRA_RC result = EXIT_FAILURE;
-
+	
+	printf("\n\n\n[ ==>> In VERIFER's Main!]\n");
+	ra_iot_attest_dto stuff;
+	//call_rsa_genkey();
+	//char kfile[128];
+	//sprintf(kfile, "rsa_pub.txt");
+	//call_load_key(kfile);
+	int val = gen_rsa_key();
+	mbedtls_rsa_context rsa = load_key();
+	printf("\nChecking Public Key\n");
+	printf("%d\n", mbedtls_rsa_check_pubkey(&rsa));
+	unsigned char input[100] = "Uma string em C";
+	ra_iot_encrypt(&rsa, input);
+	ra_iot_sign();
+	ra_iot_decrypt();
+	mbedtls_rsa_free( &rsa );
+	printf("\n\n\n[In VERIFER ==>>]\n");
+	
 	/* handle SIGINT */
 	signal(SIGINT, handle_sigint);
 
