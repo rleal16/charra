@@ -1,0 +1,311 @@
+==2073== Memcheck, a memory error detector
+==2073== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==2073== Using Valgrind-3.15.0-608cb11914-20190413 and LibVEX; rerun with -h for copyright info
+==2073== Command: bin/verifier
+==2073== 
+--2073-- Valgrind options:
+--2073--    --leak-check=full
+--2073--    --show-leak-kinds=all
+--2073--    -v
+--2073-- Contents of /proc/version:
+--2073--   Linux version 5.10.104-linuxkit (root@buildkitsandbox) (gcc (Alpine 10.2.1_pre1) 10.2.1 20201203, GNU ld (GNU Binutils) 2.35.2) #1 SMP Thu Mar 17 17:08:06 UTC 2022
+--2073-- 
+--2073-- Arch and hwcaps: AMD64, LittleEndian, amd64-cx16-lzcnt-sse3-ssse3-avx-bmi
+--2073-- Page sizes: currently 4096, max supported 4096
+--2073-- Valgrind library directory: /usr/lib/x86_64-linux-gnu/valgrind
+--2073-- Reading syms from /home/bob/charra/bin/verifier
+--2073-- Reading syms from /usr/lib/x86_64-linux-gnu/ld-2.31.so
+--2073--   Considering /usr/lib/debug/.build-id/45/87364908de169dec62ffa538170118c1c3a078.debug ..
+--2073--   .. build-id is valid
+--2073-- Reading syms from /usr/lib/x86_64-linux-gnu/valgrind/memcheck-amd64-linux
+--2073--    object doesn't have a symbol table
+--2073--    object doesn't have a dynamic symbol table
+--2073-- Scheduler: using generic scheduler lock implementation.
+--2073-- Reading suppressions file: /usr/lib/x86_64-linux-gnu/valgrind/default.supp
+==2073== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-2073-by-???-on-75cc1df1e7f5
+==2073== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-2073-by-???-on-75cc1df1e7f5
+==2073== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-2073-by-???-on-75cc1df1e7f5
+==2073== 
+==2073== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==2073== don't want to do, unless you know exactly what you're doing,
+==2073== or are doing some strange experiment):
+==2073==   /usr/lib/x86_64-linux-gnu/valgrind/../../bin/vgdb --pid=2073 ...command...
+==2073== 
+==2073== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==2073==   /path/to/gdb bin/verifier
+==2073== and then give GDB the following command
+==2073==   target remote | /usr/lib/x86_64-linux-gnu/valgrind/../../bin/vgdb --pid=2073
+==2073== --pid is optional if only one valgrind process is running
+==2073== 
+--2073-- REDIR: 0x4022e20 (ld-linux-x86-64.so.2:strlen) redirected to 0x580c9ce2 (???)
+--2073-- REDIR: 0x4022bf0 (ld-linux-x86-64.so.2:index) redirected to 0x580c9cfc (???)
+--2073-- Reading syms from /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_core-amd64-linux.so
+--2073--    object doesn't have a symbol table
+--2073-- Reading syms from /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so
+--2073--    object doesn't have a symbol table
+==2073== WARNING: new redirection conflicts with existing -- ignoring it
+--2073--     old: 0x04022e20 (strlen              ) R-> (0000.0) 0x580c9ce2 ???
+--2073--     new: 0x04022e20 (strlen              ) R-> (2007.0) 0x0483f060 strlen
+--2073-- REDIR: 0x401f600 (ld-linux-x86-64.so.2:strcmp) redirected to 0x483ffd0 (strcmp)
+--2073-- REDIR: 0x4023380 (ld-linux-x86-64.so.2:mempcpy) redirected to 0x4843a20 (mempcpy)
+--2073-- Reading syms from /usr/local/lib/libcoap-2-tinydtls.so.3.0.0
+--2073-- Reading syms from /usr/local/lib/libqcbor.so.1.0.0
+--2073-- Reading syms from /usr/lib/x86_64-linux-gnu/libm-2.31.so
+--2073--   Considering /usr/lib/debug/.build-id/fe/91b4090ea04c1559ff71dd9290062776618891.debug ..
+--2073--   .. build-id is valid
+--2073-- Reading syms from /usr/local/lib/libmbedcrypto.so.6
+--2073-- Reading syms from /usr/local/lib/libtss2-esys.so.0.0.0
+--2073-- Reading syms from /usr/local/lib/libtss2-mu.so.0.0.0
+--2073-- Reading syms from /usr/local/lib/libtss2-tctildr.so.0.0.0
+--2073-- Reading syms from /usr/lib/x86_64-linux-gnu/libc-2.31.so
+--2073--   Considering /usr/lib/debug/.build-id/18/78e6b475720c7c51969e69ab2d276fae6d1dee.debug ..
+--2073--   .. build-id is valid
+--2073-- Reading syms from /usr/local/lib/libtinydtls.so
+--2073-- Reading syms from /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1
+--2073--    object doesn't have a symbol table
+--2073-- Reading syms from /usr/local/lib/libtss2-sys.so.1.0.0
+--2073-- Reading syms from /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+--2073--   Considering /usr/lib/debug/.build-id/c0/f40155b3f8bf8c494fa800f9ab197ebe20ed6e.debug ..
+--2073--   .. build-id is valid
+--2073-- Reading syms from /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+--2073--   Considering /usr/lib/debug/.build-id/7b/4536f41cdaa5888408e82d0836e33dcf436466.debug ..
+--2073--   .. build-id is valid
+--2073-- REDIR: 0x4bec480 (libc.so.6:memmove) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb780 (libc.so.6:strncpy) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec7b0 (libc.so.6:strcasecmp) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb0a0 (libc.so.6:strcat) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb7e0 (libc.so.6:rindex) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bedc50 (libc.so.6:rawmemchr) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4c08ce0 (libc.so.6:wmemchr) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4c08820 (libc.so.6:wcscmp) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec5e0 (libc.so.6:mempcpy) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec410 (libc.so.6:bcmp) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb710 (libc.so.6:strncmp) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb150 (libc.so.6:strcmp) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec540 (libc.so.6:memset) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4c087e0 (libc.so.6:wcschr) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb670 (libc.so.6:strnlen) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb230 (libc.so.6:strcspn) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec800 (libc.so.6:strncasecmp) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb1d0 (libc.so.6:strcpy) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec950 (libc.so.6:memcpy@@GLIBC_2.14) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4c09f50 (libc.so.6:wcsnlen) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4c08860 (libc.so.6:wcscpy) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb820 (libc.so.6:strpbrk) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb100 (libc.so.6:index) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4beb630 (libc.so.6:strlen) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bf4bb0 (libc.so.6:memrchr) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec850 (libc.so.6:strcasecmp_l) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec3d0 (libc.so.6:memchr) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4c08930 (libc.so.6:wcslen) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bebae0 (libc.so.6:strspn) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec750 (libc.so.6:stpncpy) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec6f0 (libc.so.6:stpcpy) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bedc90 (libc.so.6:strchrnul) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec8a0 (libc.so.6:strncasecmp_l) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4c79850 (libc.so.6:__memcpy_chk) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bec2f0 (libc.so.6:strstr) redirected to 0x48311d0 (_vgnU_ifunc_wrapper)
+--2073-- REDIR: 0x4bfd8c0 (libc.so.6:__strrchr_sse2) redirected to 0x483ea70 (__strrchr_sse2)
+--2073-- REDIR: 0x4bfdbc0 (libc.so.6:__strlen_sse2) redirected to 0x483efa0 (__strlen_sse2)
+--2073-- REDIR: 0x4be60e0 (libc.so.6:malloc) redirected to 0x483b780 (malloc)
+--2073-- REDIR: 0x4c07ab0 (libc.so.6:__mempcpy_sse2_unaligned) redirected to 0x4843660 (mempcpy)
+--2073-- REDIR: 0x4bfd6b0 (libc.so.6:__strchrnul_sse2) redirected to 0x4843540 (strchrnul)
+--2073-- REDIR: 0x4c07f00 (libc.so.6:__memset_sse2_unaligned) redirected to 0x48428e0 (memset)
+--2073-- REDIR: 0x4c07ad0 (libc.so.6:memcpy@GLIBC_2.2.5) redirected to 0x4840100 (memcpy@GLIBC_2.2.5)
+--2073-- REDIR: 0x4c07ac0 (libc.so.6:__memcpy_chk_sse2_unaligned) redirected to 0x4843b10 (__memcpy_chk)
+--2073-- REDIR: 0x4be7b10 (libc.so.6:calloc) redirected to 0x483dce0 (calloc)
+--2073-- REDIR: 0x4be66d0 (libc.so.6:free) redirected to 0x483c9d0 (free)
+--2073-- REDIR: 0x4bebfa0 (libc.so.6:__GI_strstr) redirected to 0x4843ca0 (__strstr_sse2)
+--2073-- REDIR: 0x4bf7ec0 (libc.so.6:__memchr_sse2) redirected to 0x4840050 (memchr)
+--2073-- REDIR: 0x4bf81f0 (libc.so.6:__rawmemchr_sse2) redirected to 0x4843580 (rawmemchr)
+==2073== Use of uninitialised value of size 8
+==2073==    at 0x4843589: rawmemchr (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x4BDFDB5: _IO_str_init_static_internal (strops.c:41)
+==2073==    by 0x4BAF342: _IO_strfile_read (strfile.h:95)
+==2073==    by 0x4BAF342: __isoc99_sscanf (isoc99_sscanf.c:28)
+==2073==    by 0x114E45: ra_iot_mbedtls_encrypt (ra_iot_mbedtls.c:428)
+==2073==    by 0x1158C7: ra_iot_encrypt (ra_iot_crypto.c:27)
+==2073==    by 0x10D3C4: main (verifier.c:147)
+==2073== 
+==2073== Invalid read of size 1
+==2073==    at 0x4843589: rawmemchr (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x4BDFDB5: _IO_str_init_static_internal (strops.c:41)
+==2073==    by 0x4BAF342: _IO_strfile_read (strfile.h:95)
+==2073==    by 0x4BAF342: __isoc99_sscanf (isoc99_sscanf.c:28)
+==2073==    by 0x114E45: ra_iot_mbedtls_encrypt (ra_iot_mbedtls.c:428)
+==2073==    by 0x1158C7: ra_iot_encrypt (ra_iot_crypto.c:27)
+==2073==    by 0x10D3C4: main (verifier.c:147)
+==2073==  Address 0x4 is not stack'd, malloc'd or (recently) free'd
+==2073== 
+==2073== 
+==2073== Process terminating with default action of signal 11 (SIGSEGV)
+==2073==  Access not within mapped region at address 0x4
+==2073==    at 0x4843589: rawmemchr (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x4BDFDB5: _IO_str_init_static_internal (strops.c:41)
+==2073==    by 0x4BAF342: _IO_strfile_read (strfile.h:95)
+==2073==    by 0x4BAF342: __isoc99_sscanf (isoc99_sscanf.c:28)
+==2073==    by 0x114E45: ra_iot_mbedtls_encrypt (ra_iot_mbedtls.c:428)
+==2073==    by 0x1158C7: ra_iot_encrypt (ra_iot_crypto.c:27)
+==2073==    by 0x10D3C4: main (verifier.c:147)
+==2073==  If you believe this happened as a result of a stack
+==2073==  overflow in your program's main thread (unlikely but
+==2073==  possible), you can try to increase the size of the
+==2073==  main thread stack using the --main-stacksize= flag.
+==2073==  The main thread stack size used in this run was 8388608.
+==2073== 
+==2073== HEAP SUMMARY:
+==2073==     in use at exit: 2,416 bytes in 12 blocks
+==2073==   total heap usage: 2,310 allocs, 2,298 frees, 396,912 bytes allocated
+==2073== 
+==2073== Searching for pointers to 12 not-freed blocks
+==2073== Checked 196,376 bytes
+==2073== 
+==2073== 8 bytes in 1 blocks are still reachable in loss record 1 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A00BB6: mbedtls_mpi_read_string (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A00E7D: mbedtls_mpi_read_file (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x11453F: ra_iot_mbedtls_load_pub_key (ra_iot_mbedtls.c:203)
+==2073==    by 0x11582E: load_pub_key (ra_iot_crypto.c:15)
+==2073==    by 0x10D221: main (verifier.c:135)
+==2073== 
+==2073== 8 bytes in 1 blocks are still reachable in loss record 2 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x49FF6CB: mbedtls_mpi_copy (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A2CDC5: mbedtls_rsa_import (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x114965: ra_iot_mbedtls_load_priv_key (ra_iot_mbedtls.c:274)
+==2073==    by 0x11587E: load_priv_key (ra_iot_crypto.c:21)
+==2073==    by 0x10D237: main (verifier.c:136)
+==2073== 
+==2073== 128 bytes in 1 blocks are still reachable in loss record 3 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x49FF6CB: mbedtls_mpi_copy (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A2CD86: mbedtls_rsa_import (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x114965: ra_iot_mbedtls_load_priv_key (ra_iot_mbedtls.c:274)
+==2073==    by 0x11587E: load_priv_key (ra_iot_crypto.c:21)
+==2073==    by 0x10D237: main (verifier.c:136)
+==2073== 
+==2073== 128 bytes in 1 blocks are still reachable in loss record 4 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x49FF6CB: mbedtls_mpi_copy (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A2CD9B: mbedtls_rsa_import (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x114965: ra_iot_mbedtls_load_priv_key (ra_iot_mbedtls.c:274)
+==2073==    by 0x11587E: load_priv_key (ra_iot_crypto.c:21)
+==2073==    by 0x10D237: main (verifier.c:136)
+==2073== 
+==2073== 128 bytes in 1 blocks are still reachable in loss record 5 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x49FF6CB: mbedtls_mpi_copy (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A01548: mbedtls_mpi_div_mpi (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A01682: mbedtls_mpi_mod_mpi (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A3109F: mbedtls_rsa_deduce_crt (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A2D0C0: mbedtls_rsa_complete (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x1149A1: ra_iot_mbedtls_load_priv_key (ra_iot_mbedtls.c:281)
+==2073==    by 0x11587E: load_priv_key (ra_iot_crypto.c:21)
+==2073==    by 0x10D237: main (verifier.c:136)
+==2073== 
+==2073== 128 bytes in 1 blocks are still reachable in loss record 6 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x49FF6CB: mbedtls_mpi_copy (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A01548: mbedtls_mpi_div_mpi (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A01682: mbedtls_mpi_mod_mpi (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A310CC: mbedtls_rsa_deduce_crt (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A2D0C0: mbedtls_rsa_complete (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x1149A1: ra_iot_mbedtls_load_priv_key (ra_iot_mbedtls.c:281)
+==2073==    by 0x11587E: load_priv_key (ra_iot_crypto.c:21)
+==2073==    by 0x10D237: main (verifier.c:136)
+==2073== 
+==2073== 128 bytes in 1 blocks are still reachable in loss record 7 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x49FF6CB: mbedtls_mpi_copy (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A031A1: mbedtls_mpi_inv_mod (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A310E5: mbedtls_rsa_deduce_crt (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A2D0C0: mbedtls_rsa_complete (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x1149A1: ra_iot_mbedtls_load_priv_key (ra_iot_mbedtls.c:281)
+==2073==    by 0x11587E: load_priv_key (ra_iot_crypto.c:21)
+==2073==    by 0x10D237: main (verifier.c:136)
+==2073== 
+==2073== 256 bytes in 1 blocks are still reachable in loss record 8 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A00BB6: mbedtls_mpi_read_string (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A00E7D: mbedtls_mpi_read_file (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x11450E: ra_iot_mbedtls_load_pub_key (ra_iot_mbedtls.c:202)
+==2073==    by 0x11582E: load_pub_key (ra_iot_crypto.c:15)
+==2073==    by 0x10D221: main (verifier.c:135)
+==2073== 
+==2073== 256 bytes in 1 blocks are still reachable in loss record 9 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x49FF6CB: mbedtls_mpi_copy (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A2CD71: mbedtls_rsa_import (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x114965: ra_iot_mbedtls_load_priv_key (ra_iot_mbedtls.c:274)
+==2073==    by 0x11587E: load_priv_key (ra_iot_crypto.c:21)
+==2073==    by 0x10D237: main (verifier.c:136)
+==2073== 
+==2073== 256 bytes in 1 blocks are still reachable in loss record 10 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x49FF6CB: mbedtls_mpi_copy (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A2CDB0: mbedtls_rsa_import (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x114965: ra_iot_mbedtls_load_priv_key (ra_iot_mbedtls.c:274)
+==2073==    by 0x11587E: load_priv_key (ra_iot_crypto.c:21)
+==2073==    by 0x10D237: main (verifier.c:136)
+==2073== 
+==2073== 472 bytes in 1 blocks are still reachable in loss record 11 of 12
+==2073==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x4BCE92D: __fopen_internal (iofopen.c:65)
+==2073==    by 0x4BCE92D: fopen@@GLIBC_2.2.5 (iofopen.c:86)
+==2073==    by 0x114D17: ra_iot_mbedtls_encrypt (ra_iot_mbedtls.c:414)
+==2073==    by 0x1158C7: ra_iot_encrypt (ra_iot_crypto.c:27)
+==2073==    by 0x10D3C4: main (verifier.c:147)
+==2073== 
+==2073== 520 bytes in 1 blocks are still reachable in loss record 12 of 12
+==2073==    at 0x483DD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x49FF4E4: mbedtls_mpi_grow (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x49FFF86: mbedtls_mpi_shift_l (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A02244: mbedtls_mpi_exp_mod (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x4A2D8AC: mbedtls_rsa_public (in /usr/local/lib/libmbedcrypto.so.6)
+==2073==    by 0x114CD3: ra_iot_mbedtls_encrypt (ra_iot_mbedtls.c:400)
+==2073==    by 0x1158C7: ra_iot_encrypt (ra_iot_crypto.c:27)
+==2073==    by 0x10D3C4: main (verifier.c:147)
+==2073== 
+==2073== LEAK SUMMARY:
+==2073==    definitely lost: 0 bytes in 0 blocks
+==2073==    indirectly lost: 0 bytes in 0 blocks
+==2073==      possibly lost: 0 bytes in 0 blocks
+==2073==    still reachable: 2,416 bytes in 12 blocks
+==2073==         suppressed: 0 bytes in 0 blocks
+==2073== 
+==2073== Use --track-origins=yes to see where uninitialised values come from
+==2073== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
+==2073== 
+==2073== 1 errors in context 1 of 2:
+==2073== Invalid read of size 1
+==2073==    at 0x4843589: rawmemchr (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x4BDFDB5: _IO_str_init_static_internal (strops.c:41)
+==2073==    by 0x4BAF342: _IO_strfile_read (strfile.h:95)
+==2073==    by 0x4BAF342: __isoc99_sscanf (isoc99_sscanf.c:28)
+==2073==    by 0x114E45: ra_iot_mbedtls_encrypt (ra_iot_mbedtls.c:428)
+==2073==    by 0x1158C7: ra_iot_encrypt (ra_iot_crypto.c:27)
+==2073==    by 0x10D3C4: main (verifier.c:147)
+==2073==  Address 0x4 is not stack'd, malloc'd or (recently) free'd
+==2073== 
+==2073== 
+==2073== 1 errors in context 2 of 2:
+==2073== Use of uninitialised value of size 8
+==2073==    at 0x4843589: rawmemchr (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2073==    by 0x4BDFDB5: _IO_str_init_static_internal (strops.c:41)
+==2073==    by 0x4BAF342: _IO_strfile_read (strfile.h:95)
+==2073==    by 0x4BAF342: __isoc99_sscanf (isoc99_sscanf.c:28)
+==2073==    by 0x114E45: ra_iot_mbedtls_encrypt (ra_iot_mbedtls.c:428)
+==2073==    by 0x1158C7: ra_iot_encrypt (ra_iot_crypto.c:27)
+==2073==    by 0x10D3C4: main (verifier.c:147)
+==2073== 
+==2073== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)

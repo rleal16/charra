@@ -130,19 +130,30 @@ int main(int argc, char** argv) {
 	//char kfile[128];
 	//sprintf(kfile, "rsa_pub.txt");
 	//call_load_key(kfile);
+	unsigned char encrypted[512];
 	int val = gen_rsa_key("");
-	mbedtls_rsa_context rsa = load_key("rsa_pub.txt");
-	ra_iot_print_pub_key(rsa);
-	mbedtls_rsa_context rsa_priv = load_key("rsa_priv.txt");
-	printf("\nChecking Public Key\n");
-	printf("%d\n", mbedtls_rsa_check_pubkey(&rsa));
+	mbedtls_rsa_context rsa_pub = load_pub_key("rsa_pub.txt");
+	mbedtls_rsa_context rsa_priv = load_priv_key("rsa_priv.txt");
+	printf("\n*****************************\n");
+	printf("\nChecking keys\n");
+	printf("Key Pair is: %s\n", (mbedtls_rsa_check_pub_priv(&rsa_pub, &rsa_priv) == 0 ? "Ok" : "Bad!"));
+	printf("Public key is: %s\n", (mbedtls_rsa_check_pubkey(&rsa_pub) == 0 ? "Ok" : "Bad!"));
+	printf("Private key is: %s\n", (mbedtls_rsa_check_privkey(&rsa_priv) == 0 ? "Ok" : "Bad!"));
+	printf("\n*****************************\n");
+
 	unsigned char input[100] = "Uma string em C";
-	ra_iot_encrypt(&rsa, input);
-	ra_iot_sign();
-	int res = ra_iot_verify_sig();
+	
+
+	ra_iot_encrypt(&rsa_pub, input, encrypted);
+	ra_iot_sign(&rsa_priv);
+	int res = ra_iot_verify_sig(&rsa_pub);
 	printf("Verification result: %d\n", res);
-	ra_iot_decrypt();
-	mbedtls_rsa_free( &rsa );
+	ra_iot_decrypt(&rsa_priv, encrypted);
+
+	mbedtls_rsa_free( &rsa_pub );
+	mbedtls_rsa_free( &rsa_priv );
+
+	
 	printf("\n\n\n[In VERIFER ==>>]\n");
 	
 	/* handle SIGINT */

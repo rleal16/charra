@@ -25,11 +25,13 @@
 
 /****************************************************/
 /****************************************************/
+
+
 void print_mpi(mbedtls_mpi mpi){
     printf("s: %d\n", mpi.s);
     printf("n: %zu\n", mpi.n);
-    //printf("p: %" PRIu64 "\n", (long long)*(mpi.p));
-    printf("p: %lld\n", (long long)*(mpi.p));
+    printf("p: %" PRIu64 "\n", *(mpi.p));
+    //printf("p: %lld\n", (long long)*(mpi.p));
     
 }
 
@@ -56,8 +58,13 @@ int cpm_pub_keys(mbedtls_rsa_context rsa1, mbedtls_rsa_context rsa2){
 /****************************************************/
 
 
-int ra_iot_mbedtls_gen_rsa_key( char *path )
-{
+
+
+/***************************************************/
+/************* Cryptographic Functions *************/
+/***************************************************/
+
+int ra_iot_mbedtls_gen_rsa_key( char *path ){
     printf("Calling gen_rsa_key\n");
     int ret = 1;
     int exit_code = 0;
@@ -166,7 +173,7 @@ exit:
     return 0;
 }
 
-mbedtls_rsa_context ra_iot_mbedtls_load_key(char *filename)
+mbedtls_rsa_context ra_iot_mbedtls_load_pub_key(char *filename)
 {
     FILE *f;
     int ret = 1;
@@ -204,33 +211,125 @@ mbedtls_rsa_context ra_iot_mbedtls_load_key(char *filename)
 
     fclose( f );
 
-    mbedtls_printf( "\n  . Key was loaded!!\n\n" );
+    mbedtls_printf( "\n  . Checking the public key" );
+    fflush( stdout );
+    if( ( ret = mbedtls_rsa_check_pubkey( &rsa ) ) != 0 )
+    {
+        mbedtls_printf( " failed\n  ! mbedtls_rsa_check_pubkey failed with -0x%0x\n", (unsigned int) -ret );
+        goto exit;
+    }
+
+    mbedtls_printf( "\n  . Public Key was loaded!!\n\n" );
 
 exit:
     return rsa;
 
 }
 
-int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *rs, unsigned char input[])
+mbedtls_rsa_context ra_iot_mbedtls_load_priv_key(char *filename)
 {
-    printf("\n\nIn encrypt\n");
-    ra_iot_mbedtls_print_rsa_pubkey(*rs);
+    FILE *f;
+    int ret = 1;
+    unsigned c;
+    int exit_code = MBEDTLS_EXIT_FAILURE;
+    size_t i;
+    mbedtls_rsa_context rsa;
+    unsigned char hash[32];
+    unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
+    //char filename[512];
+
+    mbedtls_mpi N, P, Q, D, E, DP, DQ, QP;
+
+    mbedtls_rsa_init( &rsa, MBEDTLS_RSA_PKCS_V15, 0 );
+
+    mbedtls_mpi_init( &N ); mbedtls_mpi_init( &P ); mbedtls_mpi_init( &Q );
+    mbedtls_mpi_init( &D ); mbedtls_mpi_init( &E ); mbedtls_mpi_init( &DP );
+    mbedtls_mpi_init( &DQ ); mbedtls_mpi_init( &QP );
+
+    mbedtls_printf( "\n  . Reading private key from the file %s", filename );
+    fflush( stdout );
+
+    if( ( f = fopen( filename, "rb" ) ) == NULL )
+    {
+        mbedtls_printf( " failed\n  ! Could not open %s\n" \
+                "  ! Please run rsa_genkey first\n\n", filename );
+        goto exit;
+    }
+
+    if( ( ret = mbedtls_mpi_read_file( &N , 16, f ) ) != 0 ||
+        ( ret = mbedtls_mpi_read_file( &E , 16, f ) ) != 0 ||
+        ( ret = mbedtls_mpi_read_file( &D , 16, f ) ) != 0 ||
+        ( ret = mbedtls_mpi_read_file( &P , 16, f ) ) != 0 ||
+        ( ret = mbedtls_mpi_read_file( &Q , 16, f ) ) != 0 ||
+        ( ret = mbedtls_mpi_read_file( &DP , 16, f ) ) != 0 ||
+        ( ret = mbedtls_mpi_read_file( &DQ , 16, f ) ) != 0 ||
+        ( ret = mbedtls_mpi_read_file( &QP , 16, f ) ) != 0 )
+    {
+        mbedtls_printf( " failed\n  ! mbedtls_mpi_read_file returned %d\n\n", ret );
+        fclose( f );
+        goto exit;
+    }
+    fclose( f );
+
+    if( ( ret = mbedtls_rsa_import( &rsa, &N, &P, &Q, &D, &E ) ) != 0 )
+    {
+        mbedtls_printf( " failed\n  ! mbedtls_rsa_import returned %d\n\n",
+                        ret );
+        goto exit;
+    }
+
+    if( ( ret = mbedtls_rsa_complete( &rsa ) ) != 0 )
+    {
+        mbedtls_printf( " failed\n  ! mbedtls_rsa_complete returned %d\n\n",
+                        ret );
+        goto exit;
+    }
+
+    mbedtls_printf( "\n  . Checking the private key" );
+    fflush( stdout );
+    if( ( ret = mbedtls_rsa_check_privkey( &rsa ) ) != 0 )
+    {
+        mbedtls_printf( " failed\n  ! mbedtls_rsa_check_privkey failed with -0x%0x\n", (unsigned int) -ret );
+        goto exit;
+    }
+
+    mbedtls_printf( "\n  . Private key was loaded!!\n\n" );
+
+exit:
+    mbedtls_mpi_free( &N ); mbedtls_mpi_free( &P ); mbedtls_mpi_free( &Q );
+    mbedtls_mpi_free( &D ); mbedtls_mpi_free( &E ); mbedtls_mpi_free( &DP );
+    mbedtls_mpi_free( &DQ ); mbedtls_mpi_free( &QP );
+    return rsa;
+
+}
+
+
+int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], unsigned char *buf)
+{    
+    printf("***************\nEncrypting \"%s\": %s\n", input, KEY_USE(LOAD_KEY_DECRYPT));
+    
     FILE *f;
     int ret = 1;
     int exit_code = 0;
     size_t i;
+#if LOAD_KEY_ENCRYPT
     mbedtls_rsa_context rsa;
+    mbedtls_mpi N, E;
+#endif
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
-    unsigned char buf[512];
+    //unsigned char buf[512];
     const char *pers = "rsa_encrypt";
-    mbedtls_mpi N, E;
+    
 
     mbedtls_printf( "\n  . Seeding the random number generator..." );
     fflush( stdout );
 
+#if LOAD_KEY_ENCRYPT
     mbedtls_mpi_init( &N ); mbedtls_mpi_init( &E );
     mbedtls_rsa_init( &rsa, MBEDTLS_RSA_PKCS_V15, MBEDTLS_MD_NONE  );
+#endif
+
     mbedtls_ctr_drbg_init( &ctr_drbg );
     mbedtls_entropy_init( &entropy );
 
@@ -246,10 +345,10 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *rs, unsigned char input[])
 
     //------------------------------------------------------------------------
     
+#if LOAD_KEY_ENCRYPT
     mbedtls_printf( "\n  . Reading public key from rsa_pub.txt" );
     fflush( stdout );
 
-#if 0
 
     if( ( f = fopen( "rsa_pub.txt", "rb" ) ) == NULL )
     {
@@ -274,35 +373,41 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *rs, unsigned char input[])
                         ret );
         goto exit;
     }
-    printf("\nCompare: %d\n", cpm_pub_keys(rsa, *rs));
+    
     //------------------------------------------------------------------------
 #endif
 
-#if 0
-    if( strlen(input) > 100 )
+
+    //if( strlen(input) > 100 )
+    int max_size_allowed = 256-11;
+    if( strlen(input) > max_size_allowed)
     {
-        mbedtls_printf( " Input data larger than 100 characters.\n\n" );
+        mbedtls_printf( " Input data larger than %d characters.\n\n", max_size_allowed );
         goto exit;
     }else{
         printf("Input %s\n", input);
     }
-#endif
 
     /*
      * Calculate the RSA encryption of the hash.
      */
     mbedtls_printf( "\n  . Generating the RSA encrypted value" );
     fflush( stdout );
-
-    ret = mbedtls_rsa_pkcs1_encrypt( rs, mbedtls_ctr_drbg_random,
+#if LOAD_KEY_ENCRYPT
+    ret = mbedtls_rsa_pkcs1_encrypt( &rsa, mbedtls_ctr_drbg_random,
                                      &ctr_drbg, MBEDTLS_RSA_PUBLIC, strlen(input), input, buf );
+#else
+    ret = mbedtls_rsa_pkcs1_encrypt( key, mbedtls_ctr_drbg_random,
+                                     &ctr_drbg, MBEDTLS_RSA_PUBLIC, strlen(input), input, buf );
+#endif
+    
     if( ret != 0 )
     {
         mbedtls_printf( " failed\n  ! mbedtls_rsa_pkcs1_encrypt returned %d\n\n",
                         ret );
         goto exit;
     }
-
+    
     /*
      * Write the signature into result-enc.txt
      */
@@ -311,11 +416,21 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *rs, unsigned char input[])
         mbedtls_printf( " failed\n  ! Could not create %s\n\n", "result-enc.txt" );
         goto exit;
     }
-
-    //for( i = 0; i < rsa.len; i++ )
-    for( i = 0; i < rs->len; i++ )
+    printf("\nWRITING ecrypted data with len: %zu (or %d) (key_len: %zu [or %d])\n\n", strlen(buf), strlen(buf), key->len, key->len);
+    unsigned char res[512];
+#if LOAD_KEY_ENCRYPT
+    for( i = 0; i < rsa.len; i++ )
+#else
+    for( i = 0; i < key->len; i++ )
+#endif
+    {
         mbedtls_fprintf( f, "%02X%s", buf[i],
                  ( i + 1 ) % 16 == 0 ? "\r\n" : " " );
+        
+
+    }
+        
+        
 
     fclose( f );
 
@@ -324,22 +439,28 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *rs, unsigned char input[])
     exit_code = 1;
 
 exit:
+#if LOAD_KEY_ENCRYPT
     //mbedtls_mpi_free( &N ); mbedtls_mpi_free( &E );
+#endif
     mbedtls_ctr_drbg_free( &ctr_drbg );
     mbedtls_entropy_free( &entropy );
 
     return exit_code;
 }
 
-int ra_iot_mbedtls_decrypt(void){
+int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *data){
 
+    printf("***************\nDecrypting Data: %s\n", KEY_USE(LOAD_KEY_DECRYPT));
+    
     FILE *f;
     int ret = 1;
     int exit_code = 0;
     unsigned c;
     size_t i;
+#if LOAD_KEY_DECRYPT
     mbedtls_rsa_context rsa;
     mbedtls_mpi N, P, Q, D, E, DP, DQ, QP;
+#endif
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
     unsigned char result[1024];
@@ -350,13 +471,16 @@ int ra_iot_mbedtls_decrypt(void){
 
     mbedtls_printf( "\n  . Seeding the random number generator..." );
     fflush( stdout );
-
+#if LOAD_KEY_DECRYPT
     mbedtls_rsa_init( &rsa, MBEDTLS_RSA_PKCS_V15, MBEDTLS_MD_NONE  );
+#endif
     mbedtls_ctr_drbg_init( &ctr_drbg );
     mbedtls_entropy_init( &entropy );
+#if LOAD_KEY_DECRYPT
     mbedtls_mpi_init( &N ); mbedtls_mpi_init( &P ); mbedtls_mpi_init( &Q );
     mbedtls_mpi_init( &D ); mbedtls_mpi_init( &E ); mbedtls_mpi_init( &DP );
     mbedtls_mpi_init( &DQ ); mbedtls_mpi_init( &QP );
+#endif
 
     ret = mbedtls_ctr_drbg_seed( &ctr_drbg, mbedtls_entropy_func,
                                         &entropy, (const unsigned char *) pers,
@@ -368,6 +492,7 @@ int ra_iot_mbedtls_decrypt(void){
         goto exit;
     }
 
+#if LOAD_KEY_DECRYPT
     mbedtls_printf( "\n  . Reading private key from rsa_priv.txt" );
     fflush( stdout );
 
@@ -394,6 +519,7 @@ int ra_iot_mbedtls_decrypt(void){
     }
     fclose( f );
 
+
     if( ( ret = mbedtls_rsa_import( &rsa, &N, &P, &Q, &D, &E ) ) != 0 )
     {
         mbedtls_printf( " failed\n  ! mbedtls_rsa_import returned %d\n\n",
@@ -407,7 +533,9 @@ int ra_iot_mbedtls_decrypt(void){
                         ret );
         goto exit;
     }
+#endif
 
+#if 0
     /*
      * Extract the RSA encrypted value from the text file
      */
@@ -418,28 +546,44 @@ int ra_iot_mbedtls_decrypt(void){
     }
 
     i = 0;
-
-    while( fscanf( f, "%02X", (unsigned int*) &c ) > 0 &&
-           i < (int) sizeof( buf ) )
+    
+    while( fscanf( f, "%02X", (unsigned int*) &c ) > 0 && i < (int) sizeof( buf ) ){
         buf[i++] = (unsigned char) c;
+        //printf("%c ", buf[i-1]);
+        //printf("%s", ( i ) % 16 == 0 ? "\r\n" : " " );
+    }
 
     fclose( f );
-
+#if LOAD_KEY_DECRYPT
     if( i != rsa.len )
+#else
+    printf("\nREADING ecrypted data with (i = %i) len: %zu (or %d) (key_len: %zu [or %d])\n\n", i, strlen(buf), strlen(buf), key->len, key->len);
+    if( i != key->len )
+#endif
     {
         mbedtls_printf( "\n  ! Invalid RSA signature format\n\n" );
         goto exit;
     }
+
+    
+
+    printf("COMPARING...: %d\n", memcmp(buf, data, (size_t) i));
+#endif
 
     /*
      * Decrypt the encrypted RSA data and print the result.
      */
     mbedtls_printf( "\n  . Decrypting the encrypted data" );
     fflush( stdout );
-
+#if LOAD_KEY_DECRYPT
     ret = mbedtls_rsa_pkcs1_decrypt( &rsa, mbedtls_ctr_drbg_random,
                                             &ctr_drbg, MBEDTLS_RSA_PRIVATE, &i,
                                             buf, result, 1024 );
+#else
+    ret = mbedtls_rsa_pkcs1_decrypt( key, mbedtls_ctr_drbg_random,
+                                                &ctr_drbg, MBEDTLS_RSA_PRIVATE, &i,
+                                                data, result, 1024 );
+#endif
     if( ret != 0 )
     {
         mbedtls_printf( " failed\n  ! mbedtls_rsa_pkcs1_decrypt returned %d\n\n",
@@ -456,29 +600,39 @@ int ra_iot_mbedtls_decrypt(void){
 exit:
     mbedtls_ctr_drbg_free( &ctr_drbg );
     mbedtls_entropy_free( &entropy );
+#if LOAD_KEY_DECRYPT
     mbedtls_rsa_free( &rsa );
     mbedtls_mpi_free( &N ); mbedtls_mpi_free( &P ); mbedtls_mpi_free( &Q );
     mbedtls_mpi_free( &D ); mbedtls_mpi_free( &E ); mbedtls_mpi_free( &DP );
     mbedtls_mpi_free( &DQ ); mbedtls_mpi_free( &QP );
+#endif
 
     return exit_code;
 
 }
 
-int ra_iot_mbedtls_sign(void){
+int ra_iot_mbedtls_sign(mbedtls_rsa_context *key){
+
+    //printf("***************\nSigning Data: %s\n", (LOAD_KEY_SIGN ? "by loading the key" : "without loading the key"));
+    printf("***************\nSigning Data: %s\n", KEY_USE(LOAD_KEY_SIGN));
+
+    
+
     FILE *f;
     int ret = 1;
     int exit_code = 0;
     size_t i;
+#if LOAD_KEY_SIGN
     mbedtls_rsa_context rsa;
+    mbedtls_mpi N, P, Q, D, E, DP, DQ, QP;
+#endif
     unsigned char hash[32];
     unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
     char filename[512] = "result-enc";
     char in_file[512];
     char sig_file[512];
 
-    mbedtls_mpi N, P, Q, D, E, DP, DQ, QP;
-
+#if LOAD_KEY_SIGN
     mbedtls_rsa_init( &rsa, MBEDTLS_RSA_PKCS_V15, 0 );
 
     mbedtls_mpi_init( &N ); mbedtls_mpi_init( &P ); mbedtls_mpi_init( &Q );
@@ -532,6 +686,7 @@ int ra_iot_mbedtls_sign(void){
         mbedtls_printf( " failed\n  ! mbedtls_rsa_check_privkey failed with -0x%0x\n", (unsigned int) -ret );
         goto exit;
     }
+#endif
 
     /*
      * Compute the SHA-256 hash of the input file,
@@ -549,13 +704,22 @@ int ra_iot_mbedtls_sign(void){
         mbedtls_printf( " failed\n  ! Could not open or read %s\n\n", filename );
         goto exit;
     }
-
+#if LOAD_KEY_SIGN
     if( ( ret = mbedtls_rsa_pkcs1_sign( &rsa, NULL, NULL, MBEDTLS_RSA_PRIVATE, MBEDTLS_MD_SHA256,
                                 32, hash, buf ) ) != 0 )
     {
         mbedtls_printf( " failed\n  ! mbedtls_rsa_pkcs1_sign returned -0x%0x\n\n", (unsigned int) -ret );
         goto exit;
     }
+#else
+    if( ( ret = mbedtls_rsa_pkcs1_sign( key, NULL, NULL, MBEDTLS_RSA_PRIVATE, MBEDTLS_MD_SHA256,
+                                32, hash, buf ) ) != 0 )
+    {
+        mbedtls_printf( " failed\n  ! mbedtls_rsa_pkcs1_sign returned -0x%0x\n\n", (unsigned int) -ret );
+        goto exit;
+    }
+
+#endif
 
     /*
      * Write the signature into <filename>.sig
@@ -567,8 +731,11 @@ int ra_iot_mbedtls_sign(void){
         mbedtls_printf( " failed\n  ! Could not create %s\n\n", sig_file );
         goto exit;
     }
-
+#if LOAD_KEY_SIGN
     for( i = 0; i < rsa.len; i++ )
+#else
+    for( i = 0; i < key->len; i++ )
+#endif
         mbedtls_fprintf( f, "%02X%s", buf[i],
                  ( i + 1 ) % 16 == 0 ? "\r\n" : " " );
 
@@ -580,26 +747,33 @@ int ra_iot_mbedtls_sign(void){
 
 exit:
 
+#if LOAD_KEY_SIGN
     mbedtls_rsa_free( &rsa );
     mbedtls_mpi_free( &N ); mbedtls_mpi_free( &P ); mbedtls_mpi_free( &Q );
     mbedtls_mpi_free( &D ); mbedtls_mpi_free( &E ); mbedtls_mpi_free( &DP );
     mbedtls_mpi_free( &DQ ); mbedtls_mpi_free( &QP );
+#endif
 
     return exit_code;
 }
 
-int ra_iot_mbedtls_verify_sig(void){
+int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key){
+
+    printf("***************\nVerifying Signature: %s\n", KEY_USE(LOAD_KEY_VERIFY));
     FILE *f;
     int ret = 1;
     unsigned c;
     int exit_code = 0;
     size_t i;
+#if LOAD_KEY_VERIFY
     mbedtls_rsa_context rsa;
+#endif
     unsigned char hash[32];
     unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
     char in_filename[512] = "result-enc";
     char filename[512];
     char sig_file[512];
+#if LOAD_KEY_VERIFY
     mbedtls_rsa_init( &rsa, MBEDTLS_RSA_PKCS_V15, 0 );
 
     mbedtls_printf( "\n  . Reading public key from rsa_pub.txt" );
@@ -623,7 +797,7 @@ int ra_iot_mbedtls_verify_sig(void){
     rsa.len = ( mbedtls_mpi_bitlen( &rsa.N ) + 7 ) >> 3;
 
     fclose( f );
-
+#endif
     /*
      * Extract the RSA signature from the text file
      */
@@ -641,8 +815,11 @@ int ra_iot_mbedtls_verify_sig(void){
         buf[i++] = (unsigned char) c;
 
     fclose( f );
-
+#if LOAD_KEY_VERIFY
     if( i != rsa.len )
+#else
+    if( i != key->len )
+#endif
     {
         mbedtls_printf( "\n  ! Invalid RSA signature format\n\n" );
         goto exit;
@@ -663,9 +840,13 @@ int ra_iot_mbedtls_verify_sig(void){
         goto exit;
     }
     
-
+#if LOAD_KEY_VERIFY
     if( ( ret = mbedtls_rsa_pkcs1_verify( &rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256,
                                           32, hash, buf ) ) != 0 )
+#else
+    if( ( ret = mbedtls_rsa_pkcs1_verify( key, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256,
+                                            32, hash, buf ) ) != 0 )
+#endif
     {
         mbedtls_printf( " failed\n  ! mbedtls_rsa_pkcs1_verify returned -0x%0x\n\n", (unsigned int) -ret );
         goto exit;
@@ -677,8 +858,9 @@ int ra_iot_mbedtls_verify_sig(void){
     exit_code = 1;
 
 exit:
-
+#if LOAD_KEY_VERIFY
     mbedtls_rsa_free( &rsa );
+#endif
     return exit_code;
 
 }

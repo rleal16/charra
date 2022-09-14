@@ -10,27 +10,34 @@ int gen_rsa_key( char *path )
     return ra_iot_mbedtls_gen_rsa_key(path);
 }
 
-mbedtls_rsa_context load_key(char *filename)
+mbedtls_rsa_context load_pub_key(char *filename)
 {    
-    return ra_iot_mbedtls_load_key(filename);
+    return ra_iot_mbedtls_load_pub_key(filename);
 }
 
-int ra_iot_encrypt( mbedtls_rsa_context *rsa, unsigned char input[])
+
+mbedtls_rsa_context load_priv_key(char *filename)
+{    
+    return ra_iot_mbedtls_load_priv_key(filename);
+}
+
+
+int ra_iot_encrypt( mbedtls_rsa_context *rsa, unsigned char input[], unsigned char *result)
 {
-    return ra_iot_mbedtls_encrypt(rsa, input);
+    return ra_iot_mbedtls_encrypt(rsa, input, result);
 }
 
-int ra_iot_decrypt(void){
-    return ra_iot_mbedtls_decrypt();
+int ra_iot_decrypt(mbedtls_rsa_context *key, unsigned char *data){
+    return ra_iot_mbedtls_decrypt(key, data);
 }
 
-int ra_iot_sign(void){
-    return ra_iot_mbedtls_sign();
+int ra_iot_sign(mbedtls_rsa_context *key){
+    return ra_iot_mbedtls_sign(key);
 }
 
 
-int ra_iot_verify_sig(void){
-    return ra_iot_mbedtls_verify_sig();
+int ra_iot_verify_sig(mbedtls_rsa_context *key){
+    return ra_iot_mbedtls_verify_sig(key);
 }
 
 
