@@ -304,7 +304,7 @@ exit:
 }
 
 
-int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], unsigned char *buf)
+int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], unsigned char *output)
 {    
     printf("***************\nEncrypting \"%s\": %s\n", input, KEY_USE(LOAD_KEY_DECRYPT));
     
@@ -318,7 +318,15 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], uns
 #endif
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
-    //unsigned char buf[512];
+
+#if WRITE_ENCR_FILE
+    printf("Writing the file with the encryption results\n");
+    unsigned char buf[512];
+#else
+    printf("WITHOUT Writing the file with the encryption results\n");
+    unsigned char *buf = output;
+#endif
+
     const char *pers = "rsa_encrypt";
     
 
@@ -411,6 +419,7 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], uns
     /*
      * Write the signature into result-enc.txt
      */
+#if WRITE_ENCR_FILE
     if( ( f = fopen( "result-enc.txt", "wb+" ) ) == NULL )
     {
         mbedtls_printf( " failed\n  ! Could not create %s\n\n", "result-enc.txt" );
@@ -426,13 +435,11 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], uns
     {
         mbedtls_fprintf( f, "%02X%s", buf[i],
                  ( i + 1 ) % 16 == 0 ? "\r\n" : " " );
-        
-
     }
         
-        
-
     fclose( f );
+    memcpy(output, buf, sizeof(buf)); // must save anyway so that we can test others without reading the file!
+#endif
 
     mbedtls_printf( "\n  . Done (created \"%s\")\n\n", "result-enc.txt" );
 
@@ -448,7 +455,7 @@ exit:
     return exit_code;
 }
 
-int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *data){
+int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result){
 
     printf("***************\nDecrypting Data: %s\n", KEY_USE(LOAD_KEY_DECRYPT));
     
@@ -463,8 +470,15 @@ int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *data){
 #endif
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
-    unsigned char result[1024];
+
+#if READ_ENCR_FILE_2DECRYPT
+    printf("\tReading ecrypted data file\n");
     unsigned char buf[512];
+#else
+    printf("\tNot reading ecrypted data file\n");
+    unsigned char *buf = encr_data;
+#endif
+
     const char *pers = "rsa_decrypt";
 
     memset(result, 0, sizeof( result ) );
@@ -535,7 +549,7 @@ int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *data){
     }
 #endif
 
-#if 0
+#if READ_ENCR_FILE_2DECRYPT
     /*
      * Extract the RSA encrypted value from the text file
      */
@@ -565,9 +579,7 @@ int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *data){
         goto exit;
     }
 
-    
-
-    printf("COMPARING...: %d\n", memcmp(buf, data, (size_t) i));
+    printf("COMPARING...: %d\n", memcmp(buf, encr_data, (size_t) i));
 #endif
 
     /*
@@ -582,7 +594,7 @@ int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *data){
 #else
     ret = mbedtls_rsa_pkcs1_decrypt( key, mbedtls_ctr_drbg_random,
                                                 &ctr_drbg, MBEDTLS_RSA_PRIVATE, &i,
-                                                data, result, 1024 );
+                                                buf, result, 1024 );
 #endif
     if( ret != 0 )
     {
@@ -611,12 +623,10 @@ exit:
 
 }
 
-int ra_iot_mbedtls_sign(mbedtls_rsa_context *key){
+int ra_iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, unsigned char *signature){
 
     //printf("***************\nSigning Data: %s\n", (LOAD_KEY_SIGN ? "by loading the key" : "without loading the key"));
     printf("***************\nSigning Data: %s\n", KEY_USE(LOAD_KEY_SIGN));
-
-    
 
     FILE *f;
     int ret = 1;
@@ -627,7 +637,17 @@ int ra_iot_mbedtls_sign(mbedtls_rsa_context *key){
     mbedtls_mpi N, P, Q, D, E, DP, DQ, QP;
 #endif
     unsigned char hash[32];
+    unsigned char hash_test[32];
+
+#if WRITE_SIGD_FILE
+    printf("\tWriting the signature into a file\n");
     unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
+#else
+    printf("\tWITHOUT Writing the signature into a file\n");
+    unsigned char *buf = signature;
+#endif
+
+    printf("MBEDTLS_MPI_MAX_SIZE: %d\n", MBEDTLS_MPI_MAX_SIZE);
     char filename[512] = "result-enc";
     char in_file[512];
     char sig_file[512];
@@ -695,6 +715,8 @@ int ra_iot_mbedtls_sign(mbedtls_rsa_context *key){
 
     mbedtls_printf( "\n  . Generating the RSA/SHA-256 signature" );
     fflush( stdout );
+#if READ_ENCR_FILE_2SIGN
+    printf("\n\tReading data do sign from file\n");
     mbedtls_snprintf( in_file, sizeof(in_file), "%s.txt", filename );
 
     if( ( ret = mbedtls_md_file(
@@ -704,6 +726,21 @@ int ra_iot_mbedtls_sign(mbedtls_rsa_context *key){
         mbedtls_printf( " failed\n  ! Could not open or read %s\n\n", filename );
         goto exit;
     }
+    printf("\t\tHash size: %d (%d)\n", strlen(hash), sizeof(hash));    
+#else
+    printf("\n\tWITHOUT Reading data do sign from file\n");
+    if( ( ret = mbedtls_md(
+                    mbedtls_md_info_from_type( MBEDTLS_MD_SHA256 ),
+                    data, strlen(data), hash ) ) != 0 )
+    {
+        mbedtls_printf( " failed\n  ! Could not open or read %s\n\n", filename );
+        goto exit;
+    }
+    printf("\t\t--Hash size: %d (%d)\n", (int) strlen(hash), (int) sizeof(hash));
+#endif
+
+
+
 #if LOAD_KEY_SIGN
     if( ( ret = mbedtls_rsa_pkcs1_sign( &rsa, NULL, NULL, MBEDTLS_RSA_PRIVATE, MBEDTLS_MD_SHA256,
                                 32, hash, buf ) ) != 0 )
@@ -721,6 +758,7 @@ int ra_iot_mbedtls_sign(mbedtls_rsa_context *key){
 
 #endif
 
+#if WRITE_SIGD_FILE
     /*
      * Write the signature into <filename>.sig
      */
@@ -740,6 +778,8 @@ int ra_iot_mbedtls_sign(mbedtls_rsa_context *key){
                  ( i + 1 ) % 16 == 0 ? "\r\n" : " " );
 
     fclose( f );
+    memcpy(signature, buf, sizeof(buf)); // must save anyway so that we can test others without reading the file!
+#endif
 
     mbedtls_printf( "\n  . Done (created \"%s\")\n\n", sig_file );
 
@@ -757,7 +797,7 @@ exit:
     return exit_code;
 }
 
-int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key){
+int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data){
 
     printf("***************\nVerifying Signature: %s\n", KEY_USE(LOAD_KEY_VERIFY));
     FILE *f;
@@ -773,6 +813,7 @@ int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key){
     char in_filename[512] = "result-enc";
     char filename[512];
     char sig_file[512];
+
 #if LOAD_KEY_VERIFY
     mbedtls_rsa_init( &rsa, MBEDTLS_RSA_PKCS_V15, 0 );
 
@@ -825,6 +866,7 @@ int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key){
         goto exit;
     }
 
+#if READ_ENCR_FILE_2SIGN
     /*
      * Compute the SHA-256 hash of the input file and
      * verify the signature
@@ -839,6 +881,17 @@ int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key){
         mbedtls_printf( " failed\n  ! Could not open or read %s\n\n", filename );
         goto exit;
     }
+#else
+    printf("\n\tWITHOUT Reading data do verify from file\n");
+    if( ( ret = mbedtls_md(
+                    mbedtls_md_info_from_type( MBEDTLS_MD_SHA256 ),
+                    data, strlen(data), hash ) ) != 0 )
+    {
+        mbedtls_printf( " failed\n  ! Could not open or read %s\n\n", filename );
+        goto exit;
+    }
+
+#endif
     
 #if LOAD_KEY_VERIFY
     if( ( ret = mbedtls_rsa_pkcs1_verify( &rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256,

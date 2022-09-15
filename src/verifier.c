@@ -49,7 +49,7 @@
 #include "ra_iot_libs/ra_iot_dto.h"
 #include "ra_iot_libs/ra_iot_memory_mgmt.h"
 #include "ra_iot_libs/ra_iot_crypto.h"
-
+#define FORCE_EXIT 1 // interrupts the code execution at a given point for testing purposes
 
 #define CHARRA_UNUSED __attribute__((unused))
 
@@ -131,6 +131,10 @@ int main(int argc, char** argv) {
 	//sprintf(kfile, "rsa_pub.txt");
 	//call_load_key(kfile);
 	unsigned char encrypted[512];
+	unsigned char decrypted[512];
+	unsigned char signature[MBEDTLS_MPI_MAX_SIZE];
+	unsigned char input[100] = "Uma string em C";
+
 	int val = gen_rsa_key("");
 	mbedtls_rsa_context rsa_pub = load_pub_key("rsa_pub.txt");
 	mbedtls_rsa_context rsa_priv = load_priv_key("rsa_priv.txt");
@@ -139,20 +143,18 @@ int main(int argc, char** argv) {
 	printf("Key Pair is: %s\n", (mbedtls_rsa_check_pub_priv(&rsa_pub, &rsa_priv) == 0 ? "Ok" : "Bad!"));
 	printf("Public key is: %s\n", (mbedtls_rsa_check_pubkey(&rsa_pub) == 0 ? "Ok" : "Bad!"));
 	printf("Private key is: %s\n", (mbedtls_rsa_check_privkey(&rsa_priv) == 0 ? "Ok" : "Bad!"));
-	printf("\n*****************************\n");
-
-	unsigned char input[100] = "Uma string em C";
-	
+	printf("\n*****************************\n");	
 
 	ra_iot_encrypt(&rsa_pub, input, encrypted);
-	ra_iot_sign(&rsa_priv);
-	int res = ra_iot_verify_sig(&rsa_pub);
+	ra_iot_sign(&rsa_priv, encrypted, signature);
+	int res = ra_iot_verify_sig(&rsa_pub, encrypted);
 	printf("Verification result: %d\n", res);
-	ra_iot_decrypt(&rsa_priv, encrypted);
+	ra_iot_decrypt(&rsa_priv, encrypted, decrypted);
+
+	printf("[Verifier] The decrypted result is: '%s'\n\n", decrypted);
 
 	mbedtls_rsa_free( &rsa_pub );
 	mbedtls_rsa_free( &rsa_priv );
-
 	
 	printf("\n\n\n[In VERIFER ==>>]\n");
 	
@@ -261,6 +263,11 @@ int main(int argc, char** argv) {
 	coap_session_t* coap_session = NULL;
 	coap_optlist_t* coap_options = NULL;
 	uint8_t* req_buf = NULL; // TODO make dynamic
+
+#if FORCE_EXIT
+	printf("FORCE EXIT!\n");
+	goto cleanup;
+#endif
 
 	if (use_dtls_psk && use_dtls_rpk) {
 		charra_log_error(

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 // Do teste
-#include "ra_iot_mbedtls.h"
 #include "ra_iot_crypto.h"
 
 int gen_rsa_key( char *path )
@@ -22,22 +21,24 @@ mbedtls_rsa_context load_priv_key(char *filename)
 }
 
 
-int ra_iot_encrypt( mbedtls_rsa_context *rsa, unsigned char input[], unsigned char *result)
+int ra_iot_encrypt( mbedtls_rsa_context *key, unsigned char input[], unsigned char *output )
 {
-    return ra_iot_mbedtls_encrypt(rsa, input, result);
+    return ra_iot_mbedtls_encrypt(key, input, output);
 }
 
-int ra_iot_decrypt(mbedtls_rsa_context *key, unsigned char *data){
-    return ra_iot_mbedtls_decrypt(key, data);
+int ra_iot_decrypt(mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result){
+    
+    return ra_iot_mbedtls_decrypt(key, encr_data, result);
 }
 
-int ra_iot_sign(mbedtls_rsa_context *key){
-    return ra_iot_mbedtls_sign(key);
+int ra_iot_sign(mbedtls_rsa_context *key, unsigned char *data, unsigned char *signature){
+    return ra_iot_mbedtls_sign(key, data, signature);
 }
 
 
-int ra_iot_verify_sig(mbedtls_rsa_context *key){
-    return ra_iot_mbedtls_verify_sig(key);
+int ra_iot_verify_sig(mbedtls_rsa_context *key, unsigned char *data){
+    
+    return ra_iot_mbedtls_verify_sig(key, data);
 }
 
 
