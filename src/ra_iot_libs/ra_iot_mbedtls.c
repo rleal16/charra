@@ -306,7 +306,7 @@ exit:
 
 int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], unsigned char *output)
 {    
-    printf("***************\nEncrypting \"%s\": %s\n", input, KEY_USE(LOAD_KEY_DECRYPT));
+    printf("\n\t\t***************\nEncrypting \"%s\": %s\n", input, KEY_USE(LOAD_KEY_DECRYPT));
     
     FILE *f;
     int ret = 1;
@@ -393,7 +393,7 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], uns
         mbedtls_printf( " Input data larger than %d characters.\n\n", max_size_allowed );
         goto exit;
     }else{
-        printf("Input %s\n", input);
+        printf("\n\tInput %s\n", input);
     }
 
     /*
@@ -457,7 +457,7 @@ exit:
 
 int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result){
 
-    printf("***************\nDecrypting Data: %s\n", KEY_USE(LOAD_KEY_DECRYPT));
+    printf("\n\t\t***************\nDecrypting Data: %s\n", KEY_USE(LOAD_KEY_DECRYPT));
     
     FILE *f;
     int ret = 1;
@@ -568,6 +568,7 @@ int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *encr_data, u
     }
 
     fclose( f );
+
 #if LOAD_KEY_DECRYPT
     if( i != rsa.len )
 #else
@@ -626,7 +627,7 @@ exit:
 int ra_iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, unsigned char *signature){
 
     //printf("***************\nSigning Data: %s\n", (LOAD_KEY_SIGN ? "by loading the key" : "without loading the key"));
-    printf("***************\nSigning Data: %s\n", KEY_USE(LOAD_KEY_SIGN));
+    printf("\n\t\t***************\nSigning Data: %s\n", KEY_USE(LOAD_KEY_SIGN));
 
     FILE *f;
     int ret = 1;
@@ -727,6 +728,7 @@ int ra_iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, unsigned 
         goto exit;
     }
     printf("\t\tHash size: %d (%d)\n", strlen(hash), sizeof(hash));    
+    
 #else
     printf("\n\tWITHOUT Reading data do sign from file\n");
     if( ( ret = mbedtls_md(
@@ -797,9 +799,9 @@ exit:
     return exit_code;
 }
 
-int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data){
+int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data, unsigned char *signature){
 
-    printf("***************\nVerifying Signature: %s\n", KEY_USE(LOAD_KEY_VERIFY));
+    printf("\n\t\t***************\nVerifying Signature: %s\n", KEY_USE(LOAD_KEY_VERIFY));
     FILE *f;
     int ret = 1;
     unsigned c;
@@ -809,10 +811,19 @@ int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data){
     mbedtls_rsa_context rsa;
 #endif
     unsigned char hash[32];
+    unsigned char file_data[512];
+#if READ_SIG_FILE_2VERIFY
+    pritnf("\t -> By reading the signature")
     unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
+    char sig_file[512];
+#else
+    unsigned char *buf = signature;
+#endif
+
+#if READ_ENCR_FILE_2SIGN
     char in_filename[512] = "result-enc";
     char filename[512];
-    char sig_file[512];
+#endif
 
 #if LOAD_KEY_VERIFY
     mbedtls_rsa_init( &rsa, MBEDTLS_RSA_PKCS_V15, 0 );
@@ -839,6 +850,8 @@ int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data){
 
     fclose( f );
 #endif
+
+#if READ_SIG_FILE_2VERIFY
     /*
      * Extract the RSA signature from the text file
      */
@@ -865,34 +878,39 @@ int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data){
         mbedtls_printf( "\n  ! Invalid RSA signature format\n\n" );
         goto exit;
     }
+#endif
 
-#if READ_ENCR_FILE_2SIGN
+// if the ra_iot_mbedtls_sign did not use the file as data to sign, this function can not use it to verify: hashes will be different (not sure why...).
+mbedtls_printf( "\n  . Verifying the RSA/SHA-256 signature" );
+#if READ_ENCR_FILE_2SIGN 
     /*
      * Compute the SHA-256 hash of the input file and
      * verify the signature
      */
-    mbedtls_printf( "\n  . Verifying the RSA/SHA-256 signature" );
+
+    
     fflush( stdout );
     mbedtls_snprintf( filename, sizeof(filename), "%s.txt", in_filename );
-    if( ( ret = mbedtls_md_file(
-                    mbedtls_md_info_from_type( MBEDTLS_MD_SHA256 ),
-                    filename, hash ) ) != 0 )
+    if( ( ret = mbedtls_md_file(mbedtls_md_info_from_type( MBEDTLS_MD_SHA256 ), filename, hash ) ) != 0 )
     {
         mbedtls_printf( " failed\n  ! Could not open or read %s\n\n", filename );
         goto exit;
     }
+    printf("\tComparing hashes in decrypt: %d -> i = %d\n", memcmp(buf, data, strlen(buf)), i);
+    i = 0;
 #else
     printf("\n\tWITHOUT Reading data do verify from file\n");
     if( ( ret = mbedtls_md(
                     mbedtls_md_info_from_type( MBEDTLS_MD_SHA256 ),
                     data, strlen(data), hash ) ) != 0 )
     {
-        mbedtls_printf( " failed\n  ! Could not open or read %s\n\n", filename );
+        mbedtls_printf( " failed\n  ! mbedtls_md returned -0x%0x\n\n", (unsigned int) -ret );
         goto exit;
     }
 
 #endif
-    
+
+
 #if LOAD_KEY_VERIFY
     if( ( ret = mbedtls_rsa_pkcs1_verify( &rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256,
                                           32, hash, buf ) ) != 0 )
@@ -905,7 +923,7 @@ int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data){
         goto exit;
     }
 
-    mbedtls_printf( "\n  . OK (the signature is valid)\n\n" );
+    mbedtls_printf( "\n  . OK (the signature is valid) Returned -0x%0x\n\n",  (unsigned int) -ret );
 
 
     exit_code = 1;

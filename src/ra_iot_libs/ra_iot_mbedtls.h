@@ -28,12 +28,12 @@
 #define LOAD_KEY_VERIFY 0 // load the key (or not) in function ra_iot_mbedtls_verify_sig
 
 // Ter testing using input/output data in memory instead of reading text files
-#define WRITE_ENCR_FILE 1
+#define WRITE_ENCR_FILE 0
 #define READ_ENCR_FILE_2DECRYPT (!WRITE_ENCR_FILE ? WRITE_ENCR_FILE : 0)
 #define READ_ENCR_FILE_2SIGN (!WRITE_ENCR_FILE ? WRITE_ENCR_FILE : 0)
-#define READ_ENCR_FILE_2VERIFY (!WRITE_ENCR_FILE ? WRITE_ENCR_FILE : 1)
+#define READ_ENCR_FILE_2VERIFY (!WRITE_ENCR_FILE ? WRITE_ENCR_FILE : 0)
 
-#define WRITE_SIGD_FILE 1
+#define WRITE_SIGD_FILE 0
 #define READ_SIGD_FILE_2VERIFY (!WRITE_SIGD_FILE ? WRITE_SIGD_FILE : 1)
 
 int ra_iot_mbedtls_gen_rsa_key( char *path );
@@ -42,6 +42,6 @@ mbedtls_rsa_context ra_iot_mbedtls_load_priv_key(char *filename);
 int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], unsigned char *output );
 int ra_iot_mbedtls_decrypt( mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result );
 int ra_iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, unsigned char *signature);
-int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data);
+int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data, unsigned char *signature);
 
 void ra_iot_mbedtls_print_rsa_pubkey(mbedtls_rsa_context rsa);

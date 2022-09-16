@@ -36,9 +36,9 @@ int ra_iot_sign(mbedtls_rsa_context *key, unsigned char *data, unsigned char *si
 }
 
 
-int ra_iot_verify_sig(mbedtls_rsa_context *key, unsigned char *data){
+int ra_iot_verify_sig(mbedtls_rsa_context *key, unsigned char *data, unsigned char *signature){
     
-    return ra_iot_mbedtls_verify_sig(key, data);
+    return ra_iot_mbedtls_verify_sig(key, data, signature);
 }
 
 

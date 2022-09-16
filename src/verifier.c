@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
 	unsigned char encrypted[512];
 	unsigned char decrypted[512];
 	unsigned char signature[MBEDTLS_MPI_MAX_SIZE];
-	unsigned char input[100] = "Uma string em C";
+	unsigned char input[100] = "Uma string em C, grande e com algum texto....";
 
 	int val = gen_rsa_key("");
 	mbedtls_rsa_context rsa_pub = load_pub_key("rsa_pub.txt");
@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
 
 	ra_iot_encrypt(&rsa_pub, input, encrypted);
 	ra_iot_sign(&rsa_priv, encrypted, signature);
-	int res = ra_iot_verify_sig(&rsa_pub, encrypted);
+	int res = ra_iot_verify_sig(&rsa_pub, encrypted, signature);
 	printf("Verification result: %d\n", res);
 	ra_iot_decrypt(&rsa_priv, encrypted, decrypted);
 
