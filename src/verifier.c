@@ -49,7 +49,7 @@
 #include "ra_iot_libs/ra_iot_dto.h"
 #include "ra_iot_libs/ra_iot_memory_mgmt.h"
 #include "ra_iot_libs/ra_iot_crypto.h"
-#define FORCE_EXIT 1 // interrupts the code execution at a given point for testing purposes
+#define FORCE_EXIT 0 // interrupts the code execution at a given point for testing purposes
 
 #define CHARRA_UNUSED __attribute__((unused))
 
@@ -123,21 +123,27 @@ static msg_attestation_response_dto last_response = {0};
 
 int main(int argc, char** argv) {
 	CHARRA_RC result = EXIT_FAILURE;
-	
+	int ret_code;
 	printf("\n\n\n[ ==>> In VERIFER's Main!]\n");
 	ra_iot_attest_dto stuff;
 	//call_rsa_genkey();
 	//char kfile[128];
 	//sprintf(kfile, "rsa_pub.txt");
 	//call_load_key(kfile);
-	unsigned char encrypted[512];
-	unsigned char decrypted[512];
-	unsigned char signature[MBEDTLS_MPI_MAX_SIZE];
-	unsigned char input[100] = "Uma string em C, grande e com algum texto....";
 
+
+ 	/* unsigned char encrypted[512] = {0}; 
+	unsigned char decrypted[512] = {0};
+	unsigned char signature[MBEDTLS_MPI_MAX_SIZE] = {0};
+	mbedtls_rsa_context rsa_pub;
+	mbedtls_rsa_context rsa_priv;
+	
+	unsigned char input[100] = "Uma string em C, grande e com algum texto....";
 	int val = gen_rsa_key("");
-	mbedtls_rsa_context rsa_pub = load_pub_key("rsa_pub.txt");
-	mbedtls_rsa_context rsa_priv = load_priv_key("rsa_priv.txt");
+	ret_code = load_pub_key("rsa_pub.txt", &rsa_pub);
+	printf("Load public key: %d\n", ret_code);
+	ret_code = load_priv_key("rsa_priv.txt", &rsa_priv);
+	printf("Load public private key: %d\n", ret_code);
 	printf("\n*****************************\n");
 	printf("\nChecking keys\n");
 	printf("Key Pair is: %s\n", (mbedtls_rsa_check_pub_priv(&rsa_pub, &rsa_priv) == 0 ? "Ok" : "Bad!"));
@@ -145,16 +151,20 @@ int main(int argc, char** argv) {
 	printf("Private key is: %s\n", (mbedtls_rsa_check_privkey(&rsa_priv) == 0 ? "Ok" : "Bad!"));
 	printf("\n*****************************\n");	
 
-	ra_iot_encrypt(&rsa_pub, input, encrypted);
-	ra_iot_sign(&rsa_priv, encrypted, signature);
-	int res = ra_iot_verify_sig(&rsa_pub, encrypted, signature);
-	printf("Verification result: %d\n", res);
+	ret_code = ra_iot_encrypt(&rsa_pub, input, strlen(input), encrypted);
+	printf("Encrypt: %d\n", ret_code);
+	ret_code = ra_iot_sign(&rsa_priv, encrypted, strlen(encrypted), signature);
+	printf("Sign: %d\n", ret_code);
+	ret_code = ra_iot_verify_sig(&rsa_pub, encrypted, strlen(encrypted), signature);
+	printf("Verification result: %d\n", ret_code);
+	printf("Verify sig: %d\n", ret_code);
 	ra_iot_decrypt(&rsa_priv, encrypted, decrypted);
+	printf("Decrypt sig: %d\n", ret_code);
 
 	printf("[Verifier] The decrypted result is: '%s'\n\n", decrypted);
 
 	mbedtls_rsa_free( &rsa_pub );
-	mbedtls_rsa_free( &rsa_priv );
+	mbedtls_rsa_free( &rsa_priv );  */
 	
 	printf("\n\n\n[In VERIFER ==>>]\n");
 	
@@ -570,8 +580,7 @@ static coap_response_t coap_attest_handler(
 	const uint8_t* data = NULL;
 	size_t data_offset = 0;
 	size_t data_total_len = 0;
-	if ((coap_r = coap_get_data_large(
-			 in, &data_len, &data, &data_offset, &data_total_len)) == 0) {
+	if ((coap_r = coap_get_data_large(in, &data_len, &data, &data_offset, &data_total_len)) == 0) {
 		charra_log_error("[" LOG_NAME "] Could not get CoAP PDU data.");
 		attestation_rc = CHARRA_RC_ERROR;
 		goto cleanup;
@@ -590,7 +599,11 @@ static coap_response_t coap_attest_handler(
 		charra_log_error("[" LOG_NAME "] Could not parse CBOR data.");
 		goto cleanup;
 	}
-
+	
+	//crypto_test(data, data_len);
+	//printf("[DATA]: '%s'\n\n", data);
+	
+	
 	/* store last response */
 	last_response = res;
 
@@ -702,6 +715,7 @@ static coap_response_t coap_attest_handler(
 		goto cleanup;
 	}
 
+	
 	/* --- verify nonce --- */
 	bool attestation_result_nonce = false;
 	{
