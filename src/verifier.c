@@ -49,6 +49,7 @@
 #include "ra_iot_libs/ra_iot_dto.h"
 #include "ra_iot_libs/ra_iot_memory_mgmt.h"
 #include "ra_iot_libs/ra_iot_crypto.h"
+#include "ra_iot_libs/ra_iot_test.h"
 #define FORCE_EXIT 0 // interrupts the code execution at a given point for testing purposes
 
 #define CHARRA_UNUSED __attribute__((unused))
@@ -125,47 +126,9 @@ int main(int argc, char** argv) {
 	CHARRA_RC result = EXIT_FAILURE;
 	int ret_code;
 	printf("\n\n\n[ ==>> In VERIFER's Main!]\n");
-	ra_iot_attest_dto stuff;
-	//call_rsa_genkey();
-	//char kfile[128];
-	//sprintf(kfile, "rsa_pub.txt");
-	//call_load_key(kfile);
-
-
- 	/* unsigned char encrypted[512] = {0}; 
-	unsigned char decrypted[512] = {0};
-	unsigned char signature[MBEDTLS_MPI_MAX_SIZE] = {0};
-	mbedtls_rsa_context rsa_pub;
-	mbedtls_rsa_context rsa_priv;
 	
-	unsigned char input[100] = "Uma string em C, grande e com algum texto....";
-	int val = gen_rsa_key("");
-	ret_code = load_pub_key("rsa_pub.txt", &rsa_pub);
-	printf("Load public key: %d\n", ret_code);
-	ret_code = load_priv_key("rsa_priv.txt", &rsa_priv);
-	printf("Load public private key: %d\n", ret_code);
-	printf("\n*****************************\n");
-	printf("\nChecking keys\n");
-	printf("Key Pair is: %s\n", (mbedtls_rsa_check_pub_priv(&rsa_pub, &rsa_priv) == 0 ? "Ok" : "Bad!"));
-	printf("Public key is: %s\n", (mbedtls_rsa_check_pubkey(&rsa_pub) == 0 ? "Ok" : "Bad!"));
-	printf("Private key is: %s\n", (mbedtls_rsa_check_privkey(&rsa_priv) == 0 ? "Ok" : "Bad!"));
-	printf("\n*****************************\n");	
-
-	ret_code = ra_iot_encrypt(&rsa_pub, input, strlen(input), encrypted);
-	printf("Encrypt: %d\n", ret_code);
-	ret_code = ra_iot_sign(&rsa_priv, encrypted, strlen(encrypted), signature);
-	printf("Sign: %d\n", ret_code);
-	ret_code = ra_iot_verify_sig(&rsa_pub, encrypted, strlen(encrypted), signature);
-	printf("Verification result: %d\n", ret_code);
-	printf("Verify sig: %d\n", ret_code);
-	ra_iot_decrypt(&rsa_priv, encrypted, decrypted);
-	printf("Decrypt sig: %d\n", ret_code);
-
-	printf("[Verifier] The decrypted result is: '%s'\n\n", decrypted);
-
-	mbedtls_rsa_free( &rsa_pub );
-	mbedtls_rsa_free( &rsa_priv );  */
-	
+	/* attest_res_marshall_unmarshal_test();
+	printf("Fora da função"); */
 	printf("\n\n\n[In VERIFER ==>>]\n");
 	
 	/* handle SIGINT */
@@ -568,6 +531,14 @@ static coap_response_t coap_attest_handler(
 	TPMT_TK_VERIFIED* validation = NULL;
 
 	processing_response = true;
+	
+	printf("\n\n****************************************\n");
+	printf("Testing reference values loading\n");
+	ref_values_dto ref_values;
+	ra_iot_load_ref_values(&ref_values);
+	printf("Reference values are:\n");
+	printf("\tReference values are (%zu): %s\n", ref_values.ref_values_len, (char*)ref_values.ref_values);
+	printf("\n****************************************\n");
 
 	charra_log_info(
 		"[" LOG_NAME "] Resource '%s': Received message.", "attest");
@@ -600,8 +571,8 @@ static coap_response_t coap_attest_handler(
 		goto cleanup;
 	}
 	
-	//crypto_test(data, data_len);
-	//printf("[DATA]: '%s'\n\n", data);
+	/* crypto_test(data, data_len);
+	printf("[DATA]: '%s'\n\n", data); */
 	
 	
 	/* store last response */

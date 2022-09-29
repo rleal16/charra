@@ -42,6 +42,15 @@
 #include "util/io_util.h"
 #include "util/tpm2_util.h"
 
+
+
+/* ---------- Arcadian IoT Remote Attestation Libraries */
+#include "ra_iot_libs/ra_iot_dto.h"
+#include "ra_iot_libs/ra_iot_memory_mgmt.h"
+#include "ra_iot_libs/ra_iot_crypto.h"
+#include "ra_iot_libs/ra_iot_test.h"
+
+
 #define CHARRA_UNUSED __attribute__((unused))
 
 /* --- config ------------------------------------------------------------- */
@@ -93,7 +102,7 @@ static void coap_attest_handler(struct coap_context_t* ctx,
 
 int main(int argc, char** argv) {
 	int result = EXIT_FAILURE;
-
+	
 	/* handle SIGINT */
 	signal(SIGINT, handle_sigint);
 
@@ -294,6 +303,13 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	ESYS_TR sig_key_handle = ESYS_TR_NONE;
 	TPM2B_PUBLIC* public_key = NULL;
 
+#if TEST_MARSHALLING	
+	attest_res_marshall_unmarshal_test();
+	printf("Saí da função\n");
+#else
+	
+
+#endif
 	/* --- receive incoming data --- */
 
 	charra_log_info(
@@ -416,7 +432,7 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	/* prepare response DTO */
 	msg_attestation_response_dto res = {
 		.attestation_data_len = attest_buf->size,
-		.attestation_data = {0}, // must be memcpy'd, see below
+		.attestation_data = {0}, // must be memcpy'd, see below	
 		.tpm2_signature_len = sizeof(*signature),
 		.tpm2_signature = {0}, // must be memcpy'd, see below
 		.tpm2_public_key_len = sizeof(*public_key),
@@ -424,8 +440,7 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 		.event_log_len = ima_event_log_len,
 		.event_log = ima_event_log,
 	};
-	memcpy(res.attestation_data, attest_buf->attestationData,
-		res.attestation_data_len);
+	memcpy(res.attestation_data, attest_buf->attestationData,res.attestation_data_len);
 	memcpy(res.tpm2_signature, signature, res.tpm2_signature_len);
 	memcpy(res.tpm2_public_key, public_key, res.tpm2_public_key_len);
 
