@@ -533,11 +533,7 @@ static coap_response_t coap_attest_handler(
 	processing_response = true;
 	
 	printf("\n\n****************************************\n");
-	printf("Testing reference values loading\n");
-	ref_values_dto ref_values;
-	ra_iot_load_ref_values(&ref_values);
-	printf("Reference values are:\n");
-	printf("\tReference values are (%zu): %s\n", ref_values.ref_values_len, (char*)ref_values.ref_values);
+	test_ref_values();
 	printf("\n****************************************\n");
 
 	charra_log_info(

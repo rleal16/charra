@@ -5,6 +5,8 @@
 #include <string.h>
 #include <assert.h>
 
+
+
 int equal_attest_res_lens(ra_iot_msg_attestation_response_dto attest1, ra_iot_msg_attestation_response_dto attest2){
     int eq = 1;
     if((int) attest1.attestation_data_len != (int) attest2.attestation_data_len){
@@ -108,16 +110,24 @@ void attest_res_marshall_unmarshal_test(){
 
     /* Generate attestation response data */
     printf("\tGenerate attestation data\n");
-
-    uint8_t *event_log = (uint8_t *)"This is an event log!";
+#if 0
+    uint8_t *event_log = malloc(sizeof(uint8_t)*128);
+    strcpy(event_log, "This is an event log!");
+    //uint8_t *event_log = strdup("This is an event log!");
 	size_t event_log_len = strlen(event_log);
     printf("Event log FIRST: %s\n", event_log);
+#else
+    uint8_t *event_log = malloc(sizeof(uint8_t)*128);
+    uint32_t event_log_len;
+    ra_iot_get_log_data(event_log, &event_log_len);
+#endif
+
     ra_iot_attest_dto att_data, new_att_data;
     
     sprintf(att_data.nonce, "O Nonce...");
     att_data.nonce_len = (uint32_t)strlen((char*)att_data.nonce);
     
-    sprintf(att_data.data, "Attestation ...");
+    sprintf(att_data.data, "Attestation Data ...");
     att_data.data_len = (uint32_t)strlen((char*)att_data.data);
     att_data.data[att_data.data_len+1]='\0';
     printf("\n+-+-+-+-+-+-+-+-+-+-+-+-\n");
@@ -248,12 +258,15 @@ void attest_res_marshall_unmarshal_test(){
         memcpy(event_log2, attest_unmarshaled.event_log, attest_unmarshaled.event_log_len);
         //char *event_log2 = (char*)attest_unmarshaled.event_log;
         event_log2[attest_unmarshaled.event_log_len] = '\0';
-        attest_unmarshaled.event_log[0] = 'Z';
+        
         event_log2[0] = 'H';
+        
+        //strcat(event_log, " isto!");
+        free(event_log);
         printf("-> Event log Orig: %s\n", event_log);
         printf("-> Event log Unmarshalled: %s\n", attest_unmarshaled.event_log);
         printf("-> Event log 2: %s\n", event_log2);
-        //free(event_log2);
+        
     }
     
     // Verify signature of the encrypted attestation data
@@ -265,8 +278,9 @@ void attest_res_marshall_unmarshal_test(){
     uint8_t decr_res[512];
     res = ra_iot_decrypt(&encr_priv_key, attest_unmarshaled.attestation_data, decr_res);
     printf("Decrypting: %s\n", (res ? "Ok!" : "Bad!"));
-    att_data.nonce[2] = "z";
-    printf("att_data nonce: %s\n", att_data.nonce);
+    //att_data.nonce[2] = "f";
+    strcat(att_data.nonce, " nc");
+    print_attest_data(att_data);
     
     memcpy(&new_att_data, decr_res, sizeof(ra_iot_attest_dto));
     printf("\n*****\n");
@@ -286,6 +300,35 @@ void attest_res_marshall_unmarshal_test(){
     mbedtls_rsa_free( &encr_priv_key );
     
 }
+
+void test_ref_values(){
+    printf("Testing reference values loading\n");
+	ref_values_dto ref_values;
+	ra_iot_load_ref_values(&ref_values);
+	printf("Reference values are:\n");
+	printf("\tReference values are (%zu): %s\n", ref_values.ref_values_len, (char*)ref_values.ref_values);
+
+    printf("\nGenerating Evidence\n");
+    ra_iot_attest_dto att_data;
+    sprintf(att_data.nonce, "O Nonce...");
+    att_data.nonce_len = (uint32_t)strlen((char*)att_data.nonce);
+    sprintf(att_data.data, "Reference values");
+    att_data.data_len = (uint32_t)strlen((char*)att_data.data);
+    print_attest_data(att_data);
+    printf("\n+-+-+-+-+-+-+-+-+-+-+-+-\n");
+
+    printf("Generating attestation results\n");
+    attest_res att_res;
+    // initialize the fields no related with this test, to use the whole ra_iot_print_attest_res function.
+    att_res.valid_signature_size = att_res.valid_attest_data_signature = att_res.valid_nonce = att_res.valid_event_log = true;
+    att_res.valid_against_ref_values = false;
+    printf("Checking reference values... The result is: %s\n", PRINT_BOOL(ra_iot_check_ref_values(ref_values, att_data, &att_res)));
+    printf("\n\tAttesation Results...\n");
+    ra_iot_print_attest_res(att_res);
+}
+
+
+
 
 
 void crypto_test(unsigned char *input, size_t i_len){

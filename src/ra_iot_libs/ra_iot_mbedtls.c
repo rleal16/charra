@@ -74,7 +74,7 @@ int cpm_pub_keys(mbedtls_rsa_context rsa1, mbedtls_rsa_context rsa2){
     return 1;
 }
 
-void load_ecrypt_from_str(uint8_t *input, int i_len, unsigned char *output){
+/* void load_ecrypt_from_str(uint8_t *input, int i_len, unsigned char *output){
     unsigned c;
     int i;
     for( i = 0; i < i_len; i++ ){
@@ -91,7 +91,7 @@ void save_ecrypt_to_str(uint8_t *input, int i_len, char *output){
         printf("%02X", input[i]);
     printf("\r[END] save_ecrypt_to_str\n");
 }
-
+ */
 
 
 /****************************************************/
@@ -251,8 +251,6 @@ exit:
     return exit_code;
 
 }
-
-
 
 /* Load public key from a file to a bufffer */
 int ra_iot_mbedtls_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes) 

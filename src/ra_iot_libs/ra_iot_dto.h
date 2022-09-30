@@ -17,7 +17,7 @@ typedef struct {
 
 /* Structure that holds data related with a given claim selection */
 typedef struct {
-	//uint32_t selection_len;
+	uint32_t selection_len;
 	uint8_t selection[1];
 } claim_selection_dto;
 
@@ -40,8 +40,20 @@ typedef struct {
 	bool valid_nonce; // true se o nonce for válido`
 	bool valid_against_ref_values; // true se a evidência for válida quando comparada com o valores de referência`
 	bool valid_event_log; // true se os dados do event log foram válidos -- seja lá o que isso quer dizer`
-	bool valid_claims;
+	//bool valid_claims;
 }attest_res;
+
+
+
+
+typedef struct {
+	size_t nonce_len;
+	uint8_t nonce[128]; // temporary length
+	uint32_t claim_selections_len; // number of claim selections
+	claim_selection_dto claim_selections[2]; // 2 for testing
+	bool get_logs; // true if the verifier wants logs
+} ra_iot_msg_attestation_request_dto;
+
 
 typedef struct {
 	uint32_t attestation_data_len;
@@ -52,15 +64,6 @@ typedef struct {
 
 	uint32_t public_key_len;
 	uint8_t public_key[KEY_SIZE]; //chave pública usada para assinar que corresponde (futuramente) à chave do eSIM.
-	
-	/* Provavelmente, isto não vai ser necessário na versão final do P1.
-
-	uint32_t e_sim_key_len; // tamanho da chave pública do eSIM
-	uint8_t* e_sim_key; // chave pública do eSIM
-
-	uint32_t e_sim_crt_len; // tamanho do certificado da chave pública do eSIM
-	uint8_t* e_sim_crt; // certificado da chave pública do eSIM
-	*/
 
 	uint32_t event_log_len; // o tamanho dos logs
 	uint8_t* event_log; // por agora é uma dummy variable representando os dados do logs
