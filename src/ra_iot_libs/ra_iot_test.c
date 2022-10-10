@@ -123,25 +123,30 @@ void attest_res_marshall_unmarshal_test(){
 #endif
 
     ra_iot_attest_dto att_data, new_att_data;
+    att_data.nonce_len = 20;
+    ra_iot_generate_nonce(att_data.nonce_len, &(att_data.nonce));
     
-    sprintf(att_data.nonce, "O Nonce...");
-    att_data.nonce_len = (uint32_t)strlen((char*)att_data.nonce);
+    /* sprintf(att_data.nonce, "O Nonce...");
+    att_data.nonce_len = (uint32_t)strlen((char*)att_data.nonce); */
     
-    sprintf(att_data.data, "Attestation Data ...");
+    sprintf(att_data.data, "Attestation Data ..");
     att_data.data_len = (uint32_t)strlen((char*)att_data.data);
     att_data.data[att_data.data_len+1]='\0';
+    
     printf("\n+-+-+-+-+-+-+-+-+-+-+-+-\n");
-    print_attest_data(att_data);
+    print_attest_data(&att_data);
     /* Encrypt attestation data */
 
     size_t attest_data_buf_len = sizeof(ra_iot_attest_dto);
     uint8_t attest_data_buf[sizeof(ra_iot_attest_dto)];
+    
     printf("\n>>>>>>>>>>>>>>>>>>>>>>>\n");
     memset(attest_data_buf, 0, attest_data_buf_len);
     memcpy((void *)attest_data_buf, (void *)&att_data, sizeof(ra_iot_attest_dto));
     ra_iot_attest_dto dt2;
     memcpy(&dt2, attest_data_buf, sizeof(ra_iot_attest_dto));
-    print_attest_data(dt2);
+    print_attest_data(&dt2);
+    
     printf("\n\n+++++++++++++++++++++++++++++++++\n");
     printf("Encryption test\n");
     uint8_t encr_attest_data[256];
@@ -162,9 +167,10 @@ void attest_res_marshall_unmarshal_test(){
         res = ra_iot_mbedtls_decrypt(&encr_priv_key, encr_attest_data, decryted_data);
         printf("\rInitial Decryption was %s\n", (res ? "Successfull!" : "Wrong!"));
         ra_iot_attest_dto dt;
+
         memcpy(&dt, decryted_data, sizeof(ra_iot_attest_dto));
         printf("\n++++++++++++++++++++\n");
-        print_attest_data(dt);
+        print_attest_data(&dt);
         printf("\n--------------------\n");
 
     }
@@ -271,20 +277,33 @@ void attest_res_marshall_unmarshal_test(){
     
     // Verify signature of the encrypted attestation data
     printf("Compare signature: %d\n", memcmp(signature, attest_unmarshaled.signature, attest_unmarshaled.signature_len ));
+
+    printf("\n****************************************\n");
+    printf("\n**** Unmarshaling with the function ****\n");
+    ra_iot_attest_dto attest_dto_unmarshaled;
+    int r = ra_iot_unmarshal_attestion_data(&rsa_test, &encr_priv_key, &attest_unmarshaled, &attest_dto_unmarshaled);
+    //strcat(att_data.nonce, " nc");
+    //att_data.nonce_len += strlen(" nc");
+    printf("ra_iot_unmarshal_attestion_data: %s\n", (r ? "Ok!" : "Bad!"));
+    print_attest_data(&attest_dto_unmarshaled);
+    printf("\n****************************************\n");
     
+    printf("\t\n****************************************\n");
+    printf("\n**** Unmarshaling without the function ****\n");
     //res = ra_iot_verify_sig(&rsa_test, encr_attest_data, attest_data_buf_len, attest_unmarshaled.signature);
     res = ra_iot_verify_sig(&rsa_test, attest_unmarshaled.attestation_data, attest_unmarshaled.attestation_data_len, attest_unmarshaled.signature);
     printf("=> Signature is %s\n", (res ? "Correct!" : "Wrong!"));
+    
     uint8_t decr_res[512];
     res = ra_iot_decrypt(&encr_priv_key, attest_unmarshaled.attestation_data, decr_res);
     printf("Decrypting: %s\n", (res ? "Ok!" : "Bad!"));
-    //att_data.nonce[2] = "f";
-    strcat(att_data.nonce, " nc");
-    print_attest_data(att_data);
-    
+    att_data.nonce[0] = 'f';
+    printf("\n\t\t Old Nonce \n");
+    print_attest_data(&att_data);
+    printf("\n*******************\n");
     memcpy(&new_att_data, decr_res, sizeof(ra_iot_attest_dto));
+    print_attest_data(&new_att_data);
     printf("\n*****\n");
-    print_attest_data(new_att_data);
     printf("Ainda dentro da função\n");
 
 
@@ -314,7 +333,7 @@ void test_ref_values(){
     att_data.nonce_len = (uint32_t)strlen((char*)att_data.nonce);
     sprintf(att_data.data, "Reference values");
     att_data.data_len = (uint32_t)strlen((char*)att_data.data);
-    print_attest_data(att_data);
+    print_attest_data(&att_data);
     printf("\n+-+-+-+-+-+-+-+-+-+-+-+-\n");
 
     printf("Generating attestation results\n");
@@ -328,7 +347,23 @@ void test_ref_values(){
 }
 
 
-
+void test_generate_nonce(){
+    uint32_t nonce_len = 20;
+	uint8_t nonce[nonce_len];
+	
+	uint32_t nonce_len2 = 20;
+	uint8_t nonce2[nonce_len2];
+	
+    ra_iot_generate_nonce(nonce_len, nonce);
+	printf("Nonce (%d) 0x", (uint32_t)strlen(nonce));
+	for(size_t i = 0; i<nonce_len; i++)
+		printf("%02x ", nonce[i]);
+	printf("\n");
+	memcpy(nonce2, nonce, nonce_len);
+	//ra_iot_generate_nonce(nonce_len2, nonce2);
+	int v_nonce = verify_nonce(nonce_len2, nonce2, nonce_len, nonce);
+	printf("Nonce is valid: %d\n", v_nonce);
+}
 
 
 void crypto_test(unsigned char *input, size_t i_len){

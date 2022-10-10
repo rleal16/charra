@@ -4,6 +4,7 @@
 #include <inttypes.h>
 //#include <stdbool.h>
 #include "ra_iot_dto.h"
+#include "ra_iot_mbedtls.h"
 #include "ra_iot_evidence_mgmt.h"
 
 /* This version just fills event log with a string */
@@ -39,39 +40,66 @@ void ra_iot_print_attest_res(attest_res att){
     printf("Event Log: %s\n", PRINT_BOOL(att.valid_event_log));
 }
 
-#if 0
+
 int ra_iot_generate_nonce(const uint32_t nonce_len, uint8_t* nonce) {
-	int ret = 1;
-	/* initialize contexts */
-	mbedtls_ctr_drbg_context ctr_drbg;
-    mbedtls_entropy_context entropy;
-    
-    mbedtls_ctr_drbg_init( &ctr_drbg );
-    mbedtls_entropy_init( &entropy );
-
-	/* add seed */
-    if((ret = mbedtls_ctr_drbg_seed( &ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *) "RANDOM_GEN", 10 )) != 0)
-    {
-        mbedtls_printf( "failed in mbedtls_ctr_drbg_seed: %d\n", ret );
-        goto cleanup;
-    }
-    mbedtls_ctr_drbg_set_prediction_resistance( &ctr_drbg, MBEDTLS_CTR_DRBG_PR_OFF );
-
-	ret = mbedtls_ctr_drbg_random( &ctr_drbg, nonce, (size_t) nonce_len );
-    if( ret != 0 )
-    {
-        mbedtls_printf("failed!\n");
-        goto cleanup;
-    }
-
-cleanup:
-    mbedtls_printf("\n");
-
-    fclose( f );
-    mbedtls_ctr_drbg_free( &ctr_drbg );
-    mbedtls_entropy_free( &entropy );
-
-    return 1;
+	
+    return ra_iot_mbedtls_gen_rand_bytes(nonce_len, nonce);
 }
 
-#endif
+int verify_nonce(const uint32_t nonce_len, const uint8_t* nonce, const uint32_t ref_nonce_len, const uint8_t* ref_nonce){
+    if(nonce_len != ref_nonce_len)
+        return 0;
+    if(memcmp(nonce, ref_nonce, ref_nonce_len) != 0)
+        return 0;
+    return 1; 
+}
+
+
+int ra_iot_create_attestation_request(ra_iot_msg_attestation_request_dto *req){
+    req->nonce_len = 20;
+    ra_iot_generate_nonce(req->nonce_len, &(req->nonce));
+    
+    req->claim_selections_len = 5;
+    for(int i = 0; i<(int)req->claim_selections_len; i++){
+        sprintf(req->claim_selections[i].selection, "Claim Selection %d", ((i*275)%120));   
+        
+        req->claim_selections[i].selection_len = strlen(req->claim_selections[i].selection);
+    }
+    
+    /* memcpy(req->claim_selections[1].selection, "Claim Selection 2", strlen("Claim Selection 2"));
+    req->claim_selections[1].selection_len = strlen(req->claim_selections[1].selection); */
+    req->get_logs = true;
+
+    return 1; //attestation request was created with success!
+
+}
+
+int ra_iot_parse_claim_selections(const uint32_t claim_selection_len, const claim_selection_dto *claim_selections, parsed_claim_selections *parsed_res){
+    printf("Parsing Claim Selections!!\n");
+    parsed_res->claim_selections_len = claim_selection_len;
+    int i;
+    for(i=0; i<claim_selection_len; i++){
+        parsed_res->claim_selections[i].selection_len = claim_selections[i].selection_len;
+        memcpy(parsed_res->claim_selections[i].selection, claim_selections[i].selection, claim_selections[i].selection_len);
+    }
+    return 0;
+}
+
+void print_claim_selections(const uint32_t claim_selection_len, const claim_selection_dto *claim_selections){
+    printf("-> Claim selection len: %d\n", claim_selection_len);
+    printf("Claims selections: \n");
+    for(int i = 0; i<(int)claim_selection_len; i++)
+        printf("\t[%d]: %s\n", claim_selections[i].selection_len, claim_selections[i].selection);
+}
+
+void print_attestation_request(const ra_iot_msg_attestation_request_dto req){
+    int i;
+    //printf("Nonce (%d): %s\n", req.nonce_len, req.nonce);
+    print_nonce(req.nonce_len, req.nonce);
+    print_claim_selections(req.claim_selections_len, req.claim_selections);
+    /* printf("Claim selection len: %d\n", req.claim_selections_len);
+    printf("Claims selections: \n");
+    for(i = 0; i<(int)req.claim_selections_len; i++)
+        printf("\t[%d]: %s\n", req.claim_selections[i].selection_len, req.claim_selections[i].selection); */
+    printf("Get logs: %s\n", (req.get_logs ? "True" : "False"));
+}

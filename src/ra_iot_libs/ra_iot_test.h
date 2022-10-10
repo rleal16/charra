@@ -14,3 +14,6 @@ void test_ref_values(void);
 
 /* Testing cryptographic functions */
 void crypto_test(unsigned char *input, size_t i_len);
+
+/* Testing the generation of the nonce */
+void test_generate_nonce(void);

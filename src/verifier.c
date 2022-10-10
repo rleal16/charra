@@ -50,6 +50,7 @@
 #include "ra_iot_libs/ra_iot_memory_mgmt.h"
 #include "ra_iot_libs/ra_iot_crypto.h"
 #include "ra_iot_libs/ra_iot_test.h"
+#include "ra_iot_libs/ra_iot_evidence_mgmt.h"
 #define FORCE_EXIT 0 // interrupts the code execution at a given point for testing purposes
 
 #define CHARRA_UNUSED __attribute__((unused))
@@ -472,7 +473,7 @@ static CHARRA_RC create_attestation_request(
 	/* generate nonce */
 	uint32_t nonce_len = 20;
 	uint8_t nonce[nonce_len];
-	if (USE_TPM_FOR_RANDOM_NONCE_GENERATION) {
+	if (USE_TPM_FOR_RANDOM_NONCE_GENERATION && 0) {
 		if ((err = charra_random_bytes_from_tpm(nonce_len, nonce) !=
 				   CHARRA_RC_SUCCESS)) {
 			charra_log_error("Could not get random bytes from TPM for nonce.");
@@ -485,7 +486,7 @@ static CHARRA_RC create_attestation_request(
 			return err;
 		}
 	}
-	charra_log_info("[" LOG_NAME "] Generated nonce of length %d:", nonce_len);
+	charra_log_info("[" LOG_NAME "] Generated nonce of length %d -> %zu:", nonce_len, strlen((char *) nonce));
 	charra_print_hex(CHARRA_LOG_INFO, nonce_len, nonce,
 		"                                                  0x", "\n", false);
 
@@ -532,9 +533,31 @@ static coap_response_t coap_attest_handler(
 
 	processing_response = true;
 	
-	printf("\n\n****************************************\n");
+	/*printf("\n\n****************************************\n");
 	test_ref_values();
-	printf("\n****************************************\n");
+	printf("\n****************************************\n");*/
+
+/* 	printf("\n\n************Generate Nonce************\n");
+	test_generate_nonce();
+	printf("\n****************************************\n"); */
+	printf("\n\n************ Create attestation request and parse ************\n");
+	ra_iot_msg_attestation_request_dto test_req;
+	parsed_claim_selections parsed_cs;
+
+	ra_iot_create_attestation_request(&test_req);
+	print_attestation_request(test_req);
+	
+	ra_iot_parse_claim_selections(test_req.claim_selections_len, test_req.claim_selections, &parsed_cs);
+	
+	memset(test_req.claim_selections[0].selection, 0, 512*sizeof(uint8_t));
+	sprintf(test_req.claim_selections[0].selection, "0 -> Claim Selection");   
+	
+	printf("\nParsed Claim Selections\n");
+	print_attestation_request(test_req);
+	printf("\n----------->>-------------\n");
+
+	print_claim_selections(parsed_cs.claim_selections_len, parsed_cs.claim_selections);
+	printf("\n******************************************************\n");
 
 	charra_log_info(
 		"[" LOG_NAME "] Resource '%s': Received message.", "attest");
@@ -608,6 +631,7 @@ static coap_response_t coap_attest_handler(
 		goto cleanup;
 	}
 
+#if 0
 	/* load TPM key */
 	TPM2B_PUBLIC* tpm2_public_key = (TPM2B_PUBLIC*)res.tpm2_public_key;
 	charra_log_info("[" LOG_NAME "] Loading TPM key.");
@@ -627,16 +651,20 @@ static coap_response_t coap_attest_handler(
 		attest.attestationData, res.attestation_data, res.attestation_data_len);
 	TPMT_SIGNATURE signature = {0};
 	memcpy(&signature, res.tpm2_signature, res.tpm2_signature_len);
-
+#endif
 	/* --- verify attestation signature --- */
 	bool attestation_result_signature = false;
 	{
 		charra_log_info(
 			"[" LOG_NAME "] Verifying TPM Quote signature with TPM ...");
 		/* verify attestation signature with TPM */
+		#if 0
 		if ((attestation_rc = charra_verify_tpm2_quote_signature_with_tpm(
 				 esys_ctx, sig_key_handle, TPM2_ALG_SHA256, &attest, &signature,
 				 &validation)) == CHARRA_RC_SUCCESS) {
+		#else
+		attestation_rc = CHARRA_RC_SUCCESS;
+		if (attestation_rc == CHARRA_RC_SUCCESS){
 			charra_log_info(
 				"[" LOG_NAME "]     => TPM Quote signature is valid!");
 			attestation_result_signature = true;
@@ -644,8 +672,10 @@ static coap_response_t coap_attest_handler(
 			charra_log_error(
 				"[" LOG_NAME "]     => TPM Quote signature is NOT valid!");
 		}
+		#endif
 	}
 	{
+#if 0
 		/* convert TPM public key to mbedTLS public key */
 		charra_log_info(
 			"[" LOG_NAME
@@ -671,12 +701,17 @@ static coap_response_t coap_attest_handler(
 				"[" LOG_NAME "]     => TPM Quote signature is NOT valid!");
 		}
 		mbedtls_rsa_free(&mbedtls_rsa_pub_key);
+#endif
 	}
 
 	/* unmarshal attestation data */
+#if 0
 	TPMS_ATTEST attest_struct = {0};
 	attestation_rc = charra_unmarshal_tpm2_quote(
 		res.attestation_data_len, res.attestation_data, &attest_struct);
+#else
+		attestation_rc = CHARRA_RC_SUCCESS;
+#endif
 	if (attestation_rc != CHARRA_RC_SUCCESS) {
 		charra_log_error("[" LOG_NAME "] Error while unmarshaling TPM2 Quote.");
 		goto cleanup;
@@ -687,9 +722,12 @@ static coap_response_t coap_attest_handler(
 	bool attestation_result_nonce = false;
 	{
 		charra_log_info("[" LOG_NAME "] Verifying nonce ...");
-
+#if 0
 		attestation_result_nonce = charra_verify_tpm2_quote_qualifying_data(
 			last_request.nonce_len, last_request.nonce, &attest_struct);
+#else
+		attestation_result_nonce = true;
+#endif
 		if (attestation_result_nonce == true) {
 			charra_log_info(
 				"[" LOG_NAME
@@ -705,7 +743,7 @@ static coap_response_t coap_attest_handler(
 	bool attestation_result_pcrs = false;
 	{
 		charra_log_info("[" LOG_NAME "] Verifying PCRs ...");
-
+#if 0
 		charra_log_info(
 			"[" LOG_NAME "] Actual PCR composite digest from TPM Quote is:");
 		charra_print_hex(CHARRA_LOG_INFO,
@@ -716,6 +754,9 @@ static coap_response_t coap_attest_handler(
 		CHARRA_RC pcr_check =
 			charra_check_pcr_digest_against_reference(reference_pcr_file_path,
 				tpm_pcr_selection, tpm_pcr_selection_len, &attest_struct);
+#else
+		CHARRA_RC pcr_check = CHARRA_RC_SUCCESS;
+#endif
 		if (pcr_check == CHARRA_RC_SUCCESS) {
 			charra_log_info(
 				"[" LOG_NAME "]     => PCR composite digest is valid!");

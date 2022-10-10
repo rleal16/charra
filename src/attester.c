@@ -381,6 +381,8 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 		goto error;
 	}
 
+
+#if 1
 	/* load TPM key */
 	charra_log_info("[" LOG_NAME "] Loading TPM key.");
 	if ((charra_r = charra_load_tpm2_key(esys_ctx, req.sig_key_id_len,
@@ -401,7 +403,7 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	} else {
 		charra_log_info("[" LOG_NAME "] TPM Quote successful.");
 	}
-
+#endif
 	/* --- send response data --- */
 
 	/* read IMA event log if requested */
@@ -431,11 +433,14 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 
 	/* prepare response DTO */
 	msg_attestation_response_dto res = {
-		.attestation_data_len = attest_buf->size,
+		//.attestation_data_len = attest_buf->size,
+		.attestation_data_len = 0,
 		.attestation_data = {0}, // must be memcpy'd, see below	
-		.tpm2_signature_len = sizeof(*signature),
+		//.tpm2_signature_len = sizeof(*signature),
+		.tpm2_signature_len = 0,
 		.tpm2_signature = {0}, // must be memcpy'd, see below
-		.tpm2_public_key_len = sizeof(*public_key),
+		//.tpm2_public_key_len = sizeof(*public_key),
+		.tpm2_public_key_len = 0,
 		.tpm2_public_key = {0}, // must be memcpy'd, see below
 		.event_log_len = ima_event_log_len,
 		.event_log = ima_event_log,

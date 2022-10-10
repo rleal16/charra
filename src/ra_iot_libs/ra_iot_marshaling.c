@@ -206,3 +206,16 @@ cbor_parse_error:
 }
 
 
+int ra_iot_unmarshal_attestion_data(mbedtls_rsa_context *sig_key, mbedtls_rsa_context *encr_key, ra_iot_msg_attestation_response_dto *req, ra_iot_attest_dto *att_data){
+	int res = 0;
+	uint8_t decr_res[512];
+
+	res = ra_iot_verify_decrypt(sig_key, encr_key, req->attestation_data, req->attestation_data_len, req->signature, decr_res);
+	if(res == 0)
+		return 0;
+
+    printf("ra_iot_verify_decrypt: %s\n", (res ? "Ok!" : "Bad!"));
+    memcpy(att_data, decr_res, sizeof(ra_iot_attest_dto));
+	
+    return res;
+}

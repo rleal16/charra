@@ -307,7 +307,6 @@ exit:
 
 }
 
-
 int ra_iot_mbedtls_load_pub_key(char *filename, mbedtls_rsa_context *rsa) 
 {
 
@@ -357,7 +356,6 @@ exit:
     return exit_code;
 
 }
-
 
 int ra_iot_mbedtls_load_priv_key(char *filename, mbedtls_rsa_context *rsa)
 {
@@ -629,3 +627,40 @@ exit:
 
 }
 
+/***************************************************/
+/************* mbedtls utils functions *************/
+/***************************************************/
+
+int ra_iot_mbedtls_gen_rand_bytes(const uint32_t nonce_len, uint8_t* nonce) {
+	int ret = 1;
+	/* initialize contexts */
+	mbedtls_ctr_drbg_context ctr_drbg;
+    mbedtls_entropy_context entropy;
+    
+    mbedtls_ctr_drbg_init( &ctr_drbg );
+    mbedtls_entropy_init( &entropy );
+
+	/* add seed */
+    if((ret = mbedtls_ctr_drbg_seed( &ctr_drbg, mbedtls_entropy_func, &entropy, (const unsigned char *) "RANDOM_GEN", 10 )) != 0)
+    {
+        mbedtls_printf( "failed in mbedtls_ctr_drbg_seed: %d\n", ret );
+        goto cleanup;
+    }
+    mbedtls_ctr_drbg_set_prediction_resistance( &ctr_drbg, MBEDTLS_CTR_DRBG_PR_ON );
+
+	ret = mbedtls_ctr_drbg_random( &ctr_drbg, (unsigned char*)nonce, (size_t) nonce_len );
+    if( ret != 0 )
+    {
+        mbedtls_printf("failed!\n");
+        goto cleanup;
+    }
+
+cleanup:
+    mbedtls_printf("\n");
+
+    
+    mbedtls_ctr_drbg_free( &ctr_drbg );
+    mbedtls_entropy_free( &entropy );
+
+    return 1;
+}

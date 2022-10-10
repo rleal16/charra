@@ -3,9 +3,17 @@
 #include <string.h>
 #include <stdio.h>
 
-void print_attest_data(ra_iot_attest_dto att_data){
-    printf("Nonce (%d): %s\n", att_data.nonce_len, att_data.nonce);
-    printf("Data (%d): %s\n", att_data.data_len, att_data.data);
+void print_nonce(const uint32_t nonce_len, const uint8_t *nonce){
+    printf("-> Nonce (%d): 0x", nonce_len);
+	for(size_t i = 0; i<(size_t)nonce_len; i++)
+		printf("%02x ", nonce[i]);
+	printf("\n");
+}
+
+
+void print_attest_data(const ra_iot_attest_dto *att_data){
+    print_nonce(att_data->nonce_len, att_data->nonce);
+    printf("Data (%d): %s\n", att_data->data_len, att_data->data);
 }
 
 void print_attest_response(ra_iot_msg_attestation_response_dto attest_res){

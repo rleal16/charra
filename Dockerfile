@@ -64,7 +64,7 @@ RUN rm -rfv /tmp/tpm2-tools
 RUN git clone --recursive -b 'develop' \
 	'https://github.com/obgm/libcoap.git' /tmp/libcoap
 WORKDIR /tmp/libcoap
-RUN git checkout --recurse-submodules ea1deffa6b3997eea02635579a4b7fb7af4915e5
+RUN git checkout ea1deffa6b3997eea02635579a4b7fb7af4915e5
 COPY coap_tinydtls.patch .
 RUN patch -p 1 < coap_tinydtls.patch
 RUN ./autogen.sh \

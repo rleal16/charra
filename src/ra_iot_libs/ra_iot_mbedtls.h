@@ -47,7 +47,11 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], siz
 int ra_iot_mbedtls_decrypt( mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result );
 int ra_iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature);
 int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature);
-
 void ra_iot_mbedtls_print_rsa_pubkey(mbedtls_rsa_context rsa);
 
+/***************************************************/
+/************* mbedtls util functions *************/
+/***************************************************/
+
+int ra_iot_mbedtls_gen_rand_bytes(const uint32_t nonce_len, uint8_t* nonce);
 #endif

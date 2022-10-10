@@ -18,13 +18,22 @@ typedef struct {
 /* Structure that holds data related with a given claim selection */
 typedef struct {
 	uint32_t selection_len;
-	uint8_t selection[1];
+	uint8_t selection[512]; // static for testing
 } claim_selection_dto;
+
+/* 
+* Equal to claim_selection_dto for this stage of impelmentation.
+* This structure exists based on the assumption that some interpretation of the claims selections might be needed.
+*/
+typedef struct {
+	uint32_t claim_selections_len; // number of claim selections
+	claim_selection_dto claim_selections[20]; // maximum of 20 claim selections
+}parsed_claim_selections;
 
 
 /* Attestation data */
 typedef struct {
-	uint8_t nonce[16]; // o nonce que é suposto ter
+	uint8_t nonce[20]; // o nonce que é suposto ter
 	uint32_t nonce_len; // o tamanho do nonce
 	uint8_t data[128]; // por agora é uma dummy variable representando os dados
 	uint32_t data_len; // o tamanho dos dados
@@ -50,7 +59,7 @@ typedef struct {
 	size_t nonce_len;
 	uint8_t nonce[128]; // temporary length
 	uint32_t claim_selections_len; // number of claim selections
-	claim_selection_dto claim_selections[2]; // 2 for testing
+	claim_selection_dto claim_selections[20]; // maximum of 20 claim selections
 	bool get_logs; // true if the verifier wants logs
 } ra_iot_msg_attestation_request_dto;
 
@@ -72,6 +81,7 @@ typedef struct {
 
 // Test functions
 int attest_resp_cmp(ra_iot_msg_attestation_response_dto attest_res1, ra_iot_msg_attestation_response_dto attest_res2);
-void print_attest_data(ra_iot_attest_dto att_data);
+void print_nonce(const uint32_t nonce_len, const uint8_t *nonce);
+void print_attest_data(const ra_iot_attest_dto *att_data);
 
 #endif
