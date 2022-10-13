@@ -13,6 +13,12 @@
 #include "ra_iot_memory_mgmt.h"
 #include "ra_iot_evidence_mgmt.h"
 
+#include "../util/cbor_util.h" // temporary include for unmarshalling functions
+
+/* *************************************************************************** */
+/* **************** (Un) Marshalling the attestation response **************** */
+/* *************************************************************************** */
+
 static int ra_iot_marshal_attestation_response_internal(
 	const ra_iot_msg_attestation_response_dto* attestation_response, UsefulBuf buf_in,
 	UsefulBufC* buf_out) {
@@ -206,6 +212,10 @@ cbor_parse_error:
 }
 
 
+/* ********************************************************************** */
+/* ***************** Unmarshalling the attestation data ***************** */
+/* ********************************************************************** */
+
 int ra_iot_unmarshal_attestion_data(mbedtls_rsa_context *sig_key, mbedtls_rsa_context *encr_key, ra_iot_msg_attestation_response_dto *req, ra_iot_attest_dto *att_data){
 	int res = 0;
 	uint8_t decr_res[512];
@@ -219,3 +229,4 @@ int ra_iot_unmarshal_attestion_data(mbedtls_rsa_context *sig_key, mbedtls_rsa_co
 	
     return res;
 }
+

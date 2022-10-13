@@ -45,12 +45,18 @@
 #include "util/io_util.h"
 #include "util/tpm2_util.h"
 
+
+
+
 /* ---------- Arcadian IoT Remote Attestation Libraries */
 #include "ra_iot_libs/ra_iot_dto.h"
 #include "ra_iot_libs/ra_iot_memory_mgmt.h"
 #include "ra_iot_libs/ra_iot_crypto.h"
 #include "ra_iot_libs/ra_iot_test.h"
 #include "ra_iot_libs/ra_iot_evidence_mgmt.h"
+
+#include "ra_iot_libs/test_ra_iot/test_ra_iot.h"
+
 #define FORCE_EXIT 0 // interrupts the code execution at a given point for testing purposes
 
 #define CHARRA_UNUSED __attribute__((unused))
@@ -486,7 +492,7 @@ static CHARRA_RC create_attestation_request(
 			return err;
 		}
 	}
-	charra_log_info("[" LOG_NAME "] Generated nonce of length %d -> %zu:", nonce_len, strlen((char *) nonce));
+	//charra_log_info("[" LOG_NAME "] Generated nonce of length %d -> %zu:", nonce_len, strlen((char *) nonce));
 	charra_print_hex(CHARRA_LOG_INFO, nonce_len, nonce,
 		"                                                  0x", "\n", false);
 
@@ -539,7 +545,7 @@ static coap_response_t coap_attest_handler(
 
 /* 	printf("\n\n************Generate Nonce************\n");
 	test_generate_nonce();
-	printf("\n****************************************\n"); */
+	printf("\n****************************************\n"); 
 	printf("\n\n************ Create attestation request and parse ************\n");
 	ra_iot_msg_attestation_request_dto test_req;
 	parsed_claim_selections parsed_cs;
@@ -557,8 +563,8 @@ static coap_response_t coap_attest_handler(
 	printf("\n----------->>-------------\n");
 
 	print_claim_selections(parsed_cs.claim_selections_len, parsed_cs.claim_selections);
-	printf("\n******************************************************\n");
-
+	printf("\n******************************************************\n"); */
+	
 	charra_log_info(
 		"[" LOG_NAME "] Resource '%s': Received message.", "attest");
 	coap_show_pdu(LOG_DEBUG, in);

@@ -1,7 +1,7 @@
 
 # main Makefile
-# retirei: -std=c99 que estava antes de -g
-CFLAGS = -std=c99 -g -pedantic -Wall -Wextra \
+# troquei: -std=c99 para c11
+CFLAGS = -std=c11 -g -pedantic -Wall -Wextra \
          -Wno-missing-field-initializers \
          -fdata-sections -ffunction-sections
 
@@ -60,7 +60,8 @@ INCLUDE = -I$(INCDIR)
 OBJECTS =  $(addsuffix .o, $(addprefix $(OBJDIR)/common/, charra_log))
 OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/core/, charra_helper charra_key_mgr charra_rim_mgr charra_marshaling))
 OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/util/, cbor_util charra_util coap_util crypto_util io_util tpm2_util cli_util parser_util))
-OBJECTS +=  $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/, ra_iot_memory_mgmt ra_iot_mbedtls ra_iot_crypto ra_iot_evidence_mgmt ra_iot_marshaling ra_iot_dto ra_iot_test ra_iot_security))
+OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/, ra_iot_memory_mgmt ra_iot_mbedtls ra_iot_crypto ra_iot_evidence_mgmt ra_iot_marshaling ra_iot_dto ra_iot_test ra_iot_security))
+OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/test_ra_iot/, test_ra_iot))
 
 TARGETS = $(addprefix $(BINDIR)/, attester verifier)
 

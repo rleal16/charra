@@ -13,6 +13,7 @@ void print_nonce(const uint32_t nonce_len, const uint8_t *nonce){
 
 void print_attest_data(const ra_iot_attest_dto *att_data){
     print_nonce(att_data->nonce_len, att_data->nonce);
+    fflush(stdout);
     printf("Data (%d): %s\n", att_data->data_len, att_data->data);
 }
 
@@ -21,6 +22,18 @@ void print_attest_response(ra_iot_msg_attestation_response_dto attest_res){
     printf("Signature (%d): %s\n", attest_res.attestation_data_len, attest_res.attestation_data);
     printf("Pub. Key (%d): %s\n", attest_res.public_key_len, attest_res.public_key);
     printf("Event Log (%d): %s\n", attest_res.event_log_len, attest_res.event_log);
+}
+
+/* 
+    Print the parsed claim selections
+    Note: For the current version, this function is equal to print_claim_selections, 
+    since there is really no parsing involved.
+ */
+void print_parsed_claim_selections(const parsed_claim_selections cs){
+    printf("-> Claim selection len: %d\n", cs.claim_selections_len);
+    printf("Claims selections: \n");
+    for(int i = 0; i<(int)cs.claim_selections_len; i++)
+        printf("\t[%d]: %s\n", cs.claim_selections[i].selection_len, cs.claim_selections[i].selection);
 }
 
 

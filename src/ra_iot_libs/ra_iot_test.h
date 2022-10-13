@@ -6,7 +6,7 @@
 
 #define TEST_MARSHALLING 1
 
-/* Testing marshall/unmarshall pipeline */
+/* Testing marshall/unmarshall pipeline for attestation response */
 void attest_res_marshall_unmarshal_test(void);
 
 /* Testing ref values generation and comparison with evidence */

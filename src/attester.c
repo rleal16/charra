@@ -51,6 +51,8 @@
 #include "ra_iot_libs/ra_iot_test.h"
 
 
+#include "ra_iot_libs/test_ra_iot/test_ra_iot.h"
+
 #define CHARRA_UNUSED __attribute__((unused))
 
 /* --- config ------------------------------------------------------------- */
@@ -303,12 +305,11 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	ESYS_TR sig_key_handle = ESYS_TR_NONE;
 	TPM2B_PUBLIC* public_key = NULL;
 
-#if TEST_MARSHALLING	
+#if TEST_MARSHALLING
 	attest_res_marshall_unmarshal_test();
 	printf("Saí da função\n");
 #else
 	
-
 #endif
 	/* --- receive incoming data --- */
 

@@ -37,4 +37,7 @@ void print_attestation_request(const ra_iot_msg_attestation_request_dto req);
 /* Prints claims selections -- mainly for debugging */
 void print_claim_selections(const uint32_t claim_selection_len, const claim_selection_dto *claim_selections);
 
+/* Parse claims and generate the evidence */
+int ra_iot_gen_evidence(const ra_iot_msg_attestation_request_dto req, ra_iot_attest_dto *att_data);
+
 #endif

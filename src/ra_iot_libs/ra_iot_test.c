@@ -129,11 +129,12 @@ void attest_res_marshall_unmarshal_test(){
     /* sprintf(att_data.nonce, "O Nonce...");
     att_data.nonce_len = (uint32_t)strlen((char*)att_data.nonce); */
     
-    sprintf(att_data.data, "Attestation Data ..");
+    sprintf(att_data.data, "Attestation Data..");
     att_data.data_len = (uint32_t)strlen((char*)att_data.data);
     att_data.data[att_data.data_len+1]='\0';
     
     printf("\n+-+-+-+-+-+-+-+-+-+-+-+-\n");
+    printf("Len %d\n", att_data.data_len);
     print_attest_data(&att_data);
     /* Encrypt attestation data */
 
@@ -319,6 +320,7 @@ void attest_res_marshall_unmarshal_test(){
     mbedtls_rsa_free( &encr_priv_key );
     
 }
+
 
 void test_ref_values(){
     printf("Testing reference values loading\n");

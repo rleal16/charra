@@ -35,7 +35,7 @@ typedef struct {
 typedef struct {
 	uint8_t nonce[20]; // o nonce que é suposto ter
 	uint32_t nonce_len; // o tamanho do nonce
-	uint8_t data[128]; // por agora é uma dummy variable representando os dados
+	uint8_t data[128]; // Dummy data. Cannot be larger than 128 due to mbedtls RSA encryption limitations
 	uint32_t data_len; // o tamanho dos dados
 } ra_iot_attest_dto;
 
@@ -83,5 +83,6 @@ typedef struct {
 int attest_resp_cmp(ra_iot_msg_attestation_response_dto attest_res1, ra_iot_msg_attestation_response_dto attest_res2);
 void print_nonce(const uint32_t nonce_len, const uint8_t *nonce);
 void print_attest_data(const ra_iot_attest_dto *att_data);
+void print_parsed_claim_selections(const parsed_claim_selections cs);
 
 #endif

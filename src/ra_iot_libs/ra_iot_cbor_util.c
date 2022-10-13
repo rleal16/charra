@@ -20,17 +20,17 @@
 
 // #include "cbor_util.h"
 
-#include "cbor_util.h"
+#include "ra_iot_cbor_util.h"
 
 #include <qcbor/qcbor.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 
-#include "../common/charra_log.h"
+//#include "../common/charra_log.h"
 
-const char* cbor_type_string(const uint8_t type) {
+const char* ra_iot_cbor_type_string(const uint8_t type) {
 	switch (type) {
 	case QCBOR_TYPE_NONE:
 		return "CborInvalidType";
@@ -82,44 +82,44 @@ const char* cbor_type_string(const uint8_t type) {
 		return "CborDoubleType";
 	case QCBOR_TYPE_MAP_AS_ARRAY:
 		return "CborMapAsArrayType";
-	case CHARRA_CBOR_TYPE_BOOLEAN:
+	case QCBOR_TYPE_OPTTAG - 1: //CHARRA_CBOR_TYPE_BOOLEAN
 		return "CharraCborBooleanType";
 	default:
 		return "UNKNOWN";
 	}
 }
 
-CHARRA_RC charra_cbor_get_next(
+int ra_iot_cbor_get_next(
 	QCBORDecodeContext* ctx, QCBORItem* decoded_item, uint8_t expected_type) {
 	uint8_t type = 0;
 	bool is_expected_type = false;
 
 	if (QCBORDecode_GetNext(ctx, decoded_item)) {
-		charra_log_error("CBOR Parser: Error getting next item");
-		return CHARRA_RC_MARSHALING_ERROR;
+		printf("CBOR Parser: Error getting next item");
+		return 0;
 	}
 
 	if (expected_type != QCBOR_TYPE_NONE) {
 		/* expect particular CBOR type */
 		type = decoded_item->uDataType;
 		is_expected_type = type == expected_type;
-		if (expected_type == CHARRA_CBOR_TYPE_BOOLEAN) {
+		if (expected_type == QCBOR_TYPE_OPTTAG - 1) {
 			is_expected_type =
 				type == QCBOR_TYPE_FALSE || type == QCBOR_TYPE_TRUE;
 		}
 		if (!is_expected_type) {
-			charra_log_error("CBOR parser: expected type %s, found type %s.",
-				cbor_type_string(expected_type), cbor_type_string(type));
-			return CHARRA_RC_MARSHALING_ERROR;
+			printf("CBOR parser: expected type %s, found type %s.",
+				ra_iot_cbor_type_string(expected_type), ra_iot_cbor_type_string(type));
+			return 0;
 		}
-		charra_log_debug("CBOR parser: found type %s.", cbor_type_string(type));
+		printf("CBOR parser: found type %s.", ra_iot_cbor_type_string(type));
 	}
 
 	/* return positive result */
-	return CHARRA_RC_SUCCESS;
+	return 1;
 }
 
-bool charra_cbor_get_bool_val(QCBORItem* item) {
+bool ra_iot_cbor_get_bool_val(QCBORItem* item) {
 	if (item->uDataType == QCBOR_TYPE_TRUE) {
 		return true;
 	}
