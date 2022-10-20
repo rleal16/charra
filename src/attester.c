@@ -309,7 +309,8 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	attest_res_marshall_unmarshal_test();
 	printf("Saí da função\n");
 #else
-	
+	charra_log_info("[" LOG_NAME "] Testing pipeline");
+	ra_iot_pipeline_test();
 #endif
 	/* --- receive incoming data --- */
 
@@ -383,7 +384,6 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	}
 
 
-#if 1
 	/* load TPM key */
 	charra_log_info("[" LOG_NAME "] Loading TPM key.");
 	if ((charra_r = charra_load_tpm2_key(esys_ctx, req.sig_key_id_len,
@@ -404,7 +404,6 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	} else {
 		charra_log_info("[" LOG_NAME "] TPM Quote successful.");
 	}
-#endif
 	/* --- send response data --- */
 
 	/* read IMA event log if requested */

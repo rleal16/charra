@@ -129,7 +129,7 @@ void attest_res_marshall_unmarshal_test(){
     /* sprintf(att_data.nonce, "O Nonce...");
     att_data.nonce_len = (uint32_t)strlen((char*)att_data.nonce); */
     
-    sprintf(att_data.data, "Attestation Data..");
+    sprintf(att_data.data, "Attestation Data ..");
     att_data.data_len = (uint32_t)strlen((char*)att_data.data);
     att_data.data[att_data.data_len+1]='\0';
     
@@ -151,6 +151,7 @@ void attest_res_marshall_unmarshal_test(){
     printf("\n\n+++++++++++++++++++++++++++++++++\n");
     printf("Encryption test\n");
     uint8_t encr_attest_data[256];
+    uint32_t encr_attest_data_len = 256; // encryption function returns a 256 byte size ecrypted data
     memset(encr_attest_data, 0, sizeof(uint8_t)*256);
 
     uint8_t decryted_data[256] = {0};
@@ -181,12 +182,15 @@ void attest_res_marshall_unmarshal_test(){
     int max_size = MBEDTLS_PK_SIGNATURE_MAX_SIZE;
     uint8_t signature[MBEDTLS_PK_SIGNATURE_MAX_SIZE];
     size_t signature_len = MBEDTLS_PK_SIGNATURE_MAX_SIZE;
-    if(ra_iot_sign(&sig_priv_key, encr_attest_data, sizeof(encr_attest_data), signature) != 1){
+    //encr_attest_data_len = sizeof(ra_iot_attest_dto);
+    printf("ALL RELEVANT SIZES:\n\tsizeof(ra_iot_attest_dto) = %zu\n\tsizeof(encr_attest_data) = %zu\n\tstrlen(encr_attest_data) = %zu\n\tstrlen((char*)encr_attest_data) = %zu\n", 
+    sizeof(ra_iot_attest_dto), sizeof(encr_attest_data), strlen(encr_attest_data), strlen((char*)encr_attest_data));
+    if(ra_iot_sign(&sig_priv_key, encr_attest_data, encr_attest_data_len, signature) != 1){
         printf("Error signing!!\n");
         goto exit;
     }else{
-        printf("Data was signed!!\n\tVerifying Signature:");
-        res = ra_iot_verify_sig(&sig_pub_key, encr_attest_data, sizeof(encr_attest_data), signature);
+        printf("Data was signed!!\n\tVerifying Signature:\n");
+        res = ra_iot_verify_sig(&sig_pub_key, encr_attest_data, encr_attest_data_len, signature);
         printf("Initial Signature is %s\n", (res ? "Correct!" : "Wrong!"));
 
     }
@@ -196,7 +200,7 @@ void attest_res_marshall_unmarshal_test(){
     /* Create attestation response */
     ra_iot_msg_attestation_response_dto attest_start = {
         .attestation_data = {0},
-        .attestation_data_len = sizeof(encr_attest_data),
+        .attestation_data_len = encr_attest_data_len,
         .signature = {0},
         .signature_len = signature_len,
         .public_key = {0},
@@ -321,7 +325,8 @@ void attest_res_marshall_unmarshal_test(){
     
 }
 
-
+// uses other version of the load_ref_values function
+#if 0
 void test_ref_values(){
     printf("Testing reference values loading\n");
 	ref_values_dto ref_values;
@@ -347,7 +352,7 @@ void test_ref_values(){
     printf("\n\tAttesation Results...\n");
     ra_iot_print_attest_res(att_res);
 }
-
+#endif
 
 void test_generate_nonce(){
     uint32_t nonce_len = 20;
@@ -408,3 +413,42 @@ void crypto_test(unsigned char *input, size_t i_len){
 	mbedtls_rsa_free( &rsa_priv ); 
 
 } 
+
+/* 
+void attest_request_marshall_unmarshal_test(){
+    printf("Testing attestation request (un) marshalling \n");
+    ra_iot_msg_attestation_request_dto req = {0};
+    uint32_t req_buf_len = 0;
+    uint8_t* req_buf = NULL;
+
+    int res = ra_iot_create_attestation_request(&req);
+    res = ra_iot_marshal_attestation_request(&req, &req_buf_len, &req_buf);
+    printf("Marshalling seems %s\n", (res ? "OK!" : "Bad!"));
+    req.nonce[2] = 'L';
+    req.claim_selections[2].selection[2] = '_';
+    req.claim_selections[2].selection[3] = '_';
+    req.claim_selections[2].selection[4] = '_';
+    ra_iot_msg_attestation_request_dto out_req = {0};
+    res = ra_iot_unmarshal_attestation_request(req_buf_len, req_buf, &out_req);
+    printf("UnMarshalling seems %s\n", (res ? "OK!" : "Bad!"));
+
+    free(req_buf);
+    req_buf = NULL;
+    req_buf_len = 0;
+
+    /* printf("\n\tMarshalling Again!!\n");
+    res = ra_iot_marshal_attestation_request(&out_req, &req_buf_len, &req_buf);
+    printf("(%zu) Marshalling seems %s\n", sizeof(uint8_t), (res ? "Successfull!" : "Bad!")); 
+    printf("*Original* Attestation Request\n");
+    print_attestation_request(req);
+    printf("Unmarshalled Attestation Request\n");
+    print_attestation_request(out_req);
+    printf("\n\n\t *******************************************\n");
+    printf("\n\n\t ********** Generate the evidence **********\n\n");
+    
+    ra_iot_attest_dto att_data;
+    ra_iot_gen_evidence(out_req, &att_data);
+    print_attest_data(&att_data);
+    
+}
+ */

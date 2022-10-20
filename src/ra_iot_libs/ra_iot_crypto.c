@@ -50,9 +50,10 @@ int ra_iot_write_rsa_pubkey( unsigned char **p, unsigned char *start, mbedtls_rs
 	return pk_write_rsa_pubkey( p, start, rsa );
 }
 
-int ra_iot_gen_rsa_keypair(char *keys_filepath, char *priv_key_file, mbedtls_rsa_context *pub_key, mbedtls_rsa_context *priv_key){
+int ra_iot_gen_rsa_keypair(char *keys_filepath, mbedtls_rsa_context *pub_key, mbedtls_rsa_context *priv_key){
 	if(!ra_iot_gen_rsa_key( keys_filepath ))
 		return 0;
+		
 	char pub_filename[512];
 	char priv_filename[512];
 	sprintf(pub_filename, "%srsa_pub.txt", keys_filepath);
@@ -63,10 +64,12 @@ int ra_iot_gen_rsa_keypair(char *keys_filepath, char *priv_key_file, mbedtls_rsa
 	
 	if(!ra_iot_load_priv_key(priv_filename, priv_key))
 		return 0;
+	
+	return 1;
 }
 
-void ra_iot_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes){
-	ra_iot_mbedtls_load_pub_key_to_buffer(filename, pk_bytes);
+int ra_iot_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes){
+	return ra_iot_mbedtls_load_pub_key_to_buffer(filename, pk_bytes);
 }
 
 int ra_iot_load_pub_key_from_buffer(pub_key_dto *pk_buffer, mbedtls_rsa_context *rsa){
@@ -85,11 +88,24 @@ int ra_iot_verify_decrypt(mbedtls_rsa_context *pub_key, mbedtls_rsa_context *pri
 }
 
 int ra_iot_encrypt_sign(mbedtls_rsa_context *pub_key, mbedtls_rsa_context *priv_key, unsigned char *data, size_t data_len, unsigned char *sig_out, unsigned char *encr_out){
-	if(ra_iot_encrypt(pub_key, data, data_len, encr_out) == 0)
+	// due to the padding and maximum allowed size of the ecryption function, the size of the result of the encryption is allways 256.
+	const size_t ecr_data_len = 256; // for future reference
+	if(ra_iot_encrypt(pub_key, data, data_len, encr_out) == 0){
+		printf("ra_iot_encrypt_sign: Error encrypting!!\n");
 		return 0; 
+	}else{
+		printf("ra_iot_encrypt_sign: Data was encrypted!\n");
+	}
 	
-	if(ra_iot_sign(priv_key, data, data_len, sig_out) == 0)
+	//if(ra_iot_sign(priv_key, data, data_len, sig_out) == 0)
+	// signs the encrypted data
+	
+	if(ra_iot_sign(priv_key, encr_out, ecr_data_len, sig_out) == 0){
+		printf("ra_iot_encrypt_sign: Error signing!!\n");
 		return 0;
+	}else{
+		printf("ra_iot_encrypt_sign: Data was signed!!\n");
+	}
 	
 	return 1;
 } 

@@ -123,7 +123,7 @@ static coap_response_t coap_attest_handler(struct coap_context_t* context,
 	const coap_mid_t mid);
 
 /* --- static variables --------------------------------------------------- */
-
+static attest_res att_results = {0}; // attestation results structure
 static msg_attestation_request_dto last_request = {0};
 static msg_attestation_response_dto last_response = {0};
 
@@ -244,10 +244,7 @@ int main(int argc, char** argv) {
 	coap_optlist_t* coap_options = NULL;
 	uint8_t* req_buf = NULL; // TODO make dynamic
 
-#if FORCE_EXIT
-	printf("FORCE EXIT!\n");
-	goto cleanup;
-#endif
+
 
 	if (use_dtls_psk && use_dtls_rpk) {
 		charra_log_error(
@@ -564,7 +561,10 @@ static coap_response_t coap_attest_handler(
 
 	print_claim_selections(parsed_cs.claim_selections_len, parsed_cs.claim_selections);
 	printf("\n******************************************************\n"); */
-	
+
+/* 	printf("[verifier] Testing Attestation Request...\n");
+	attest_request_marshall_unmarshal_test(); */
+
 	charra_log_info(
 		"[" LOG_NAME "] Resource '%s': Received message.", "attest");
 	coap_show_pdu(LOG_DEBUG, in);

@@ -35,47 +35,50 @@ typedef struct {
 typedef struct {
 	uint8_t nonce[20]; // o nonce que é suposto ter
 	uint32_t nonce_len; // o tamanho do nonce
-	uint8_t data[128]; // Dummy data. Cannot be larger than 128 due to mbedtls RSA encryption limitations
+	uint8_t data[210]; // Dummy data. Cannot be larger than 210 due to mbedtls RSA encryption limitations
 	uint32_t data_len; // o tamanho dos dados
 } ra_iot_attest_dto;
 
 
 // Struct to save the attestation results
 typedef struct {
-	bool valid_signature_size; // signa
+	//bool valid_signature_size; // signa
 	//bool valid_eSIM_crt; // verifica se alguma das CAs certificou o eSIM
 	//bool eSIM_keys_match; // true se a chave pública do eSIM é a mesma que a que está no certificado`
 	bool valid_attest_data_signature; // true a assinatura dos dados de atestação são válidos`
 	bool valid_nonce; // true se o nonce for válido`
 	bool valid_against_ref_values; // true se a evidência for válida quando comparada com o valores de referência`
 	bool valid_event_log; // true se os dados do event log foram válidos -- seja lá o que isso quer dizer`
-	//bool valid_claims;
+	bool valid_claims; // true if it passes the claim integrity tests
 }attest_res;
-
-
 
 
 typedef struct {
 	size_t nonce_len;
 	uint8_t nonce[128]; // temporary length
+
 	uint32_t claim_selections_len; // number of claim selections
 	claim_selection_dto claim_selections[20]; // maximum of 20 claim selections
+
+	uint32_t public_key_len;
+	uint8_t public_key[KEY_SIZE]; // public key the attester must use to encrypt the evidence
+
 	bool get_logs; // true if the verifier wants logs
 } ra_iot_msg_attestation_request_dto;
 
 
 typedef struct {
 	uint32_t attestation_data_len;
-	uint8_t attestation_data[256]; // a instância de attest_dto encriptada (apenas) 
+	uint8_t attestation_data[256]; // encrypted instance of attest_dto
 
 	uint32_t signature_len;
-	uint8_t signature[MBEDTLS_PK_SIGNATURE_MAX_SIZE]; // a assinatura da instância de attest_dto encriptada
+	uint8_t signature[MBEDTLS_PK_SIGNATURE_MAX_SIZE]; // signature of the encrypted attest_dto
 
 	uint32_t public_key_len;
-	uint8_t public_key[KEY_SIZE]; //chave pública usada para assinar que corresponde (futuramente) à chave do eSIM.
+	uint8_t public_key[KEY_SIZE]; // public key to verify the signature
 
-	uint32_t event_log_len; // o tamanho dos logs
-	uint8_t* event_log; // por agora é uma dummy variable representando os dados do logs
+	uint32_t event_log_len; // log size
+	uint8_t* event_log; // dummy variable representing event logs
 } ra_iot_msg_attestation_response_dto;
 
 

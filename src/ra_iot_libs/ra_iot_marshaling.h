@@ -26,4 +26,20 @@ int ra_iot_unmarshal_attestion_data(
 	ra_iot_msg_attestation_response_dto *req, 
 	ra_iot_attest_dto *att_data);
 
+/* **************************************************************************** */
+/* ***************** (Un) Marshalling the attestation request ***************** */
+/* **************************************************************************** */
+
+int ra_iot_marshal_attestation_request_size(
+	const ra_iot_msg_attestation_request_dto* attestation_request,
+	size_t* marshaled_data_len);
+
+int ra_iot_marshal_attestation_request(
+	const ra_iot_msg_attestation_request_dto* attestation_request,
+	uint32_t* marshaled_data_len, uint8_t** marshaled_data);
+
+int ra_iot_unmarshal_attestation_request(
+	const uint32_t marshaled_data_len, const uint8_t* marshaled_data,
+	ra_iot_msg_attestation_request_dto* attestation_request);
+
 #endif

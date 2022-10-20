@@ -13,8 +13,8 @@ void print_nonce(const uint32_t nonce_len, const uint8_t *nonce){
 
 void print_attest_data(const ra_iot_attest_dto *att_data){
     print_nonce(att_data->nonce_len, att_data->nonce);
-    fflush(stdout);
     printf("Data (%d): %s\n", att_data->data_len, att_data->data);
+    fflush(stdout);
 }
 
 void print_attest_response(ra_iot_msg_attestation_response_dto attest_res){
