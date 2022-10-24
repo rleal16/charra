@@ -439,7 +439,7 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], siz
     unsigned char *buf = output;
     const char *pers = "rsa_encrypt";
     
-
+    
     /* ----- Seeding the random number generator ----- */
     fflush( stdout );
 

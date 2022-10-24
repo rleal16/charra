@@ -91,20 +91,20 @@ int ra_iot_encrypt_sign(mbedtls_rsa_context *pub_key, mbedtls_rsa_context *priv_
 	// due to the padding and maximum allowed size of the ecryption function, the size of the result of the encryption is allways 256.
 	const size_t ecr_data_len = 256; // for future reference
 	if(ra_iot_encrypt(pub_key, data, data_len, encr_out) == 0){
-		printf("ra_iot_encrypt_sign: Error encrypting!!\n");
+		//printf("ra_iot_encrypt_sign: Error encrypting!!\n");
 		return 0; 
 	}else{
-		printf("ra_iot_encrypt_sign: Data was encrypted!\n");
+		//printf("ra_iot_encrypt_sign: Data was encrypted!\n");
 	}
 	
 	//if(ra_iot_sign(priv_key, data, data_len, sig_out) == 0)
 	// signs the encrypted data
 	
 	if(ra_iot_sign(priv_key, encr_out, ecr_data_len, sig_out) == 0){
-		printf("ra_iot_encrypt_sign: Error signing!!\n");
+		//printf("ra_iot_encrypt_sign: Error signing!!\n");
 		return 0;
 	}else{
-		printf("ra_iot_encrypt_sign: Data was signed!!\n");
+		//printf("ra_iot_encrypt_sign: Data was signed!!\n");
 	}
 	
 	return 1;

@@ -223,7 +223,7 @@ void ra_iot_pipeline_test(){
     printf("Writing the signing public key to \"buffer structure\" for marshalling\n");
     res = ra_iot_load_pub_key_to_buffer("attester_keys/rsa_pub.txt", &pk_bytes);
     printf("\tWriting to binary %s\n", (res ? "was Successful!" : "Failed!"));
-    
+    fflush(stdout);
     #pragma endregion
 
     #pragma region evidence_gen
@@ -253,10 +253,11 @@ void ra_iot_pipeline_test(){
     uint32_t encr_attest_data_len = sizeof(encr_attest_data); // encryption function returns a 256 byte size ecrypted data
     memset(encr_attest_data, 0, sizeof(uint8_t)*256);
 
-    uint8_t decryted_data[256] = {0};
+    //uint8_t decryted_data[256] = {0};
     uint8_t encr2[256] = {0};
 
     size_t max_size = MBEDTLS_PK_SIGNATURE_MAX_SIZE;
+    printf("\t\t\tMAX SIZE: %zu\n", max_size);
     uint8_t signature[max_size];
     size_t signature_len = max_size; // redundant
     
@@ -457,7 +458,7 @@ void ra_iot_pipeline_test(){
         .valid_nonce = false,
         .valid_attest_data_signature = (bool) unmarshal_res, // if unmarshal was successful, the signature was valid; otherwise, we (temporarily) consider it invalid (until return codes are not defined)
         .valid_against_ref_values = false,
-        .valid_event_log = false
+        .valid_claims = false
     };
 
     res = check_claims_integrity(attest_unmarshaled.event_log, attest_unmarshaled.event_log_len, attest_dto_unmarshaled, &results);
@@ -469,7 +470,7 @@ void ra_iot_pipeline_test(){
     #pragma endregion appraise_evidence
 
     ra_iot_print_attest_res(results);
-    printf("********** DONE!! **********\n");
+    printf("********** DONE!! -> %d **********\n", get_attest_results_overall(results));
 #pragma #endregion
 
  exit:   

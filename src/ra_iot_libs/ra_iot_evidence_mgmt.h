@@ -57,4 +57,7 @@ void print_claim_selections(const uint32_t claim_selection_len, const claim_sele
 /* Copies the nonce sent by the Verifier, parses/interprets the given claim selections, and generates the evidence accordind with those selections */
 int ra_iot_gen_evidence(const ra_iot_msg_attestation_request_dto req, ra_iot_attest_dto *att_data);
 
+/* Return the final result (the conjunction) of the attestation results */
+bool get_attest_results_overall(const attest_res res);
+
 #endif

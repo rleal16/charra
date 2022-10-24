@@ -53,6 +53,7 @@ ifdef address-sanitizer
 endif
 
 
+
 SOURCES = $(shell find $(SRCDIR) -name '*.c')
 
 INCLUDE = -I$(INCDIR)
@@ -60,10 +61,21 @@ INCLUDE = -I$(INCDIR)
 OBJECTS =  $(addsuffix .o, $(addprefix $(OBJDIR)/common/, charra_log))
 OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/core/, charra_helper charra_key_mgr charra_rim_mgr charra_marshaling))
 OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/util/, cbor_util charra_util coap_util crypto_util io_util tpm2_util cli_util parser_util))
-OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/, ra_iot_memory_mgmt ra_iot_mbedtls ra_iot_crypto ra_iot_evidence_mgmt ra_iot_marshaling ra_iot_dto ra_iot_test ra_iot_security))
-OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/test_ra_iot/, test_ra_iot))
+OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/, ra_iot_memory_mgmt ra_iot_mbedtls ra_iot_crypto ra_iot_evidence_mgmt ra_iot_marshaling ra_iot_dto ra_iot_security))
+#OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/, ra_iot_memory_mgmt ra_iot_mbedtls ra_iot_crypto ra_iot_evidence_mgmt ra_iot_marshaling ra_iot_dto ra_iot_test ra_iot_security))
+#OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/test_ra_iot/, test_ra_iot))
 
-TARGETS = $(addprefix $(BINDIR)/, attester verifier)
+
+#verifier_target = verifier
+#attester_target = attester
+
+verifier_target = ra_iot_attester
+attester_target = ra_iot_verifier
+
+
+
+#TARGETS = $(addprefix $(BINDIR)/, attester verifier)
+TARGETS = $(addprefix $(BINDIR)/, $(attester_target) $(verifier_target))
 
 
 
@@ -73,6 +85,8 @@ TARGETS = $(addprefix $(BINDIR)/, attester verifier)
 
 all: LDFLAGS = $(LDFLAGS_DYNAMIC)
 all: $(TARGETS)
+
+
 
 all.static: LDFLAGS = $(LDFLAGS_STATIC)
 all.static: $(TARGETS)
@@ -86,13 +100,13 @@ ifdef address-sanitizer
 endif
 
 
-$(BINDIR)/attester: $(SRCDIR)/attester.c $(OBJECTS)
+$(BINDIR)/$(attester_target): $(SRCDIR)/$(attester_target).c $(OBJECTS)
 	$(CC) $^ $(CFLAGS) $(INCLUDE) $(LIBINCLUDE) $(LDPATH) $(LDFLAGS) -g -o $@ -Wl,--gc-sections
 ifdef strip
 	strip --strip-unneeded $@
 endif
 
-$(BINDIR)/verifier: $(SRCDIR)/verifier.c $(OBJECTS)
+$(BINDIR)/$(verifier_target): $(SRCDIR)/$(verifier_target).c $(OBJECTS)
 	$(CC) $^ $(CFLAGS) $(INCLUDE) $(LIBINCLUDE) $(LDPATH) $(LDFLAGS) -g -o $@ -Wl,--gc-sections
 ifdef strip
 	strip --strip-unneeded $@

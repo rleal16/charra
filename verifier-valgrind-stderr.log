@@ -1,135 +1,135 @@
-==2840== Memcheck, a memory error detector
-==2840== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==2840== Using Valgrind-3.15.0-608cb11914-20190413 and LibVEX; rerun with -h for copyright info
-==2840== Command: bin/verifier
-==2840== 
---2840-- Valgrind options:
---2840--    --leak-check=full
---2840--    --show-leak-kinds=all
---2840--    -v
---2840-- Contents of /proc/version:
---2840--   Linux version 5.10.124-linuxkit (root@buildkitsandbox) (gcc (Alpine 10.2.1_pre1) 10.2.1 20201203, GNU ld (GNU Binutils) 2.35.2) #1 SMP PREEMPT Thu Jun 30 08:18:26 UTC 2022
---2840-- 
---2840-- Arch and hwcaps: ARM64, LittleEndian, baseline
---2840-- Page sizes: currently 4096, max supported 65536
---2840-- Valgrind library directory: /usr/lib/aarch64-linux-gnu/valgrind
---2840-- Reading syms from /home/bob/charra/bin/verifier
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/ld-2.31.so
---2840--   Considering /usr/lib/debug/.build-id/b6/7648e0ab1141e21a749711cde7a7b250b9e1d3.debug ..
---2840--   .. build-id is valid
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/valgrind/memcheck-arm64-linux
---2840--    object doesn't have a symbol table
---2840--    object doesn't have a dynamic symbol table
---2840-- Scheduler: using generic scheduler lock implementation.
---2840-- Reading suppressions file: /usr/lib/aarch64-linux-gnu/valgrind/default.supp
-==2840== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-2840-by-???-on-9fd4d2bb83be
-==2840== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-2840-by-???-on-9fd4d2bb83be
-==2840== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-2840-by-???-on-9fd4d2bb83be
-==2840== 
-==2840== TO CONTROL THIS PROCESS USING vgdb (which you probably
-==2840== don't want to do, unless you know exactly what you're doing,
-==2840== or are doing some strange experiment):
-==2840==   /usr/lib/aarch64-linux-gnu/valgrind/../../bin/vgdb --pid=2840 ...command...
-==2840== 
-==2840== TO DEBUG THIS PROCESS USING GDB: start GDB like this
-==2840==   /path/to/gdb bin/verifier
-==2840== and then give GDB the following command
-==2840==   target remote | /usr/lib/aarch64-linux-gnu/valgrind/../../bin/vgdb --pid=2840
-==2840== --pid is optional if only one valgrind process is running
-==2840== 
---2840-- REDIR: 0x4019400 (ld-linux-aarch64.so.1:strlen) redirected to 0x580c5de8 (???)
---2840-- REDIR: 0x4018440 (ld-linux-aarch64.so.1:strcmp) redirected to 0x580c5e3c (???)
---2840-- REDIR: 0x4018330 (ld-linux-aarch64.so.1:index) redirected to 0x580c5e10 (???)
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/valgrind/vgpreload_core-arm64-linux.so
---2840--    object doesn't have a symbol table
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/valgrind/vgpreload_memcheck-arm64-linux.so
---2840--    object doesn't have a symbol table
---2840-- Reading syms from /usr/local/lib/libcoap-2-tinydtls.so.3.0.0
---2840-- Reading syms from /usr/local/lib/libqcbor.so.1.0.0
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/libm-2.31.so
---2840--   Considering /usr/lib/debug/.build-id/ef/5f79ec54a7fe0dbb8f0cf2a360c360978c8d39.debug ..
---2840--   .. build-id is valid
---2840-- Reading syms from /usr/local/lib/libmbedcrypto.so.6
---2840-- Reading syms from /usr/local/lib/libtss2-esys.so.0.0.0
---2840-- Reading syms from /usr/local/lib/libtss2-mu.so.0.0.0
---2840-- Reading syms from /usr/local/lib/libtss2-tctildr.so.0.0.0
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/libc-2.31.so
---2840--   Considering /usr/lib/debug/.build-id/b7/b30ba2c0f618615a8d32d86813718bb2fdb567.debug ..
---2840--   .. build-id is valid
---2840-- Reading syms from /usr/local/lib/libtinydtls.so
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/libcrypto.so.1.1
---2840--    object doesn't have a symbol table
---2840-- Reading syms from /usr/local/lib/libtss2-sys.so.1.0.0
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/libdl-2.31.so
---2840--   Considering /usr/lib/debug/.build-id/e6/bacb58f1852797463ae6de925c26bd634492bf.debug ..
---2840--   .. build-id is valid
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/libpthread-2.31.so
---2840--   Considering /usr/lib/debug/.build-id/9e/e85bfaafff46d2fae9ac6c7ff06a68e9080cc8.debug ..
---2840--   .. build-id is valid
---2840-- REDIR: 0x4b77ab0 (libc.so.6:memchr) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
---2840-- REDIR: 0x4b768d8 (libc.so.6:strlen) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
---2840-- REDIR: 0x4b77c90 (libc.so.6:memmove) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
---2840-- REDIR: 0x4b78390 (libc.so.6:memcpy) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
---2840-- REDIR: 0x4b77da0 (libc.so.6:memset) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
---2840-- REDIR: 0x4b76d40 (libc.so.6:rindex) redirected to 0x484cc40 (rindex)
---2840-- REDIR: 0x4b7f680 (libc.so.6:__GI_strlen) redirected to 0x484d268 (__GI_strlen)
---2840-- REDIR: 0x4b72420 (libc.so.6:malloc) redirected to 0x4849d18 (malloc)
---2840-- REDIR: 0x4b77e60 (libc.so.6:mempcpy) redirected to 0x4851890 (mempcpy)
---2840-- REDIR: 0x4b72a08 (libc.so.6:free) redirected to 0x484aeb0 (free)
---2840-- REDIR: 0x4b7ddd0 (libc.so.6:__GI_memcpy) redirected to 0x484efb0 (__GI_memcpy)
---2840-- REDIR: 0x4b77708 (libc.so.6:strstr) redirected to 0x4851fb8 (strstr)
---2840-- REDIR: 0x4b77b00 (libc.so.6:bcmp) redirected to 0x48504d8 (bcmp)
---2840-- REDIR: 0x4b76100 (libc.so.6:strcmp) redirected to 0x484e278 (strcmp)
---2840-- REDIR: 0x4b79ab0 (libc.so.6:strchrnul) redirected to 0x4851790 (strchrnul)
-13:36:53 [32mINFO [0m [90msrc/verifier.c:269:[0m [verifier] Initializing CoAP in block-wise mode.
---2840-- REDIR: 0x4b7ef40 (libc.so.6:__GI_memset) redirected to 0x4850c50 (memset)
---2840-- REDIR: 0x4b73160 (libc.so.6:calloc) redirected to 0x484c000 (calloc)
-13:36:53 [32mINFO [0m [90msrc/verifier.c:277:[0m [verifier] Registering CoAP response handler.
-13:36:53 [32mINFO [0m [90msrc/verifier.c:315:[0m [verifier] Creating CoAP client session using UDP.
-13:36:53 [32mINFO [0m [90msrc/verifier.c:357:[0m [verifier] Creating attestation request.
---2840-- REDIR: 0x4bd7430 (libc.so.6:__memcpy_chk) redirected to 0x4851ea8 (__memcpy_chk)
-                                                  0x3b77314f193cd9b8b74fc4254fc7d93644dd79b0
-13:36:53 [32mINFO [0m [90msrc/verifier.c:367:[0m [verifier] Marshaling attestation request data to CBOR.
---2840-- REDIR: 0x4b7ddc0 (libc.so.6:__GI_memmove) redirected to 0x4851058 (__GI_memmove)
-13:36:53 [32mINFO [0m [90msrc/verifier.c:377:[0m [verifier] Adding CoAP option URI_PATH.
-13:36:53 [32mINFO [0m [90msrc/verifier.c:385:[0m [verifier] Adding CoAP option CONTENT_TYPE.
-13:36:53 [32mINFO [0m [90msrc/verifier.c:395:[0m [verifier] Creating request PDU.
-13:36:53 [32mINFO [0m [90msrc/verifier.c:409:[0m [verifier] Sending CoAP message.
-13:36:53 [32mINFO [0m [90msrc/verifier.c:417:[0m [verifier] Processing and waiting for response ...
-13:36:57 [32mINFO [0m [90msrc/verifier.c:568:[0m [verifier] Resource 'attest': Received message.
-13:36:57 [32mINFO [0m [90msrc/verifier.c:584:[0m [verifier] Received data of length 5.
-13:36:57 [32mINFO [0m [90msrc/verifier.c:586:[0m [verifier] Received data of total length 5.
-13:36:57 [32mINFO [0m [90msrc/verifier.c:591:[0m [verifier] Parsing received CBOR data.
-13:36:57 [32mINFO [0m [90msrc/verifier.c:622:[0m [verifier] Starting verification.
---2840-- Reading syms from /usr/local/lib/libtss2-tcti-mssim.so.0.0.0
---2840-- REDIR: 0x4b76020 (libc.so.6:index) redirected to 0x484cdf0 (index)
---2840-- REDIR: 0x4b7f480 (libc.so.6:__GI_memchr) redirected to 0x484e468 (__GI_memchr)
---2840-- REDIR: 0x4b78220 (libc.so.6:strncasecmp) redirected to 0x484dc28 (strncasecmp)
---2840-- REDIR: 0x4b76b1c (libc.so.6:strncmp) redirected to 0x484d9e8 (strncmp)
---2840-- REDIR: 0x4b76e48 (libc.so.6:strpbrk) redirected to 0x4852150 (strpbrk)
---2840-- REDIR: 0x4b77fc0 (libc.so.6:stpcpy) redirected to 0x48505f8 (stpcpy)
---2840-- Reading syms from /usr/lib/aarch64-linux-gnu/libnss_files-2.31.so
---2840--   Considering /usr/lib/debug/.build-id/64/717a87a20c4917fa46775553215497233379a6.debug ..
---2840--   .. build-id is valid
---2840-- REDIR: 0x4b76200 (libc.so.6:strcpy) redirected to 0x484d358 (strcpy)
---2840-- REDIR: 0x4b781c8 (libc.so.6:strcasecmp) redirected to 0x484db48 (strcasecmp)
---2840-- REDIR: 0x4b72c70 (libc.so.6:realloc) redirected to 0x484c228 (realloc)
-13:36:58 [32mINFO [0m [90msrc/verifier.c:664:[0m [verifier] Verifying TPM Quote signature with TPM ...
-13:36:58 [32mINFO [0m [90msrc/verifier.c:674:[0m [verifier]     => TPM Quote signature is valid!
-13:36:58 [32mINFO [0m [90msrc/verifier.c:730:[0m [verifier] Verifying nonce ...
-13:36:58 [32mINFO [0m [90msrc/verifier.c:738:[0m [verifier]     => Nonce in TPM Quote is valid! (matches the one sent)
-13:36:58 [32mINFO [0m [90msrc/verifier.c:751:[0m [verifier] Verifying PCRs ...
-13:36:58 [32mINFO [0m [90msrc/verifier.c:767:[0m [verifier]     => PCR composite digest is valid!
-13:36:58 [32mINFO [0m [90msrc/verifier.c:819:[0m [verifier] +----------------------------+
-13:36:58 [32mINFO [0m [90msrc/verifier.c:822:[0m [verifier] |   ATTESTATION SUCCESSFUL   |
-13:36:58 [32mINFO [0m [90msrc/verifier.c:827:[0m [verifier] +----------------------------+
---2840-- Discarding syms at 0x53a11e0-0x53a4064 in /usr/local/lib/libtss2-tcti-mssim.so.0.0.0 (have_dinfo 1)
---2840-- Discarding syms at 0x53b9450-0x53bfc7c in /usr/lib/aarch64-linux-gnu/libnss_files-2.31.so (have_dinfo 1)
-==2840== 
-==2840== HEAP SUMMARY:
-==2840==     in use at exit: 0 bytes in 0 blocks
-==2840==   total heap usage: 3,180 allocs, 3,180 frees, 162,980 bytes allocated
-==2840== 
-==2840== All heap blocks were freed -- no leaks are possible
-==2840== 
-==2840== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==3540== Memcheck, a memory error detector
+==3540== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==3540== Using Valgrind-3.15.0-608cb11914-20190413 and LibVEX; rerun with -h for copyright info
+==3540== Command: bin/verifier
+==3540== 
+--3540-- Valgrind options:
+--3540--    --leak-check=full
+--3540--    --show-leak-kinds=all
+--3540--    -v
+--3540-- Contents of /proc/version:
+--3540--   Linux version 5.10.124-linuxkit (root@buildkitsandbox) (gcc (Alpine 10.2.1_pre1) 10.2.1 20201203, GNU ld (GNU Binutils) 2.35.2) #1 SMP PREEMPT Thu Jun 30 08:18:26 UTC 2022
+--3540-- 
+--3540-- Arch and hwcaps: ARM64, LittleEndian, baseline
+--3540-- Page sizes: currently 4096, max supported 65536
+--3540-- Valgrind library directory: /usr/lib/aarch64-linux-gnu/valgrind
+--3540-- Reading syms from /home/bob/charra/bin/verifier
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/ld-2.31.so
+--3540--   Considering /usr/lib/debug/.build-id/b6/7648e0ab1141e21a749711cde7a7b250b9e1d3.debug ..
+--3540--   .. build-id is valid
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/valgrind/memcheck-arm64-linux
+--3540--    object doesn't have a symbol table
+--3540--    object doesn't have a dynamic symbol table
+--3540-- Scheduler: using generic scheduler lock implementation.
+--3540-- Reading suppressions file: /usr/lib/aarch64-linux-gnu/valgrind/default.supp
+==3540== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-3540-by-???-on-de9b5d9f0bda
+==3540== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-3540-by-???-on-de9b5d9f0bda
+==3540== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-3540-by-???-on-de9b5d9f0bda
+==3540== 
+==3540== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==3540== don't want to do, unless you know exactly what you're doing,
+==3540== or are doing some strange experiment):
+==3540==   /usr/lib/aarch64-linux-gnu/valgrind/../../bin/vgdb --pid=3540 ...command...
+==3540== 
+==3540== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==3540==   /path/to/gdb bin/verifier
+==3540== and then give GDB the following command
+==3540==   target remote | /usr/lib/aarch64-linux-gnu/valgrind/../../bin/vgdb --pid=3540
+==3540== --pid is optional if only one valgrind process is running
+==3540== 
+--3540-- REDIR: 0x4019400 (ld-linux-aarch64.so.1:strlen) redirected to 0x580c5de8 (???)
+--3540-- REDIR: 0x4018440 (ld-linux-aarch64.so.1:strcmp) redirected to 0x580c5e3c (???)
+--3540-- REDIR: 0x4018330 (ld-linux-aarch64.so.1:index) redirected to 0x580c5e10 (???)
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/valgrind/vgpreload_core-arm64-linux.so
+--3540--    object doesn't have a symbol table
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/valgrind/vgpreload_memcheck-arm64-linux.so
+--3540--    object doesn't have a symbol table
+--3540-- Reading syms from /usr/local/lib/libcoap-2-tinydtls.so.3.0.0
+--3540-- Reading syms from /usr/local/lib/libqcbor.so.1.0.0
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/libm-2.31.so
+--3540--   Considering /usr/lib/debug/.build-id/ef/5f79ec54a7fe0dbb8f0cf2a360c360978c8d39.debug ..
+--3540--   .. build-id is valid
+--3540-- Reading syms from /usr/local/lib/libmbedcrypto.so.6
+--3540-- Reading syms from /usr/local/lib/libtss2-esys.so.0.0.0
+--3540-- Reading syms from /usr/local/lib/libtss2-mu.so.0.0.0
+--3540-- Reading syms from /usr/local/lib/libtss2-tctildr.so.0.0.0
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/libc-2.31.so
+--3540--   Considering /usr/lib/debug/.build-id/b7/b30ba2c0f618615a8d32d86813718bb2fdb567.debug ..
+--3540--   .. build-id is valid
+--3540-- Reading syms from /usr/local/lib/libtinydtls.so
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/libcrypto.so.1.1
+--3540--    object doesn't have a symbol table
+--3540-- Reading syms from /usr/local/lib/libtss2-sys.so.1.0.0
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/libdl-2.31.so
+--3540--   Considering /usr/lib/debug/.build-id/e6/bacb58f1852797463ae6de925c26bd634492bf.debug ..
+--3540--   .. build-id is valid
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/libpthread-2.31.so
+--3540--   Considering /usr/lib/debug/.build-id/9e/e85bfaafff46d2fae9ac6c7ff06a68e9080cc8.debug ..
+--3540--   .. build-id is valid
+--3540-- REDIR: 0x4b77ab0 (libc.so.6:memchr) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
+--3540-- REDIR: 0x4b768d8 (libc.so.6:strlen) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
+--3540-- REDIR: 0x4b77c90 (libc.so.6:memmove) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
+--3540-- REDIR: 0x4b78390 (libc.so.6:memcpy) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
+--3540-- REDIR: 0x4b77da0 (libc.so.6:memset) redirected to 0x48346c8 (_vgnU_ifunc_wrapper)
+--3540-- REDIR: 0x4b76d40 (libc.so.6:rindex) redirected to 0x484cc40 (rindex)
+--3540-- REDIR: 0x4b7f680 (libc.so.6:__GI_strlen) redirected to 0x484d268 (__GI_strlen)
+--3540-- REDIR: 0x4b72420 (libc.so.6:malloc) redirected to 0x4849d18 (malloc)
+--3540-- REDIR: 0x4b77e60 (libc.so.6:mempcpy) redirected to 0x4851890 (mempcpy)
+--3540-- REDIR: 0x4b72a08 (libc.so.6:free) redirected to 0x484aeb0 (free)
+--3540-- REDIR: 0x4b7ddd0 (libc.so.6:__GI_memcpy) redirected to 0x484efb0 (__GI_memcpy)
+--3540-- REDIR: 0x4b77708 (libc.so.6:strstr) redirected to 0x4851fb8 (strstr)
+--3540-- REDIR: 0x4b77b00 (libc.so.6:bcmp) redirected to 0x48504d8 (bcmp)
+--3540-- REDIR: 0x4b76100 (libc.so.6:strcmp) redirected to 0x484e278 (strcmp)
+--3540-- REDIR: 0x4b79ab0 (libc.so.6:strchrnul) redirected to 0x4851790 (strchrnul)
+16:36:46 [32mINFO [0m [90msrc/verifier.c:269:[0m [verifier] Initializing CoAP in block-wise mode.
+--3540-- REDIR: 0x4b7ef40 (libc.so.6:__GI_memset) redirected to 0x4850c50 (memset)
+--3540-- REDIR: 0x4b73160 (libc.so.6:calloc) redirected to 0x484c000 (calloc)
+16:36:46 [32mINFO [0m [90msrc/verifier.c:277:[0m [verifier] Registering CoAP response handler.
+16:36:46 [32mINFO [0m [90msrc/verifier.c:315:[0m [verifier] Creating CoAP client session using UDP.
+16:36:46 [32mINFO [0m [90msrc/verifier.c:357:[0m [verifier] Creating attestation request.
+--3540-- REDIR: 0x4bd7430 (libc.so.6:__memcpy_chk) redirected to 0x4851ea8 (__memcpy_chk)
+                                                  0xacd2456b477705d3c9c360ea4c0decd6dbbb19f5
+16:36:46 [32mINFO [0m [90msrc/verifier.c:367:[0m [verifier] Marshaling attestation request data to CBOR.
+--3540-- REDIR: 0x4b7ddc0 (libc.so.6:__GI_memmove) redirected to 0x4851058 (__GI_memmove)
+16:36:46 [32mINFO [0m [90msrc/verifier.c:377:[0m [verifier] Adding CoAP option URI_PATH.
+16:36:46 [32mINFO [0m [90msrc/verifier.c:385:[0m [verifier] Adding CoAP option CONTENT_TYPE.
+16:36:46 [32mINFO [0m [90msrc/verifier.c:395:[0m [verifier] Creating request PDU.
+16:36:46 [32mINFO [0m [90msrc/verifier.c:409:[0m [verifier] Sending CoAP message.
+16:36:46 [32mINFO [0m [90msrc/verifier.c:417:[0m [verifier] Processing and waiting for response ...
+16:36:47 [32mINFO [0m [90msrc/verifier.c:568:[0m [verifier] Resource 'attest': Received message.
+16:36:47 [32mINFO [0m [90msrc/verifier.c:584:[0m [verifier] Received data of length 5.
+16:36:47 [32mINFO [0m [90msrc/verifier.c:586:[0m [verifier] Received data of total length 5.
+16:36:47 [32mINFO [0m [90msrc/verifier.c:591:[0m [verifier] Parsing received CBOR data.
+16:36:47 [32mINFO [0m [90msrc/verifier.c:622:[0m [verifier] Starting verification.
+--3540-- Reading syms from /usr/local/lib/libtss2-tcti-mssim.so.0.0.0
+--3540-- REDIR: 0x4b76020 (libc.so.6:index) redirected to 0x484cdf0 (index)
+--3540-- REDIR: 0x4b7f480 (libc.so.6:__GI_memchr) redirected to 0x484e468 (__GI_memchr)
+--3540-- REDIR: 0x4b78220 (libc.so.6:strncasecmp) redirected to 0x484dc28 (strncasecmp)
+--3540-- REDIR: 0x4b76b1c (libc.so.6:strncmp) redirected to 0x484d9e8 (strncmp)
+--3540-- REDIR: 0x4b76e48 (libc.so.6:strpbrk) redirected to 0x4852150 (strpbrk)
+--3540-- REDIR: 0x4b77fc0 (libc.so.6:stpcpy) redirected to 0x48505f8 (stpcpy)
+--3540-- Reading syms from /usr/lib/aarch64-linux-gnu/libnss_files-2.31.so
+--3540--   Considering /usr/lib/debug/.build-id/64/717a87a20c4917fa46775553215497233379a6.debug ..
+--3540--   .. build-id is valid
+--3540-- REDIR: 0x4b76200 (libc.so.6:strcpy) redirected to 0x484d358 (strcpy)
+--3540-- REDIR: 0x4b781c8 (libc.so.6:strcasecmp) redirected to 0x484db48 (strcasecmp)
+--3540-- REDIR: 0x4b72c70 (libc.so.6:realloc) redirected to 0x484c228 (realloc)
+16:36:47 [32mINFO [0m [90msrc/verifier.c:664:[0m [verifier] Verifying TPM Quote signature with TPM ...
+16:36:47 [32mINFO [0m [90msrc/verifier.c:674:[0m [verifier]     => TPM Quote signature is valid!
+16:36:47 [32mINFO [0m [90msrc/verifier.c:730:[0m [verifier] Verifying nonce ...
+16:36:47 [32mINFO [0m [90msrc/verifier.c:738:[0m [verifier]     => Nonce in TPM Quote is valid! (matches the one sent)
+16:36:47 [32mINFO [0m [90msrc/verifier.c:751:[0m [verifier] Verifying PCRs ...
+16:36:47 [32mINFO [0m [90msrc/verifier.c:767:[0m [verifier]     => PCR composite digest is valid!
+16:36:47 [32mINFO [0m [90msrc/verifier.c:819:[0m [verifier] +----------------------------+
+16:36:47 [32mINFO [0m [90msrc/verifier.c:822:[0m [verifier] |   ATTESTATION SUCCESSFUL   |
+16:36:47 [32mINFO [0m [90msrc/verifier.c:827:[0m [verifier] +----------------------------+
+--3540-- Discarding syms at 0x53a11e0-0x53a4064 in /usr/local/lib/libtss2-tcti-mssim.so.0.0.0 (have_dinfo 1)
+--3540-- Discarding syms at 0x53b9450-0x53bfc7c in /usr/lib/aarch64-linux-gnu/libnss_files-2.31.so (have_dinfo 1)
+==3540== 
+==3540== HEAP SUMMARY:
+==3540==     in use at exit: 0 bytes in 0 blocks
+==3540==   total heap usage: 3,180 allocs, 3,180 frees, 162,980 bytes allocated
+==3540== 
+==3540== All heap blocks were freed -- no leaks are possible
+==3540== 
+==3540== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -43,12 +43,16 @@
 #include "util/tpm2_util.h"
 
 
+#define PRINT_RES(x) (x ? "Ok!" : "Failed!")
 
 /* ---------- Arcadian IoT Remote Attestation Libraries */
+
 #include "ra_iot_libs/ra_iot_dto.h"
 #include "ra_iot_libs/ra_iot_memory_mgmt.h"
 #include "ra_iot_libs/ra_iot_crypto.h"
-#include "ra_iot_libs/ra_iot_test.h"
+#include "ra_iot_libs/ra_iot_evidence_mgmt.h"
+#include "ra_iot_libs/ra_iot_marshaling.h"
+#include "ra_iot_libs/ra_iot_security.h"
 
 
 #include "ra_iot_libs/test_ra_iot/test_ra_iot.h"
@@ -61,7 +65,7 @@
 static bool quit = false;
 
 /* logging */
-#define LOG_NAME "attester"
+#define LOG_NAME "ra_iot_attester"
 coap_log_t coap_log_level = LOG_INFO;
 // #define LOG_LEVEL_CBOR LOG_DEBUG
 charra_log_t charra_log_level = CHARRA_LOG_INFO;
@@ -108,7 +112,8 @@ mbedtls_rsa_context pub_key, priv_key; // key-pair for signing
 
 int main(int argc, char** argv) {
 	int result = EXIT_FAILURE;
-	
+	int res;
+
 	/* handle SIGINT */
 	signal(SIGINT, handle_sigint);
 
@@ -151,7 +156,7 @@ int main(int argc, char** argv) {
 	charra_log_set_level(charra_log_level);
 	coap_set_log_level(coap_log_level);
 
-	charra_log_debug("[" LOG_NAME "] Attester Configuration ABC:");
+	charra_log_debug("[" LOG_NAME "] Attester Configuration:");
 	charra_log_debug("[" LOG_NAME "]     Used local port: %d", port);
 	charra_log_debug("[" LOG_NAME "]     DTLS-PSK enabled: %s",
 		(use_dtls_psk == true) ? "true" : "false");
@@ -259,6 +264,29 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	/* Create Signing key pair */
+	mbedtls_rsa_init( &pub_key, MBEDTLS_RSA_PKCS_V15, 0 );
+	mbedtls_rsa_init( &priv_key, MBEDTLS_RSA_PKCS_V15, 0 );
+
+
+	/* mbedtls_mpi_init( &(pub_key.N) ); mbedtls_mpi_init( &(pub_key.P) ); mbedtls_mpi_init( &(pub_key.Q) );
+    mbedtls_mpi_init( &(pub_key.D) ); mbedtls_mpi_init( &(pub_key.E) ); mbedtls_mpi_init( &(pub_key.DP) );
+    mbedtls_mpi_init( &(pub_key.DQ) ); mbedtls_mpi_init( &(pub_key.QP) );
+
+	mbedtls_mpi_init( &(priv_key.N) ); mbedtls_mpi_init( &(priv_key.P) ); mbedtls_mpi_init( &(priv_key.Q) );
+    mbedtls_mpi_init( &(priv_key.D) ); mbedtls_mpi_init( &(priv_key.E) ); mbedtls_mpi_init( &(priv_key.DP) );
+    mbedtls_mpi_init( &(priv_key.DQ) ); mbedtls_mpi_init( &(priv_key.QP) );
+ */
+
+	charra_log_info("[" LOG_NAME "] Generating Attester's key");
+	res = ra_iot_gen_rsa_keypair("attester_keys/", &pub_key, &priv_key);
+    charra_log_info("[" LOG_NAME "] \tAttester's key generation: %s", PRINT_RES(res));
+	charra_log_info("[" LOG_NAME "] Checking Attester keys");
+    charra_log_info("[" LOG_NAME "] \tKey Pair is: %s", PRINT_RES(mbedtls_rsa_check_pub_priv(&pub_key, &priv_key) == 0));
+    charra_log_info("[" LOG_NAME "] \tPublic key is: %s", PRINT_RES(mbedtls_rsa_check_pubkey(&pub_key) == 0));
+    charra_log_info("[" LOG_NAME "] \tPrivate key is: %s", PRINT_RES(mbedtls_rsa_check_privkey(&priv_key) == 0));
+
+
 	/* register CoAP resource and resource handler */
 	charra_log_info("[" LOG_NAME "] Registering CoAP resources.");
 	charra_coap_add_resource(
@@ -305,19 +333,13 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	struct coap_string_t* query, struct coap_pdu_t* out) {
 	CHARRA_RC charra_r = CHARRA_RC_SUCCESS;
 	int coap_r = 0;
+	int res;
 	TSS2_RC tss_r = 0;
 	ESYS_TR sig_key_handle = ESYS_TR_NONE;
 	TPM2B_PUBLIC* public_key = NULL;
-	printf("I am here!! ABC\n");
-#if TEST_MARSHALLING
-	attest_res_marshall_unmarshal_test();
-	printf("Saí da função\n");
-#else
-	charra_log_info("[" LOG_NAME "] Testing pipeline");
-	//ra_iot_pipeline_test();
-#endif
+	printf("\n\n\n");
 	/* --- receive incoming data --- */
-
+	charra_log_info("[" LOG_NAME "] ********** ********** ********** **********");
 	charra_log_info(
 		"[" LOG_NAME "] Resource '%s': Received message.", "attest");
 	coap_show_pdu(LOG_DEBUG, in);
@@ -340,9 +362,10 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 
 	/* unmarshal data */
 	charra_log_info("[" LOG_NAME "] Parsing received CBOR data.");
-	msg_attestation_request_dto req = {0};
-	if ((charra_r = charra_unmarshal_attestation_request(
-			 data_len, data, &req)) != CHARRA_RC_SUCCESS) {
+	//msg_attestation_request_dto req = {0};
+	ra_iot_msg_attestation_request_dto request = {0};
+
+	if (ra_iot_unmarshal_attestation_request(data_len, data, &request) != 1) {
 		charra_log_error("[" LOG_NAME "] Could not parse CBOR data.");
 		goto error;
 	}
@@ -352,121 +375,99 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	charra_log_info("[" LOG_NAME "] Preparing TPM quote data.");
 
 	/* nonce */
-	if (req.nonce_len > sizeof(TPMU_HA)) {
-		charra_log_error("[" LOG_NAME "] Nonce too long.");
-		goto error;
-	}
-	TPM2B_DATA qualifying_data = {.size = 0, .buffer = {0}};
-	qualifying_data.size = req.nonce_len;
-	memcpy(qualifying_data.buffer, req.nonce, req.nonce_len);
-
-	charra_log_info("Received nonce of length %d:", req.nonce_len);
-	charra_print_hex(CHARRA_LOG_INFO, req.nonce_len, req.nonce,
+	charra_log_info("Received nonce of length %d:", request.nonce_len);
+	charra_print_hex(CHARRA_LOG_INFO, request.nonce_len, request.nonce,
 		"                                   0x", "\n", false);
 
-	/* PCR selection */
-	TPML_PCR_SELECTION pcr_selection = {0};
-	if ((charra_r = charra_pcr_selections_to_tpm_pcr_selections(
-			 req.pcr_selections_len, req.pcr_selections, &pcr_selection)) !=
-		CHARRA_RC_SUCCESS) {
-		charra_log_error("[" LOG_NAME "] PCR selection conversion error.");
-		goto error;
-	}
 
-	/* initialize ESAPI */
-	ESYS_CONTEXT* esys_ctx = NULL;
-	TSS2_TCTI_CONTEXT* tcti_ctx = NULL;
-	if ((tss_r = Tss2_TctiLdr_Initialize(getenv("CHARRA_TCTI"), &tcti_ctx)) !=
-		TSS2_RC_SUCCESS) {
-		charra_log_error("[" LOG_NAME "] Tss2_TctiLdr_Initialize.");
-		goto error;
-	}
-	if ((tss_r = Esys_Initialize(&esys_ctx, tcti_ctx, NULL)) !=
-		TSS2_RC_SUCCESS) {
-		charra_log_error("[" LOG_NAME "] Esys_Initialize.");
-		goto error;
-	}
+	/* Load Verifier's key for encryption */
+	pub_key_dto verifier_key_bytes = {0};
+    mbedtls_rsa_context verifier_key;
+	mbedtls_rsa_init( &verifier_key, MBEDTLS_RSA_PKCS_V15, 0 );
+    charra_log_info("[" LOG_NAME "] Converting the unmarshalled Verifier's public key to a intermediate \"buffer structure\"");
+    memcpy(&verifier_key_bytes, request.public_key, sizeof(request.public_key));
+    charra_log_info("[" LOG_NAME "] Converting Verifiers's public key from bytes to mbedtls_rsa_context for encryption");
+    res = ra_iot_load_pub_key_from_buffer(&verifier_key_bytes, &verifier_key);
+    charra_log_info("[" LOG_NAME "] \tConverting bytes to mbedtls_rsa_context: %s", (res ? "Ok!" : "Failed!"));
 
+	
+	/* Prepare (encryption) public key for the attestation response */
+	pub_key_dto pk_bytes;
+    charra_log_info("[" LOG_NAME "] Writing the signing public key to \"buffer structure\" for marshalling");
+    res = ra_iot_load_pub_key_to_buffer("attester_keys/rsa_pub.txt", &pk_bytes);
+    charra_log_info("[" LOG_NAME "] \tWriting to binary %s\n", (res ? "was Successful!" : "Failed!"));
+	
 
-	/* load TPM key */
-	charra_log_info("[" LOG_NAME "] Loading TPM key.");
-	if ((charra_r = charra_load_tpm2_key(esys_ctx, req.sig_key_id_len,
-			 req.sig_key_id, &sig_key_handle, &public_key)) !=
-		CHARRA_RC_SUCCESS) {
-		charra_log_error("[" LOG_NAME "] Could not load TPM key.");
-		goto error;
-	}
+	/* Copy received nonce and get evidence */
+	charra_log_info("[" LOG_NAME "] \n\n************ Parsing Claim Selections and Generating Evidence ************\n\n");
+    ra_iot_attest_dto attest_data;
+    res = ra_iot_gen_evidence(request, &attest_data);
+    charra_log_info("[" LOG_NAME "] Reading and parsing the evidence: %s\n", (res ? "Ok!!": "Failed!!"));
 
-	/* do the TPM quote */
-	charra_log_info("[" LOG_NAME "] Do TPM Quote.");
-	TPM2B_ATTEST* attest_buf = NULL;
-	TPMT_SIGNATURE* signature = NULL;
-	if ((tss_r = tpm2_quote(esys_ctx, sig_key_handle, &pcr_selection,
-			 &qualifying_data, &attest_buf, &signature)) != TSS2_RC_SUCCESS) {
-		charra_log_error("[" LOG_NAME "] TPM2 quote.");
-		goto error;
-	} else {
-		charra_log_info("[" LOG_NAME "] TPM Quote successful.");
-	}
 	/* --- send response data --- */
+	/* Preparing attestation data for encryption and signing */
+	charra_log_info("[" LOG_NAME "] \n********** Preparing Attestation Data for Encryption and Signing **********");
+    
+    size_t attest_data_buf_len = sizeof(ra_iot_attest_dto);
+    uint8_t attest_data_buf[sizeof(ra_iot_attest_dto)];
+    memset(attest_data_buf, 0, attest_data_buf_len);
+	
+    memcpy((void *)attest_data_buf, (void *)&attest_data, sizeof(ra_iot_attest_dto));
 
-	/* read IMA event log if requested */
-	uint8_t* ima_event_log = NULL;
-	size_t ima_event_log_len = 0;
-	if (req.event_log_path_len != 0) {
-		charra_log_info("[" LOG_NAME "] Reading IMA event log.");
-		char* path = malloc(sizeof(char) * (req.event_log_path_len + 1));
-		memcpy(path, req.event_log_path, req.event_log_path_len);
-		path[req.event_log_path_len + 1] = '\n';
-		CHARRA_RC rc = charra_io_read_continuous_binary_file(
-			path, &ima_event_log, &ima_event_log_len);
-		if (rc != CHARRA_RC_SUCCESS) {
-			charra_log_error("[" LOG_NAME "] Error while reading IMA event "
-							 "log. Sending empty event log!");
-			ima_event_log_len = 0;
-			ima_event_log = NULL;
-		} else {
-			charra_log_info("[" LOG_NAME
-							"] IMA event log has a size of %d bytes.",
-				ima_event_log_len);
-		}
-	}
+//    charra_log_info("[" LOG_NAME "] ----------------------------------------\n");
+    uint8_t encr_attest_data[256] = {0};
+    uint32_t encr_attest_data_len = sizeof(encr_attest_data); // encryption function returns a 256 byte size ecrypted data
+    memset(encr_attest_data, 0, sizeof(uint8_t)*256);
+
+    //size_t max_size = 2048;
+    uint8_t signature[MBEDTLS_PK_SIGNATURE_MAX_SIZE] = {0};
+    size_t signature_len = MBEDTLS_PK_SIGNATURE_MAX_SIZE; // redundant
+
+	res = ra_iot_encrypt_sign(&verifier_key, &priv_key, attest_data_buf, attest_data_buf_len, signature, encr_attest_data);
+    charra_log_info("[" LOG_NAME "] \tEncrypting and Signing: %s", (res ? "Ok!!": "Failed!!"));
+
+
+
+	/* Read the event logs, if requested */
+	uint8_t *event_log = malloc(sizeof(uint8_t)*128);
+    uint32_t event_log_len;
+    if(request.get_logs){
+        charra_log_info("[" LOG_NAME "] Getting the logs!");
+        ra_iot_get_log_data(event_log, &event_log_len);
+        charra_log_info("[" LOG_NAME "] \t -> Event log generated: [%d]: %s", event_log_len, event_log);   
+    }
+    //charra_log_info("[" LOG_NAME "] ----------------------------------------\n");
+
 
 	/* prepare response */
 	charra_log_info("[" LOG_NAME "] Preparing response.");
 
-	/* prepare response DTO */
-	msg_attestation_response_dto res = {
-		//.attestation_data_len = attest_buf->size,
-		.attestation_data_len = 0,
-		.attestation_data = {0}, // must be memcpy'd, see below	
-		//.tpm2_signature_len = sizeof(*signature),
-		.tpm2_signature_len = 0,
-		.tpm2_signature = {0}, // must be memcpy'd, see below
-		//.tpm2_public_key_len = sizeof(*public_key),
-		.tpm2_public_key_len = 0,
-		.tpm2_public_key = {0}, // must be memcpy'd, see below
-		.event_log_len = ima_event_log_len,
-		.event_log = ima_event_log,
-	};
-	memcpy(res.attestation_data, attest_buf->attestationData,res.attestation_data_len);
-	memcpy(res.tpm2_signature, signature, res.tpm2_signature_len);
-	memcpy(res.tpm2_public_key, public_key, res.tpm2_public_key_len);
+	/* Create attestation response */
+    ra_iot_msg_attestation_response_dto response = {
+        .attestation_data = {0},
+        .attestation_data_len = encr_attest_data_len,
+        .signature = {0},
+        .signature_len = signature_len,
+        .public_key = {0},
+        .public_key_len = sizeof(pk_bytes),
+        .event_log = event_log,
+        .event_log_len = event_log_len
+    };
 
-	/* clean up */
-	charra_free_and_null(signature);
-	charra_free_and_null(attest_buf);
-	charra_free_and_null(public_key);
+    memcpy(response.public_key, &pk_bytes, sizeof(pk_bytes));
+    memcpy(response.attestation_data, encr_attest_data, response.attestation_data_len);
+    memcpy(response.signature, signature, signature_len);
 
 	/* marshal response */
 	charra_log_info("[" LOG_NAME "] Marshaling response to CBOR.");
 	uint32_t res_buf_len = 0;
 	uint8_t* res_buf = NULL;
-	if ((charra_r = charra_marshal_attestation_response(
-			 &res, &res_buf_len, &res_buf)) != CHARRA_RC_SUCCESS) {
-		charra_log_error("[" LOG_NAME "] Error marshaling data.");
-		goto error;
-	}
+	if (ra_iot_marshal_attestation_response(&response, &res_buf_len, &res_buf) != 1) {
+        charra_log_error("[" LOG_NAME "] Error marshaling data.");
+        goto error;
+    }else{
+        charra_log_info("[" LOG_NAME "] Attestation Response Successfully Marshalled!");
+    }
 	charra_log_info(
 		"[" LOG_NAME "] Size of marshaled response is %d bytes.", res_buf_len);
 
@@ -487,25 +488,12 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	}
 
 error:
+
 	/* Free heap objects */
-	charra_free_if_not_null(signature);
-	charra_free_if_not_null(attest_buf);
-	charra_free_if_not_null(public_key);
-	charra_free_continous_file_buffer(&ima_event_log);
+	/* clean up */
+	if(event_log)
+		free(event_log);
+	mbedtls_rsa_free( &pub_key );
+    mbedtls_rsa_free( &priv_key );
 
-	/* flush handles */
-	if (sig_key_handle != ESYS_TR_NONE) {
-		if (Esys_FlushContext(esys_ctx, sig_key_handle) != TSS2_RC_SUCCESS) {
-			charra_log_error(
-				"[" LOG_NAME "] TSS cleanup sig_key_handle failed.");
-		}
-	}
-
-	/* finalize ESAPI */
-	if (esys_ctx != NULL) {
-		Esys_Finalize(&esys_ctx);
-	}
-	if (tcti_ctx != NULL) {
-		Tss2_TctiLdr_Finalize(&tcti_ctx);
-	}
 }

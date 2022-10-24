@@ -1,216 +1,5 @@
 0
 make: Nothing to be done for 'all'.
-/* ************************************************** */
-/* **************** Pipeline Testing **************** */
-/* ************************************************** */
-
-********** Initial Set Up **********
-
-********** Generate encryption and signature keys ********** 
-
-Attester's key generation: Ok!
-
-Checking Attester keys
-	Key Pair is: Ok!
-	Public key is: Ok!
-	Private key is: Ok!
-
-Verifier's key generation: Ok!
-
-Checking Verifier keys
-	Key Pair is: Ok!
-	Public key is: Ok!
-	Private key is: Ok!
-
-Cross Checking keys
-	Key Pair (encr_pub, sig_priv) is: No Match!
-	Key Pair (sig_pub, encr_priv) is: No Match!
-
-			####################################################################################################
-
-
-		********************************************************************
-		********** Generating and "Sending" Attestation Request **********
-		********************************************************************
-
-Creating the Attestation Request
-
-Writing the signing public key to "buffer structure" for marshalling
-	Writing to binary was Successful!
--> Nonce (20): 0x94 9b 11 9e 56 5c 34 52 63 ed 7f a7 40 ec 5a 2f cc 80 16 4d 
--> Claim selection len: 5
-Claims selections: 
-	[17]: Claim Selection 0
-	[18]: Claim Selection 35
-	[18]: Claim Selection 70
-	[19]: Claim Selection 105
-	[18]: Claim Selection 20
-Get logs: True
-----------------------------------------
-
-Marshalling the Attestation Request
-Size of marshaled data is 634 bytes.
-Allocated 634 bytes of memory.
-Marshalling seems OK!
-----------------------------------------
-
-
-			####################################################################################################
-
-
-		***************************************************
-		*********** Reading Attestation Request ***********
-		***************************************************
-
-Unmarshal Attestation Request
-	Att. Request UnMarshalling seems OK!
-Converting the unmarshalled Verifier's public key to a intermediate "buffer structure"
-Converting Verifiers's public key from bytes to mbedtls_rsa_context for encryption
-Converting bytes to mbedtls_rsa_context: Ok!
-TESTING Verifier's the public key
-	NEW Public key is: Ok
-	NEW Key Pair is: Ok
-----------------------------------------
-TESTING Cmp unmarshaled att. request with original one
-	Attestation Requests are EQUAL!
-		Nonces are EQUAL!!
-
-	Received Attestation Request 
--> Nonce (20): 0x94 9b 11 9e 56 5c 34 52 63 ed 7f a7 40 ec 5a 2f cc 80 16 4d 
--> Claim selection len: 5
-Claims selections: 
-	[17]: Claim Selection 0
-	[18]: Claim Selection 35
-	[18]: Claim Selection 70
-	[19]: Claim Selection 105
-	[18]: Claim Selection 20
-Get logs: True
-----------------------------------------
-
-
-
-Generate attestation response data...
-Writing the signing public key to "buffer structure" for marshalling
-	Writing to binary was Successful!
-
-
-************ Parsing Claim Selections and Generating Evidence ************
-
-In ra_iot_parse_claim_selections
-
-	Parsed Claims selections output
--> Claim selection len: 5
-Claims selections: 
-	[17]: Claim Selection 0ection 20
-	[18]: Claim Selection 35
-	[18]: Claim Selection 70
-	[19]: Claim Selection 105
-	[18]: Claim Selection 20
-Inside the function
--> Nonce (20): 0x94 9b 11 9e 56 5c 34 52 63 ed 7f a7 40 ec 5a 2f cc 80 16 4d 
-Data (69): l[5]: 
-	Claim 0ection 20,
-	Claim 35,
-	Claim 70,
-	Claim 105,
-	Claim 20
-
--------######--------
-Reading and parsing the evidence: Ok!!
--> Nonce (20): 0x94 9b 11 9e 56 5c 34 52 63 ed 7f a7 40 ec 5a 2f cc 80 16 4d 
-Data (69): l[5]: 
-	Claim 0ection 20,
-	Claim 35,
-	Claim 70,
-	Claim 105,
-	Claim 20
-----------------------------------------
-
-
-********** Preparing Attestation Data for Encryption and Signing **********
-----------------------------------------
-
-
-********** Encrypting and Signing attestation data **********
-i_len = 240
-[MBEDTLS] Encryption Done!
-ra_iot_encrypt_sign: Data was encrypted!
-	[MBEDTLS] Signature Done
-ra_iot_encrypt_sign: Data was signed!!
-	Encrypting and Signing: Ok!!
-----------------------------------------
-
-********** Get the logs **********
-
-Getting the logs!
--> Event log generated: [15]: Event logs data
-----------------------------------------
-
-
-********** Creating the attestation response **********
-----------------------------------------
-********** Marshalling the attestation response **********
-In ra_iot_marshal_attestation_response_internal
-Size of marshaled data is 1818 bytes.
-Allocated 1818 bytes of memory.
-In ra_iot_marshal_attestation_response_internal
-Attestation Response Successfully Marshalled!
-----------------------------------------
-
-			####################################################################################################
-
-
-		******************************************************
-		*********** Unmarshal Attestation response ***********
-		******************************************************
-
-Unmarshaling Attestation Response: Ok!
-----------------------------------------
-********** Verifrying UNmarshalled attestation response **********
-
-Comparing attestation results...
-The attestation results are EQUAL!
-----------------------------------------
-Converting the unmarshalled Attester's public key to a intermediate "buffer structure"
-Converting Attester's public key from bytes to mbedtls_rsa_context
-Converting bytes to mbedtls_rsa_context: Ok!
-TESTING the public key
-	NEW Public key is: Ok
-	NEW Key Pair is: Ok
-----------------------------------------
-TESTING (visualy) if the unmarshaled event log corresponds to the original one and if no pointers are shared
--> Original Event log [17]: Event logs data +
--> Unmarshalled Event log [15]: Event logs data
-----------------------------------------
-Compare original and unmarshaled signatures
-	They are: Equal
-----------------------------------------
-
-Unmarshal attestation data:
-	 I.e. verifying the signature and decrypting the data
-[MBEDTLS] Decryption Successfull, size is 240
-ra_iot_verify_decrypt: Ok!
-ra_iot_unmarshal_attestion_data: Ok!
-	(Changing old data a byte :D)
-		Nonces are EQUAL| (not expected)
-
-	Old Attestation Data 
--> Nonce (20): 0x94 9b 11 9e 56 5c 34 52 63 ed 7f a7 40 ec 5a 2f cc 80 16 4d 
-Data (69): l[5]: 
-	Claim 0ection 20,
-	Claim 35,
-	Claim 70,
-	Claim 105,
-	Claim 20
-
-	Unmashalled Attestation Data 
--> Nonce (20): 0x94 9b 11 9e 56 5c 34 52 63 ed 7f a7 40 ec 5a 2f cc 80 16 4d 
-Data (69): l[5]: 
-	Claim 0ection 20,
-	Claim 35,
-	Claim 70,
-	Claim 105,
-	Claim 20
 
 
 
@@ -219,41 +8,121 @@ Data (69): l[5]:
 
 
 [In VERIFER ==>>]
-----------------------------------------
-		******************************************************
-		**************** Appraising Evidence! ****************
-		******************************************************
 
+Verifier's key generation: Ok!
+
+Checking Verifier keys
+	Key Pair is: Ok!
+	Public key is: Ok!
+	Private key is: Ok!
+
+Writing the signing public key to "buffer structure" for marshalling
+
+Attester's key generation: Ok!
+
+Checking Attester keys
+	Key Pair is: Ok!
+	Public key is: Ok!
+	Private key is: Ok!
+Converting the unmarshalled Verifier's public key to a intermediate "buffer structure"
+Converting Verifiers's public key from bytes to mbedtls_rsa_context for encryption
+Converting bytes to mbedtls_rsa_context: Ok!
+Writing the signing public key to "buffer structure" for marshalling
+	Writing to binary was Successful!
+
+
+************ Parsing Claim Selections and Generating Evidence ************
+
+In ra_iot_parse_claim_selections
+
+	AFTER: Parsed Claims selections output
+-> Claim selection len: 5
+Claims selections: 
+	[18]: Claim Selection 0
+	[18]: Claim Selection 1
+	[18]: Claim Selection 2
+	[18]: Claim Selection 3
+	[18]: Claim Selection 4
+
+	--------------------------------------
+Inside the function
+-> Nonce (20): 0xcf bd 1d 8e 34 6b df b0 94 50 b2 12 cf c5 4a e5 90 ac d5 3c 
+Data (55): l[5]: 
+	Claim 0,
+	Claim 1,
+	Claim 2,
+	Claim 3,
+	Claim 4
+
+-------######--------
+Reading and parsing the evidence: Ok!!
+
+
+********** Preparing Attestation Data for Encryption and Signing **********
+----------------------------------------
+	Writing to binary was Successful!
+Size of marshaled data is 634 bytes.
+Allocated 634 bytes of memory.
+Converting the unmarshalled Attester's public key to a intermediate "buffer structure"
+Converting Attester's public key from bytes to mbedtls_rsa_context
+Converting bytes to mbedtls_rsa_context: Ok!
+[MBEDTLS] Decryption Successfull, size is 240
+ra_iot_verify_decrypt: Ok!
+ra_iot_unmarshal_attestion_data: Ok!
 	Claim Integrity Results: Ok!
 			Inside: Reference values
 In ra_iot_parse_claim_selections
--> Ref values len: 60
+-> Claim selection len: 5
+Claims selections: 
+	[18]: Claim Selection 0
+	[18]: Claim Selection 1
+	[18]: Claim Selection 2
+	[18]: Claim Selection 3
+	[18]: Claim Selection 4
+-> Ref values len: 55
 -> Ref Values: l[5]: 
 	Claim 0,
-	Claim 35,
-	Claim 70,
-	Claim 105,
-	Claim 20
+	Claim 1,
+	Claim 2,
+	Claim 3,
+	Claim 4
 
 -----
 -> Claim selection len: 5
 Claims selections: 
-	[17]: Claim Selection 0
-	[18]: Claim Selection 35
-	[18]: Claim Selection 70
-	[19]: Claim Selection 105
-	[18]: Claim Selection 20רדÿÿ
+	[18]: Claim Selection 0
+	[18]: Claim Selection 1
+	[18]: Claim Selection 2
+	[18]: Claim Selection 3
+	[18]: Claim Selection 4
 			End of: Reference values
--> Ref values len: 60
+-> Ref values len: 55
 -> Ref Values: l[5]: 
 	Claim 0,
-	Claim 35,
-	Claim 70,
-	Claim 105,
-	Claim 20
-	Evidence Appraisal Overall Result: Failed!
+	Claim 1,
+	Claim 2,
+	Claim 3,
+	Claim 4
+	Evidence Appraisal Overall Result: Ok!
 Attestation Signature: Ok!
 Nonce: Ok!
-Cmp with Ref. Values: Wrong!
-Event Log: Ok!
-********** DONE!! **********
+Cmp with Ref. Values: Ok!
+Valid Claims: Ok!
+Attestation Signature: Ok!
+Nonce: Ok!
+Cmp with Ref. Values: Ok!
+Valid Claims: Ok!
+i_len = 240
+[MBEDTLS] Encryption Done!
+ra_iot_encrypt_sign: Data was encrypted!
+	[MBEDTLS] Signature Done
+ra_iot_encrypt_sign: Data was signed!!
+	Encrypting and Signing: Ok!!
+Getting the logs!
+-> Event log generated: [15]: Event logs data
+----------------------------------------
+In ra_iot_marshal_attestation_response_internal
+Size of marshaled data is 1818 bytes.
+Allocated 1818 bytes of memory.
+In ra_iot_marshal_attestation_response_internal
+Attestation Response Successfully Marshalled!

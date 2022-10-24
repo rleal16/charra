@@ -48,8 +48,8 @@ typedef struct {
 	bool valid_attest_data_signature; // true a assinatura dos dados de atestação são válidos`
 	bool valid_nonce; // true se o nonce for válido`
 	bool valid_against_ref_values; // true se a evidência for válida quando comparada com o valores de referência`
-	bool valid_event_log; // true se os dados do event log foram válidos -- seja lá o que isso quer dizer`
-	bool valid_claims; // true if it passes the claim integrity tests
+	//bool valid_event_log; // true se os dados do event log foram válidos -- seja lá o que isso quer dizer`
+	bool valid_claims; // true if it passes the claim integrity tests (using event log)
 }attest_res;
 
 

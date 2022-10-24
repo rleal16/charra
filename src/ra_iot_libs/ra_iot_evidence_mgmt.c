@@ -15,7 +15,7 @@ static void get_substr(const char *str, char *substr, size_t start, size_t end){
 /* This version just fills event log with a string */
 int ra_iot_get_log_data(uint8_t *event_log, uint32_t *event_log_len){
     sprintf((char*)event_log, "Event logs data");
-    *event_log_len = strlen((char *)event_log);
+    *event_log_len = strlen((char *)event_log)+1;
     return 1; // SUCCESS
 }
 
@@ -40,6 +40,7 @@ int ra_iot_load_ref_values(const ra_iot_msg_attestation_request_dto req, ref_val
         printf("Loading Reference Values: Error parsing claim selections\n");
         return 0;
     }
+    print_parsed_claim_selections(claim_selection);
     memset(data, 0, sizeof(char)*256);
     memset(substr, 0, sizeof(char)*256);
     sprintf(data, "l[%u]: \n", claim_selection.claim_selections_len);
@@ -91,7 +92,7 @@ void ra_iot_print_attest_res(attest_res att){
     printf("Attestation Signature: %s\n", PRINT_BOOL(att.valid_attest_data_signature));
     printf("Nonce: %s\n", PRINT_BOOL(att.valid_nonce));
     printf("Cmp with Ref. Values: %s\n", PRINT_BOOL(att.valid_against_ref_values));
-    printf("Event Log: %s\n", PRINT_BOOL(att.valid_claims));
+    printf("Valid Claims: %s\n", PRINT_BOOL(att.valid_claims));
 }
 
 int ra_iot_generate_nonce(const uint32_t nonce_len, uint8_t* nonce) {
@@ -117,9 +118,9 @@ int ra_iot_create_attestation_request(ra_iot_msg_attestation_request_dto *req, m
     
     req->claim_selections_len = 5;
     for(int i = 0; i<(int)req->claim_selections_len; i++){
-        sprintf(req->claim_selections[i].selection, "Claim Selection %d", ((i*275)%120));   
-        
-        req->claim_selections[i].selection_len = strlen(req->claim_selections[i].selection);
+        //sprintf(req->claim_selections[i].selection, "Claim Selection %d\0", ((i*275)%120));
+        sprintf(req->claim_selections[i].selection, "Claim Selection %d\0", i);   
+        req->claim_selections[i].selection_len = strlen((char*)req->claim_selections[i].selection)+1;
     }
 
     pub_key_dto pk_bytes;
@@ -148,6 +149,7 @@ int ra_iot_parse_claim_selections(const uint32_t claim_selection_len, const clai
     for(i=0; i<(int)claim_selection_len; i++){
         parsed_res->claim_selections[i].selection_len = claim_selections[i].selection_len;
         memcpy(parsed_res->claim_selections[i].selection, claim_selections[i].selection, claim_selections[i].selection_len);
+        //strcpy(parsed_res->claim_selections[i].selection, claim_selections[i].selection);
     }
     return 1;
 }
@@ -203,8 +205,9 @@ int ra_iot_gen_evidence(const ra_iot_msg_attestation_request_dto req, ra_iot_att
     /* Parse (interpret) the claim selections */
     if(ra_iot_parse_claim_selections(req.claim_selections_len, req.claim_selections, &parsed_cs)!=1)
         return 0;
-    printf("\n\tParsed Claims selections output\n");
-    print_parsed_claim_selections(parsed_cs);
+    printf("\n\tAFTER: Parsed Claims selections output\n");
+    print_claim_selections(req.claim_selections_len, req.claim_selections);
+    printf("\n\t--------------------------------------\n");
     /* Get the evidence data */
     if(ra_iot_get_evidence_data(parsed_cs, att_data)!=1)
         return 0;
@@ -238,7 +241,14 @@ int appraise_evidence(const ra_iot_msg_attestation_request_dto ref_req, const ra
     return 1;
 }
 
-
+bool get_attest_results_overall(const attest_res res){
+    return (
+        res.valid_against_ref_values &&
+        res.valid_attest_data_signature &&
+        res.valid_claims &&
+        res.valid_nonce
+    );
+}
 
 /**********************************
 *********** IO Functions **********
@@ -251,6 +261,7 @@ void print_claim_selections(const uint32_t claim_selection_len, const claim_sele
     printf("Claims selections: \n");
     for(int i = 0; i<(int)claim_selection_len; i++)
         printf("\t[%d]: %s\n", claim_selections[i].selection_len, claim_selections[i].selection);
+    fflush(stdout);
 }
 
 void print_attestation_request(const ra_iot_msg_attestation_request_dto req){
