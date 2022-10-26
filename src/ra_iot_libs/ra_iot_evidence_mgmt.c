@@ -31,7 +31,6 @@ int ra_iot_load_ref_values(ref_values_dto *ref_values){
 
 int ra_iot_load_ref_values(const ra_iot_msg_attestation_request_dto req, ref_values_dto *ref_values){
     char data[256], substr[256];
-    int len_aux;
     int i;
     printf("\t\t\tInside: Reference values\n");
     parsed_claim_selections claim_selection;
@@ -48,7 +47,7 @@ int ra_iot_load_ref_values(const ra_iot_msg_attestation_request_dto req, ref_val
     for(i = 0; i<(int)claim_selection.claim_selections_len-1; i++){
         strcat(data, "\tClaim ");
         
-        get_substr(claim_selection.claim_selections[i].selection, substr, strlen("Claim Selection "), strlen(claim_selection.claim_selections[i].selection));
+        get_substr((char*)claim_selection.claim_selections[i].selection, substr, strlen("Claim Selection "), strlen((char*)claim_selection.claim_selections[i].selection));
         strcat(data, substr);
         memset(substr, 0, sizeof(char)*256);
         
@@ -57,18 +56,18 @@ int ra_iot_load_ref_values(const ra_iot_msg_attestation_request_dto req, ref_val
     }
     
     strcat(data, "\tClaim ");
-    get_substr(claim_selection.claim_selections[i].selection, substr, strlen("Claim Selection "), claim_selection.claim_selections[i].selection_len);
+    get_substr((char*)claim_selection.claim_selections[i].selection, substr, strlen("Claim Selection "), claim_selection.claim_selections[i].selection_len);
     strcat(data, substr);
     memset(substr, 0, sizeof(char)*256);
     
     //strcat(data, ",\n");
 
-    sprintf(ref_values->ref_values, "%s", data);
+    sprintf((char*)ref_values->ref_values, "%s", data);
     ref_values->ref_values_len = (uint32_t)strlen((char*)ref_values->ref_values);
 
     
     /* Print Reference Values */
-    printf("-> Ref values len: %d\n", ref_values->ref_values_len);
+    printf("-> Ref values len: %ld\n", ref_values->ref_values_len);
     printf("-> Ref Values: %s\n", ref_values->ref_values);
     printf("\n-----\n");
     print_parsed_claim_selections(claim_selection);
@@ -157,7 +156,6 @@ int ra_iot_parse_claim_selections(const uint32_t claim_selection_len, const clai
 
 static int ra_iot_get_evidence_data(const parsed_claim_selections claim_selection, ra_iot_attest_dto *att_data){
     char data[256], substr[256];
-    int len_aux;
     int i;
     
     memset(data, 0, sizeof(data));
@@ -195,8 +193,8 @@ static int ra_iot_get_evidence_data(const parsed_claim_selections claim_selectio
 }
 
 int ra_iot_gen_evidence(const ra_iot_msg_attestation_request_dto req, ra_iot_attest_dto *att_data){
-    parsed_claim_selections parsed_cs, parsed_cs2;
-    int ret_code;
+    parsed_claim_selections parsed_cs;
+
     /* Copy the nonce */
     att_data->nonce_len = req.nonce_len;
     memcpy(att_data->nonce, req.nonce, req.nonce_len);
@@ -231,7 +229,7 @@ int appraise_evidence(const ra_iot_msg_attestation_request_dto ref_req, const ra
     }
 
     /* Print Reference Values */
-    printf("-> Ref values len: %d\n", ref_values.ref_values_len);
+    printf("-> Ref values len: %ld\n", ref_values.ref_values_len);
     printf("-> Ref Values: %s\n", ref_values.ref_values);
 
 
@@ -265,7 +263,6 @@ void print_claim_selections(const uint32_t claim_selection_len, const claim_sele
 }
 
 void print_attestation_request(const ra_iot_msg_attestation_request_dto req){
-    int i;
     
     //printf("Nonce (%d): %s\n", req.nonce_len, req.nonce);
     print_nonce(req.nonce_len, req.nonce);
@@ -291,12 +288,12 @@ int cmp_attestation_request(const ra_iot_msg_attestation_request_dto ref_req, co
     for(int i = 0; i<(int)ref_req.claim_selections_len; i++){
 
         if(ref_req.claim_selections[i].selection_len != req.claim_selections[i].selection_len){
-            printf("claim_selections %d have different lengths!\n");
+            printf("claim_selections have different lengths!\n");
             return 0;
         }
 
         if(memcmp(ref_req.claim_selections[i].selection, req.claim_selections[i].selection, ref_req.claim_selections[i].selection_len) != 0){
-            printf("claim_selections %d are different!\n");
+            printf("claim_selections are different!\n");
             return 0;
         }
     }

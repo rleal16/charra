@@ -52,7 +52,7 @@ void print_mpi(mbedtls_mpi mpi){
     printf("s: %d\n", mpi.s);
     printf("n: %zu\n", mpi.n);
     printf("p: %" PRIu64 "\n", *(mpi.p));
-    //printf("p: %lld\n", (long long)*(mpi.p));
+
     
 }
 
@@ -213,14 +213,8 @@ exit:
 int ra_iot_mbedtls_load_pub_key_from_buffer(pub_key_dto *pk_buffer, mbedtls_rsa_context *rsa) 
 {
 
-    FILE *f;
     int ret = 1;
-    unsigned c;
     int exit_code = 0;
-    size_t i;
-    //mbedtls_rsa_context rsa;
-    unsigned char hash[32];
-    unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
 
 
     mbedtls_rsa_init( rsa, MBEDTLS_RSA_PKCS_V15, 0 );
@@ -229,7 +223,7 @@ int ra_iot_mbedtls_load_pub_key_from_buffer(pub_key_dto *pk_buffer, mbedtls_rsa_
         ( ret = mbedtls_mpi_read_binary( &(rsa->E), (const unsigned char *) &(pk_buffer->E), 256 ) ) != 0 )
     {
         mbedtls_printf( "Reading public key from the file failed\n  ! mbedtls_mpi_read_file returned %d\n\n", ret );
-        //fclose( f );
+
         goto exit;
     }
 
@@ -256,7 +250,6 @@ int ra_iot_mbedtls_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes)
 
     FILE *f;
     int ret = 1;
-    unsigned c;
     int exit_code = 0;
     
     mbedtls_mpi N = {0};
@@ -310,12 +303,8 @@ int ra_iot_mbedtls_load_pub_key(char *filename, mbedtls_rsa_context *rsa)
 
     FILE *f;
     int ret = 1;
-    unsigned c;
     int exit_code = 0;
-    size_t i;
-    //mbedtls_rsa_context rsa;
-    unsigned char hash[32];
-    unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
+    
 
 
     mbedtls_rsa_init( rsa, MBEDTLS_RSA_PKCS_V15, 0 );
@@ -359,12 +348,7 @@ int ra_iot_mbedtls_load_priv_key(char *filename, mbedtls_rsa_context *rsa)
 {
     FILE *f;
     int ret = 1;
-    unsigned c;
     int exit_code = 0;
-    size_t i;
-    //mbedtls_rsa_context rsa;
-    unsigned char hash[32];
-    unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
 
     mbedtls_mpi N, P, Q, D, E, DP, DQ, QP;
 
@@ -429,10 +413,8 @@ exit:
 int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], size_t i_len, unsigned char *output)
 {    
     
-    FILE *f;
     int ret = 1;
     int exit_code = 0;
-    size_t i;
 
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
@@ -461,7 +443,7 @@ int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], siz
     //if( strlen(input) > max_size_allowed)
     if( i_len > max_size_allowed)
     {
-        mbedtls_printf( " Input data larger than %d characters. Size is %d\n\n", max_size_allowed, i_len );
+        mbedtls_printf( " Input data larger than %d characters. Size is %ld\n\n", max_size_allowed, i_len );
         goto exit;
     }
 
@@ -495,10 +477,8 @@ exit:
 
 int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result){
     
-    FILE *f;
     int ret = 1;
     int exit_code = 0;
-    unsigned c;
     size_t i = 0;
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
@@ -552,13 +532,10 @@ exit:
 
 int ra_iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature){
 
-    FILE *f;
     int ret = 1;
     int exit_code = 0;
-    size_t i;
 
     unsigned char hash[32];
-    unsigned char hash_test[32];
 
     unsigned char *buf = signature;
 
@@ -593,11 +570,8 @@ exit:
 
 int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature){
 
-    FILE *f;
     int ret = 1;
-    unsigned c;
     int exit_code = 0;
-    size_t i;
     unsigned char hash[32];
     unsigned char *buf = signature;
 

@@ -334,12 +334,10 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	struct coap_resource_t* resource, struct coap_session_t* session,
 	struct coap_pdu_t* in, struct coap_binary_t* token,
 	struct coap_string_t* query, struct coap_pdu_t* out) {
-	CHARRA_RC charra_r = CHARRA_RC_SUCCESS;
+
 	int coap_r = 0;
 	int res;
-	TSS2_RC tss_r = 0;
-	ESYS_TR sig_key_handle = ESYS_TR_NONE;
-	TPM2B_PUBLIC* public_key = NULL;
+		
 	printf("\n\n\n");
 	/* --- receive incoming data --- */
 	charra_log_info("[" LOG_NAME "] ********** ********** ********** **********");

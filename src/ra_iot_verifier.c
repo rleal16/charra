@@ -78,12 +78,12 @@ charra_log_t charra_log_level = CHARRA_LOG_INFO;
 
 /* config */
 //char dst_host[16] = "127.0.0.1";	 // 15 characters for IPv4 plus \0
-char dst_host[16] = "172.21.0.3";
+char dst_host[16] = "172.21.0.5";
 unsigned int dst_port = 5683;		 // default port
 #define COAP_IO_PROCESS_TIME_MS 2000 // CoAP IO process time in milliseconds
 #define PERIODIC_ATTESTATION_WAIT_TIME_S                                       \
 	2 // Wait time between attestations in seconds
-static const bool USE_TPM_FOR_RANDOM_NONCE_GENERATION = false;
+
 
 #define TPM_SIG_KEY_ID_LEN 14
 #define TPM_SIG_KEY_ID "PK.RSA.default"
@@ -143,7 +143,7 @@ static ra_iot_msg_attestation_response_dto last_response = {0};
 
 int main(int argc, char** argv) {
 	CHARRA_RC result = EXIT_FAILURE;
-	int ret_code;
+
 	int res;
 
 	//mbedtls_rsa_init( &pub_key, MBEDTLS_RSA_PKCS_V15, 0 );
@@ -506,59 +506,7 @@ cleanup:
 
 static void handle_sigint(int signum CHARRA_UNUSED) { quit = true; }
 
-/* static CHARRA_RC create_attestation_request(
-	msg_attestation_request_dto* attestation_request) {
-	CHARRA_RC err = CHARRA_RC_ERROR;
 
-	/* generate nonce 
-	uint32_t nonce_len = 20;
-	uint8_t nonce[nonce_len];
-	if (USE_TPM_FOR_RANDOM_NONCE_GENERATION && 0) {
-		if ((err = charra_random_bytes_from_tpm(nonce_len, nonce) !=
-				   CHARRA_RC_SUCCESS)) {
-			charra_log_error("Could not get random bytes from TPM for nonce.");
-			return err;
-		}
-	} else {
-		if ((err = charra_random_bytes(nonce_len, nonce) !=
-				   CHARRA_RC_SUCCESS)) {
-			charra_log_error("Could not get random bytes for nonce.");
-			return err;
-		}
-	}
-	//charra_log_info("[" LOG_NAME "] Generated nonce of length %d -> %zu:", nonce_len, strlen((char *) nonce));
-	charra_print_hex(CHARRA_LOG_INFO, nonce_len, nonce,
-		"                                                  0x", "\n", false);
-
-	/* build attestation request 
-	msg_attestation_request_dto req = {
-		.hello = false,
-		.sig_key_id_len = TPM_SIG_KEY_ID_LEN,
-		.sig_key_id = {0}, // must be memcpy'd, see below
-		.nonce_len = nonce_len,
-		.nonce = {0}, // must be memcpy'd, see below
-		.pcr_selections_len = 1,
-		.pcr_selections = {{
-			.tcg_hash_alg_id = TPM2_ALG_SHA256,
-			.pcrs_len = tpm_pcr_selection_len,
-			.pcrs = {0} // must be memcpy'd, see below
-		}},
-		.event_log_path_len =
-			(use_ima_event_log) ? strlen(ima_event_log_path) : 0,
-		.event_log_path =
-			(use_ima_event_log) ? (uint8_t*)ima_event_log_path : NULL,
-	};
-	memcpy(req.sig_key_id, TPM_SIG_KEY_ID, TPM_SIG_KEY_ID_LEN);
-	memcpy(req.nonce, nonce, nonce_len);
-	memcpy(req.pcr_selections->pcrs, tpm_pcr_selection, tpm_pcr_selection_len);
-
-	/* set output param(s) 
-	*attestation_request = req;
-
-	/* return result 
-	return CHARRA_RC_SUCCESS;
-}
- */
 /* --- resource handler definitions --------------------------------------- */
 
 static coap_response_t coap_attest_handler(

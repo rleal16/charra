@@ -5,6 +5,7 @@ CFLAGS = -std=c11 -g -pedantic -Wall -Wextra \
          -Wno-missing-field-initializers \
          -fdata-sections -ffunction-sections
 
+
 ifdef disable-log
 	CFLAGS += -DCHARRA_LOG_DISABLE
 endif
