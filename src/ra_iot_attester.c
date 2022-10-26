@@ -107,13 +107,13 @@ static void coap_attest_handler(struct coap_context_t* ctx,
 
 /* --- Static Variables --------------- */
 mbedtls_rsa_context pub_key, priv_key; // key-pair for signing
-
+int attestation_count;
 /* --- main --------------------------------------------------------------- */
 
 int main(int argc, char** argv) {
 	int result = EXIT_FAILURE;
 	int res;
-
+	attestation_count = 0;
 	/* handle SIGINT */
 	signal(SIGINT, handle_sigint);
 
@@ -301,6 +301,7 @@ int main(int argc, char** argv) {
 				"[" LOG_NAME "] Error during CoAP I/O processing.");
 			goto error;
 		}
+		
 	}
 
 	result = EXIT_SUCCESS;
@@ -314,6 +315,8 @@ finish:
 	charra_free_and_null_ex(coap_endpoint, coap_free_endpoint);
 	charra_free_and_null_ex(coap_context, coap_free_context);
 	coap_cleanup();
+	mbedtls_rsa_free( &pub_key );
+    mbedtls_rsa_free( &priv_key );
 
 	return result;
 }
@@ -422,7 +425,8 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
     //size_t max_size = 2048;
     uint8_t signature[MBEDTLS_PK_SIGNATURE_MAX_SIZE] = {0};
     size_t signature_len = MBEDTLS_PK_SIGNATURE_MAX_SIZE; // redundant
-
+	charra_log_info("[" LOG_NAME "] \tVerifier key is: %s", PRINT_RES(mbedtls_rsa_check_pubkey(&verifier_key) == 0));
+	charra_log_info("[" LOG_NAME "] \tPrivate key is: %s", PRINT_RES(mbedtls_rsa_check_privkey(&priv_key) == 0));
 	res = ra_iot_encrypt_sign(&verifier_key, &priv_key, attest_data_buf, attest_data_buf_len, signature, encr_attest_data);
     charra_log_info("[" LOG_NAME "] \tEncrypting and Signing: %s", (res ? "Ok!!": "Failed!!"));
 
@@ -485,15 +489,14 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 		charra_log_error(
 			"[" LOG_NAME "] Error invoking coap_add_data_large_response().");
 		goto error;
-	}
-
+	}else
+		attestation_count++;
+	charra_log_info(" => [" LOG_NAME "] Performed %d attestations so far...", attestation_count);
 error:
-
 	/* Free heap objects */
 	/* clean up */
 	if(event_log)
 		free(event_log);
-	mbedtls_rsa_free( &pub_key );
-    mbedtls_rsa_free( &priv_key );
+	
 
 }

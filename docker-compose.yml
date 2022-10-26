@@ -23,8 +23,10 @@ services:
     container_name: charra-attester
     ports:
       - "127.0.0.1:5683:5683"
-    command: >
-      /home/bob/charra/bin/attester
+    #command: >
+    #  /home/bob/charra/bin/ra_iot_attester
+    volumes:
+      - ".:/home/bob/charra"
   charra-verifier:
     build:
       context: .
@@ -34,6 +36,12 @@ services:
     container_name: charra-verifier
     #ports:
     #  - "127.0.0.1:5683:5683"
-    command: >
-      /home/bob/charra/bin/verifier
+    #command: >
+    #  /home/bob/charra/bin/ra_iot_verifier
+    volumes:
+      - ".:/home/bob/charra"
 
+
+networks:
+  pub_net:
+    external: true
