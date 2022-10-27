@@ -18,6 +18,8 @@
  * BSD-3-Clause).
  */
 
+#define _X(...)
+
 #include "cli_util.h"
 
 #include "../common/charra_log.h"
@@ -32,16 +34,16 @@ static const struct option verifier_options[] = {
 	{"verbose", no_argument, 0, 'v'}, {"log-level", required_argument, 0, 'l'},
 	{"coap-log-level", required_argument, 0, 'c'},
 	{"timeout", required_argument, 0, 't'},
-	{"pcr-file", required_argument, 0, 'f'},
-	{"pcr-selection", required_argument, 0, 's'}, {"psk", no_argument, 0, 'p'},
+	_X({"pcr-file", required_argument, 0, 'f'},)
+	_X({"pcr-selection", required_argument, 0, 's'},) {"psk", no_argument, 0, 'p'},
 	{"key", required_argument, 0, 'k'}, {"identity", required_argument, 0, 'i'},
 	{"rpk", no_argument, 0, 'r'}, {"help", no_argument, 0, '0'},
 	{"private-key", required_argument, 0, '1'},
 	{"public-key", required_argument, 0, '2'},
 	{"peer-public-key", required_argument, 0, '3'},
 	{"verify-peer", required_argument, 0, '4'},
-	{"ip", required_argument, 0, 'a'}, {"port", required_argument, 0, 'b'},
-	{"ima", optional_argument, 0, 'm'}, {0}};
+	{"ip", required_argument, 0, 'a'}, {"port", required_argument, 0, 'b'}_X(,
+	{"ima", optional_argument, 0, 'm'}), {0}};
 
 static const struct option attester_options[] = {
 	{"verbose", no_argument, 0, 'v'}, {"log-level", required_argument, 0, 'l'},
@@ -100,17 +102,17 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 					" -t, --timeout=SECONDS:          Wait up to SECONDS for "
 					"the attestation answer. Default is %d seconds.\n",
 					*(variables->verifier_config.timeout));
-				printf(
+				_X(printf(
 					" -f, --pcr-file=PATH:            Read reference PCRs from "
 					"PATH. Default path is '%s'\n",
-					*(variables->verifier_config.reference_pcr_file_path));
-				printf(" -s, --pcr-selection=X1[,X2...]: Specifies which "
+					*(variables->verifier_config.reference_pcr_file_path));)
+				_X(printf(" -s, --pcr-selection=X1[,X2...]: Specifies which "
 					   "PCRs to check on the attester. Each X references one "
 					   "PCR. PCR numbers shall be ordered from smallest to "
 					   "biggest, comma-seperated\n");
 				printf("                                 and without "
-					   "whitespace. By default these PCRs are checked: ");
-				for (uint32_t i = 0;
+					   "whitespace. By default these PCRs are checked: ");)
+				_X(for (uint32_t i = 0;
 					 i < *variables->verifier_config.tpm_pcr_selection_len;
 					 i++) {
 					printf(
@@ -119,9 +121,9 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 						*variables->verifier_config.tpm_pcr_selection_len - 1) {
 						printf(", ");
 					}
-				}
+				})
 				printf("\n");
-				printf(
+				_X(printf(
 					"     --ima[=PATH]:               Request the attester to "
 					"include an IMA event log in the attestation response. "
 					"By default IMA requests the file\n");
@@ -129,7 +131,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 					"                                 '%s'. Alternatives can "
 					"be "
 					"passed.\n",
-					*(variables->verifier_config.ima_event_log_path));
+					*(variables->verifier_config.ima_event_log_path));)
 				printf("DTLS-PSK Options:\n");
 				printf(
 					" -p, --psk:                      Enable DTLS protocol "
@@ -359,7 +361,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 			continue;
 		}
 
-		else if (caller == VERIFIER && identifier == 'f') {
+		_X(else if (caller == VERIFIER && identifier == 'f') {
 			uint32_t length = strlen(optarg);
 			char* path = malloc(length * sizeof(char));
 			strcpy(path, optarg);
@@ -372,9 +374,9 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 					path);
 				return -1;
 			}
-		}
+		})
 
-		else if (caller == VERIFIER && identifier == 's') {
+		_X(else if (caller == VERIFIER && identifier == 's') {
 			uint32_t length = strlen(optarg);
 			uint8_t* tpm_pcr_selection =
 				variables->verifier_config.tpm_pcr_selection;
@@ -416,7 +418,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 				last_number = number;
 			} while (number_start < optarg + length);
 			continue;
-		}
+		})
 
 		else if (caller == VERIFIER && identifier == 'i') {
 			*variables->common_config.use_dtls_psk = true;
@@ -427,7 +429,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 			continue;
 		}
 
-		else if (caller == VERIFIER &&
+		_X(else if (caller == VERIFIER &&
 				 identifier == 'm') { // enable request for IMA event log
 			*(variables->verifier_config.use_ima_event_log) = true;
 			if (optarg != NULL) {
@@ -436,7 +438,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 				strncpy(*(variables->verifier_config.ima_event_log_path),
 					optarg, strlen(optarg));
 			}
-		}
+		})
 
 		else if (caller == ATTESTER && identifier == 'n') {
 			*variables->common_config.use_dtls_psk = true;

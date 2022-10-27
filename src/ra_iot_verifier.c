@@ -19,7 +19,7 @@
  */
 
 
-
+#define _X(...)
 
 #include <arpa/inet.h>
 #include <coap2/coap.h>
@@ -28,22 +28,25 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <tss2/tss2_tctildr.h>
-#include <tss2/tss2_tpm2_types.h>
+
+_X(#include <tss2/tss2_tctildr.h>)
+_X(#include <tss2/tss2_tpm2_types.h>)
+
+
 #include <unistd.h>
 
 #include "common/charra_log.h"
 #include "common/charra_macro.h"
-#include "core/charra_dto.h"
-#include "core/charra_key_mgr.h"
-#include "core/charra_marshaling.h"
-#include "core/charra_rim_mgr.h"
-#include "util/charra_util.h"
+_X(#include "core/charra_dto.h")
+_X(#include "core/charra_key_mgr.h")
+_X(#include "core/charra_marshaling.h")
+_X(#include "core/charra_rim_mgr.h")
+_X(#include "util/charra_util.h")
 #include "util/cli_util.h"
 #include "util/coap_util.h"
-#include "util/crypto_util.h"
+_X(#include "util/crypto_util.h")
 #include "util/io_util.h"
-#include "util/tpm2_util.h"
+_X(#include "util/tpm2_util.h")
 
 
 
@@ -78,15 +81,15 @@ charra_log_t charra_log_level = CHARRA_LOG_INFO;
 
 /* config */
 //char dst_host[16] = "127.0.0.1";	 // 15 characters for IPv4 plus \0
-char dst_host[16] = "172.21.0.5";
+char dst_host[16] = "172.21.0.4";
 unsigned int dst_port = 5683;		 // default port
 #define COAP_IO_PROCESS_TIME_MS 2000 // CoAP IO process time in milliseconds
 #define PERIODIC_ATTESTATION_WAIT_TIME_S                                       \
 	2 // Wait time between attestations in seconds
 
 // TODO: Make PCR selection configurable via CLI
-static uint8_t tpm_pcr_selection[TPM2_MAX_PCRS] = {0, 1, 2, 3, 4, 5, 6, 7, 10};
-static uint32_t tpm_pcr_selection_len = 9;
+_X(static uint8_t tpm_pcr_selection[TPM2_MAX_PCRS] = {0, 1, 2, 3, 4, 5, 6, 7, 10};
+static uint32_t tpm_pcr_selection_len = 9;)
 
 static uint32_t claim_selection_len = 9;
 
@@ -94,10 +97,10 @@ uint16_t attestation_response_timeout =
 	30; // timeout when waiting for attestation answer in seconds
 
 
-char* reference_pcr_file_path = "reference-pcrs.txt";
+_X(char* reference_pcr_file_path = "reference-pcrs.txt";
 bool use_ima_event_log = false;
 char* ima_event_log_path =
-	"/sys/kernel/security/ima/binary_runtime_measurements";
+	"/sys/kernel/security/ima/binary_runtime_measurements";)
 
 // for DTLS-PSK
 bool use_dtls_psk = false;
@@ -169,11 +172,11 @@ int main(int argc, char** argv) {
 			{
 				.dst_host = dst_host,
 				.timeout = &attestation_response_timeout,
-				.reference_pcr_file_path = &reference_pcr_file_path,
+				_X(.reference_pcr_file_path = &reference_pcr_file_path,
 				.tpm_pcr_selection = tpm_pcr_selection,
 				.tpm_pcr_selection_len = &tpm_pcr_selection_len,
 				.use_ima_event_log = &use_ima_event_log,
-				.ima_event_log_path = &ima_event_log_path,
+				.ima_event_log_path = &ima_event_log_path,)
 				.dtls_psk_identity = &dtls_psk_identity,
 			},
 	};
@@ -585,9 +588,6 @@ cleanup:
 	/* free event log */
 	// TODO: Provide function charra_free_msg_attestation_response_dto()
 	charra_free_if_not_null(response.event_log);
-	//charra_free_if_not_null(data);
-	/* if(data)
-		free((uint8_t*) data); */
     mbedtls_rsa_free( &attester_key);
     mbedtls_rsa_free( &pub_key );
     mbedtls_rsa_free( &priv_key );  

@@ -59,11 +59,11 @@ typedef struct {
 typedef struct {
 	char* dst_host;
 	uint16_t* timeout;
-	char** reference_pcr_file_path;
+	_X(char** reference_pcr_file_path;
 	uint8_t* tpm_pcr_selection;
 	uint32_t* tpm_pcr_selection_len;
 	bool* use_ima_event_log;
-	char** ima_event_log_path;
+	char** ima_event_log_path;)
 	char** dtls_psk_identity;
 } cli_config_verifier;
 

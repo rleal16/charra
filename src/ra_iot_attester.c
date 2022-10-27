@@ -18,6 +18,12 @@
  * BSD-3-Clause).
  */
 
+// to mar
+
+
+#define _X(s)
+
+
 #include <arpa/inet.h>
 #include <coap2/coap.h>
 #include <signal.h>
@@ -30,15 +36,18 @@
 
 #include "common/charra_log.h"
 #include "common/charra_macro.h"
-#include "core/charra_dto.h"
-#include "core/charra_helper.h"
-#include "core/charra_key_mgr.h"
-#include "core/charra_marshaling.h"
+
+_X(#include "core/charra_dto.h")
+_X(#include "core/charra_helper.h")
+_X(#include "core/charra_key_mgr.h")
+_X(#include "core/charra_marshaling.h")
+
 #include "util/cbor_util.h"
 #include "util/cli_util.h"
 #include "util/coap_util.h"
 #include "util/io_util.h"
-#include "util/tpm2_util.h"
+
+_X(#include "util/tpm2_util.h")
 
 
 #define PRINT_RES(x) (x ? "Ok!" : "Failed!")
@@ -51,9 +60,8 @@
 #include "ra_iot_libs/ra_iot_evidence_mgmt.h"
 #include "ra_iot_libs/ra_iot_marshaling.h"
 #include "ra_iot_libs/ra_iot_security.h"
-
-
 #include "ra_iot_libs/test_ra_iot/test_ra_iot.h"
+
 
 #define CHARRA_UNUSED __attribute__((unused))
 
@@ -72,6 +80,7 @@ charra_log_t charra_log_level = CHARRA_LOG_INFO;
 static const char LISTEN_ADDRESS[] = "0.0.0.0";
 static unsigned int port = COAP_DEFAULT_PORT; // default port 5683
 #define CBOR_ENCODER_BUFFER_LENGTH 20480	  // 20 KiB should be sufficient
+
 
 bool use_dtls_psk = false;
 char* dtls_psk_key = "Charra DTLS Key";
@@ -262,16 +271,6 @@ int main(int argc, char** argv) {
 	/* Create Signing key pair */
 	mbedtls_rsa_init( &pub_key, MBEDTLS_RSA_PKCS_V15, 0 );
 	mbedtls_rsa_init( &priv_key, MBEDTLS_RSA_PKCS_V15, 0 );
-
-
-	/* mbedtls_mpi_init( &(pub_key.N) ); mbedtls_mpi_init( &(pub_key.P) ); mbedtls_mpi_init( &(pub_key.Q) );
-    mbedtls_mpi_init( &(pub_key.D) ); mbedtls_mpi_init( &(pub_key.E) ); mbedtls_mpi_init( &(pub_key.DP) );
-    mbedtls_mpi_init( &(pub_key.DQ) ); mbedtls_mpi_init( &(pub_key.QP) );
-
-	mbedtls_mpi_init( &(priv_key.N) ); mbedtls_mpi_init( &(priv_key.P) ); mbedtls_mpi_init( &(priv_key.Q) );
-    mbedtls_mpi_init( &(priv_key.D) ); mbedtls_mpi_init( &(priv_key.E) ); mbedtls_mpi_init( &(priv_key.DP) );
-    mbedtls_mpi_init( &(priv_key.DQ) ); mbedtls_mpi_init( &(priv_key.QP) );
- */
 
 	charra_log_info("[" LOG_NAME "] Generating Attester's key");
 	res = ra_iot_gen_rsa_keypair("attester_keys/", &pub_key, &priv_key);
