@@ -33,7 +33,7 @@ typedef enum charra_log_t {
 	CHARRA_LOG_INFO = 2,
 	CHARRA_LOG_WARN = 3,
 	CHARRA_LOG_ERROR = 4,
-	CHARRA_LOG_FATAL = 5,
+	CHARRA_LOG_FATAL = 5,ka
 } charra_log_t;
 
 #if (!CHARRA_LOG_DISABLE)

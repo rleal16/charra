@@ -26,9 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <tinydtls/session.h>
-#include <tss2/tss2_mu.h>
-#include <tss2/tss2_tctildr.h>
-#include <tss2/tss2_tpm2_types.h>
+
 
 #include "common/charra_log.h"
 #include "common/charra_macro.h"
@@ -74,13 +72,10 @@ charra_log_t charra_log_level = CHARRA_LOG_INFO;
 static const char LISTEN_ADDRESS[] = "0.0.0.0";
 static unsigned int port = COAP_DEFAULT_PORT; // default port 5683
 #define CBOR_ENCODER_BUFFER_LENGTH 20480	  // 20 KiB should be sufficient
-bool use_ima_event_log = false;
-char* ima_event_log_path =
-	"/sys/kernel/security/ima/binary_runtime_measurements";
+
 bool use_dtls_psk = false;
 char* dtls_psk_key = "Charra DTLS Key";
 char* dtls_psk_hint = "Charra Attester";
-// TODO allocate memory for CBOR buffer using malloc() since logs can be huge
 
 // for DTLS-RPK
 bool use_dtls_rpk = false;
@@ -363,9 +358,7 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 
 	/* unmarshal data */
 	charra_log_info("[" LOG_NAME "] Parsing received CBOR data.");
-	//msg_attestation_request_dto req = {0};
 	ra_iot_msg_attestation_request_dto request = {0};
-
 	if (ra_iot_unmarshal_attestation_request(data_len, data, &request) != 1) {
 		charra_log_error("[" LOG_NAME "] Could not parse CBOR data.");
 		goto error;
@@ -415,7 +408,6 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 	
     memcpy((void *)attest_data_buf, (void *)&attest_data, sizeof(ra_iot_attest_dto));
 
-//    charra_log_info("[" LOG_NAME "] ----------------------------------------\n");
     uint8_t encr_attest_data[256] = {0};
     uint32_t encr_attest_data_len = sizeof(encr_attest_data); // encryption function returns a 256 byte size ecrypted data
     memset(encr_attest_data, 0, sizeof(uint8_t)*256);
@@ -438,7 +430,6 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
         ra_iot_get_log_data(event_log, &event_log_len);
         charra_log_info("[" LOG_NAME "] \t -> Event log generated: [%d]: %s", event_log_len, event_log);   
     }
-    //charra_log_info("[" LOG_NAME "] ----------------------------------------\n");
 
 
 	/* prepare response */
@@ -472,9 +463,6 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
     }
 	charra_log_info(
 		"[" LOG_NAME "] Size of marshaled response is %d bytes.", res_buf_len);
-
-	// TODO in case an error above occurred, a error respone should be sent
-	// TODO the Verifier should be able to handle this error reponse
 
 	/* add response data to outgoing PDU and send it */
 	charra_log_info(

@@ -84,10 +84,6 @@ unsigned int dst_port = 5683;		 // default port
 #define PERIODIC_ATTESTATION_WAIT_TIME_S                                       \
 	2 // Wait time between attestations in seconds
 
-
-#define TPM_SIG_KEY_ID_LEN 14
-#define TPM_SIG_KEY_ID "PK.RSA.default"
-
 // TODO: Make PCR selection configurable via CLI
 static uint8_t tpm_pcr_selection[TPM2_MAX_PCRS] = {0, 1, 2, 3, 4, 5, 6, 7, 10};
 static uint32_t tpm_pcr_selection_len = 9;
@@ -124,9 +120,6 @@ bool dtls_rpk_verify_peer_public_key = true;
  */
 static void handle_sigint(int signum);
 
-/* static CHARRA_RC create_attestation_request(
-	msg_attestation_request_dto* attestation_request); */
-
 static coap_response_t coap_attest_handler(struct coap_context_t* context,
 	coap_session_t* session, coap_pdu_t* sent, coap_pdu_t* received,
 	const coap_mid_t mid);
@@ -145,15 +138,6 @@ int main(int argc, char** argv) {
 	CHARRA_RC result = EXIT_FAILURE;
 
 	int res;
-
-	//mbedtls_rsa_init( &pub_key, MBEDTLS_RSA_PKCS_V15, 0 );
-	//mbedtls_rsa_init( &priv_key, MBEDTLS_RSA_PKCS_V15, 0 );
-	
-	//printf("\n\n\n[ ==>> In VERIFER's Main!]\n");
-	
-	/* attest_res_marshall_unmarshal_test();
-	printf("Fora da função"); */
-	//printf("\n\n\n[In VERIFER ==>>]\n");
 	
 	/* handle SIGINT */
 	signal(SIGINT, handle_sigint);
@@ -214,27 +198,12 @@ int main(int argc, char** argv) {
 	charra_log_debug("[" LOG_NAME
 					 "]     Timeout when waiting for attestation response: %ds",
 		attestation_response_timeout);
-	/* charra_log_debug("[" LOG_NAME "]     Reference PCR file path: '%s'",
-		reference_pcr_file_path); */
+	
 	charra_log_debug("[" LOG_NAME "]     Claim selection with length %d:",
 		claim_selection_len);
 	
 	charra_log_log_raw(CHARRA_LOG_DEBUG, "                                                      ");
-	
-	/* for (uint32_t i = 0; i < tpm_pcr_selection_len; i++) {
-		if (i != tpm_pcr_selection_len - 1) {
-			charra_log_log_raw(CHARRA_LOG_DEBUG, "%d, ", tpm_pcr_selection[i]);
-		} else {
-			charra_log_log_raw(CHARRA_LOG_DEBUG, "%d\n", tpm_pcr_selection[i]);
-		}
-	} */
 
-	charra_log_debug("[" LOG_NAME "]     IMA event log attestation enabled: %s",
-		(use_ima_event_log == true) ? "true" : "false");
-	if (use_ima_event_log) {
-		charra_log_debug(
-			"[" LOG_NAME "]         IMA event log path: '%s'", ima_event_log_path);
-	}
 	charra_log_debug("[" LOG_NAME "]     DTLS with PSK enabled: %s",
 		(use_dtls_psk == true) ? "true" : "false");
 	if (use_dtls_psk) {
@@ -262,7 +231,7 @@ int main(int argc, char** argv) {
 	coap_context_t* coap_context = NULL;
 	coap_session_t* coap_session = NULL;
 	coap_optlist_t* coap_options = NULL;
-	uint8_t* req_buf = NULL; // TODO make dynamic
+	uint8_t* req_buf = NULL;
 
 
 
@@ -356,7 +325,7 @@ int main(int argc, char** argv) {
 
 	/* define needed variables */
 	ra_iot_msg_attestation_request_dto req = {0};
-	//msg_attestation_request_dto req = {0};
+
 	uint32_t req_buf_len = 0;
 	coap_pdu_t* pdu = NULL;
 	coap_mid_t mid = COAP_INVALID_MID;
@@ -384,7 +353,6 @@ int main(int argc, char** argv) {
 	// 		coap_delete_optlist(coap_options);
 	// 		coap_options = NULL;
 	// 	}
-
 
 
 	/* create attestation request */
@@ -478,6 +446,7 @@ int main(int argc, char** argv) {
 	result = attestation_rc;
 	charra_log_info("[" LOG_NAME "] Printing Attestation Results:\n");
 	ra_iot_print_attest_res(att_results);
+	
 	/* wait until next attestation */
 	// TODO enable periodic attestations
 	// charra_log_info(
@@ -530,7 +499,6 @@ static coap_response_t coap_attest_handler(
 	/* get data */
 	size_t data_len = 0;
 	const uint8_t* data = NULL;
-	//uint8_t* data = NULL;
 	size_t data_offset = 0;
 	size_t data_total_len = 0;
 	if ((coap_r = coap_get_data_large(in, &data_len, &data, &data_offset, &data_total_len)) == 0) {
@@ -557,10 +525,7 @@ static coap_response_t coap_attest_handler(
 	/* store last response */
 	last_response = response;
 
-	/* verify data */
-	// ...
 
-	/* --- verify TPM Quote --- */
 	charra_log_info("[" LOG_NAME "] Starting verification.");
 
 
@@ -570,7 +535,6 @@ static coap_response_t coap_attest_handler(
 	mbedtls_rsa_init( &attester_key, MBEDTLS_RSA_PKCS_V15, 0 );
 
     charra_log_info("[" LOG_NAME "] Converting the unmarshalled Attester's public key to a intermediate \"buffer structure\"\n");
-    //memcpy(&pk_bytes, response.public_key, sizeof(response.public_key));
 	memcpy(&pk_bytes, response.public_key, response.public_key_len);
     charra_log_info("[" LOG_NAME "] Converting Attester's public key from bytes to mbedtls_rsa_context\n");
     res = ra_iot_load_pub_key_from_buffer(&pk_bytes, &attester_key);
@@ -585,6 +549,7 @@ static coap_response_t coap_attest_handler(
 
 	/* Initialize the attestation data structure */
 	att_results.valid_nonce = false;
+	
 	// if unmarshal was successful, the signature was valid; otherwise, we (temporarily) consider it invalid (until return codes are not defined)
 	att_results.valid_attest_data_signature = (bool) unmarshal_res; 
     att_results.valid_against_ref_values = false;
@@ -619,7 +584,7 @@ cleanup:
 	
 	/* free event log */
 	// TODO: Provide function charra_free_msg_attestation_response_dto()
-	//charra_free_if_not_null(response.event_log);
+	charra_free_if_not_null(response.event_log);
 	//charra_free_if_not_null(data);
 	/* if(data)
 		free((uint8_t*) data); */
