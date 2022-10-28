@@ -18,6 +18,11 @@
  * BSD-3-Clause).
  */
 
+#ifndef _X
+#define _X(...)
+#endif
+
+#ifndef _X
 #include "tpm2_util.h"
 
 #include <stdio.h>
@@ -272,3 +277,4 @@ error:
 
 	return r;
 }
+#endif

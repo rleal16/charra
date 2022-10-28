@@ -19,6 +19,7 @@
 #ifndef CVECTOR_H_
 #define CVECTOR_H_
 
+#if 0
 #include <assert.h> /* for assert */
 #include <stdlib.h> /* for malloc/realloc/free */
 
@@ -212,3 +213,4 @@
 	} while (0)
 
 #endif /* CVECTOR_H_ */
+#endif

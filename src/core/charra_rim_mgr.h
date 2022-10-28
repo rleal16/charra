@@ -18,14 +18,16 @@
  * BSD-3-Clause).
  */
 
+#define _X(...)
+
 #ifndef CHARRA_RIM_MGR_H
 #define CHARRA_RIM_MGR_H
 
 #include <inttypes.h>
-#include <tss2/tss2_esys.h>
-#include <tss2/tss2_tpm2_types.h>
+_X(#include <tss2/tss2_esys.h>)
+_X(#include <tss2/tss2_tpm2_types.h>)
 
-#include "../common/charra_error.h"
+_X(#include "../common/charra_error.h")
 
 /**
  * @brief Read all sets of reference PCRs from filename. Check if any of the
@@ -51,9 +53,11 @@
  * none of the reference PCR states matched the attestation state,
  * CHARRA_RC_ERROR on errors.
  */
-CHARRA_RC charra_check_pcr_digest_against_reference(const char* filename,
+
+_X(CHARRA_RC charra_check_pcr_digest_against_reference(const char* filename,
 	const uint8_t* reference_pcr_selection,
 	const uint32_t reference_pcr_selection_len,
 	const TPMS_ATTEST* const attest_struct);
+)
 
 #endif /* CHARRA_RIM_MGR_H */

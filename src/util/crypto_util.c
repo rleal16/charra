@@ -18,7 +18,9 @@
  * BSD-3-Clause).
  */
 
-#include "crypto_util.h"
+#define _X(...)
+#ifndef _X
+_X(#include "crypto_util.h")
 
 #include <mbedtls/rsa.h>
 #include <mbedtls/sha1.h>
@@ -334,3 +336,4 @@ CHARRA_RC compute_and_check_PCR_digest(uint8_t** pcr_values,
 		return CHARRA_RC_NO_MATCH;
 	}
 }
+#endif

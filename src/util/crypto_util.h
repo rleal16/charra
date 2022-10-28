@@ -17,14 +17,17 @@
  * @license BSD 3-Clause "New" or "Revised" License (SPDX-License-Identifier:
  * BSD-3-Clause).
  */
+#define _X(...)
 
 #ifndef CRYPTO_UTIL_H
 #define CRYPTO_UTIL_H
 
+#ifndef _X
+
 #include <stddef.h>
 #include <stdint.h>
 
-#include <tss2/tss2_tpm2_types.h>
+_X(#include <tss2/tss2_tpm2_types.h>)
 
 #include <mbedtls/rsa.h>
 
@@ -92,3 +95,4 @@ CHARRA_RC compute_and_check_PCR_digest(uint8_t** pcr_values,
 	uint32_t pcr_value_len, const TPMS_ATTEST* const attest_struct);
 
 #endif /* SITIMA_CRYPTO_H */
+#endif

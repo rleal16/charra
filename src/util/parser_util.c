@@ -23,8 +23,14 @@
 #include "../common/charra_error.h"
 #include "../common/charra_log.h"
 #include "../common/charra_macro.h"
-#include <tss2/tss2_tpm2_types.h>
 
+#ifndef _X
+#define _X(...)
+#endif
+
+_X(#include <tss2/tss2_tpm2_types.h>)
+
+#ifndef _X
 CHARRA_RC parse_pcr_value(char* start, char* eol, uint8_t* pcr_value) {
 	// search for the start of the PCR hex value
 	char* hex_start;
@@ -80,3 +86,4 @@ int parse_pcr_index(char* index_start) {
 	}
 	return pcr_index;
 }
+#endif

@@ -21,14 +21,14 @@
 #include "charra_helper.h"
 
 #include <inttypes.h>
-#include <tss2/tss2_tpm2_types.h>
+_X(#include <tss2/tss2_tpm2_types.h>)
 
 #include "../common/charra_error.h"
 #include "../common/charra_log.h"
 #include "../util/io_util.h"
 #include "charra_dto.h"
 
-CHARRA_RC charra_tpm2_pcr_selection_to_bitmap(const uint32_t pcr_selection_len,
+_X(CHARRA_RC charra_tpm2_pcr_selection_to_bitmap(const uint32_t pcr_selection_len,
 	const uint8_t pcr_selection[], TPMS_PCR_SELECTION* pcr_selection_bitmap) {
 
 	/* verify input parameters */
@@ -70,7 +70,9 @@ CHARRA_RC charra_tpm2_pcr_selection_to_bitmap(const uint32_t pcr_selection_len,
 
 	return CHARRA_RC_SUCCESS;
 }
+)
 
+_X(
 CHARRA_RC charra_pcr_selections_to_tpm_pcr_selections(
 	const uint32_t pcr_selection_list_len,
 	pcr_selection_dto* pcr_selection_list,
@@ -107,3 +109,4 @@ CHARRA_RC charra_pcr_selections_to_tpm_pcr_selections(
 
 	return err;
 }
+)

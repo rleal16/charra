@@ -17,6 +17,8 @@
  * @license BSD 3-Clause "New" or "Revised" License (SPDX-License-Identifier:
  * BSD-3-Clause).
  */
+#define _X(...)
+
 
 #include "io_util.h"
 #include "../common/charra_log.h"
@@ -27,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+
 
 void charra_print_hex(const charra_log_t level, const size_t buf_len,
 	const uint8_t* const buf, const char* prefix, const char* postfix,
@@ -41,6 +44,7 @@ void charra_print_hex(const charra_log_t level, const size_t buf_len,
 	charra_log_log_raw(level, "%s", postfix);
 }
 
+
 void charra_print_str(const charra_log_t level, const size_t buf_len,
 	const uint8_t* const buf, const char* prefix, const char* postfix) {
 
@@ -52,6 +56,7 @@ void charra_print_str(const charra_log_t level, const size_t buf_len,
 	charra_log_log_raw(level, "%s", postfix);
 }
 
+#ifndef _X
 void charra_print_pcr_content(const charra_log_t level,
 	const uint8_t* pcr_selection, const uint32_t pcr_selection_len,
 	uint8_t** pcrs) {
@@ -64,6 +69,8 @@ void charra_print_pcr_content(const charra_log_t level,
 	}
 }
 
+#endif
+
 CHARRA_RC check_file_existence(const char* filename) {
 	FILE* fp = NULL;
 	if ((fp = fopen(filename, "r")) == NULL) {
@@ -71,6 +78,7 @@ CHARRA_RC check_file_existence(const char* filename) {
 	}
 	return CHARRA_RC_SUCCESS;
 }
+
 
 CHARRA_RC charra_io_read_file(
 	const char* filename, char** file_content, size_t* file_content_len) {
@@ -111,6 +119,7 @@ void charra_free_file_buffer(char** file_content) {
 	charra_free_if_not_null(*file_content);
 }
 
+#ifndef _X
 CHARRA_RC charra_io_read_continuous_binary_file(
 	const char* filename, uint8_t** file_content, size_t* file_content_len) {
 	// the size of the event log chunks which get read at once
@@ -150,7 +159,7 @@ CHARRA_RC charra_io_read_continuous_binary_file(
 	*file_content = file_content_cvector;
 	return CHARRA_RC_SUCCESS;
 }
-
 void charra_free_continous_file_buffer(uint8_t** file_content) {
 	charra_free_if_not_null_ex(*file_content, cvector_free);
 }
+#endif

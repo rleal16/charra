@@ -30,16 +30,21 @@ LDPATH =     -L/usr/local/lib/ \
 LIBS =       coap-2-tinydtls \
              qcbor m \
              crypto ssl \
-             mbedcrypto \
-             util tss2-esys tss2-sys tss2-mu tss2-tctildr
+             mbedcrypto 
+
+#LIBS =       coap-2-tinydtls \
+#             qcbor m \
+#             crypto ssl \
+#             mbedcrypto \
+#             util tss2-esys tss2-sys tss2-mu tss2-tctildr
 
 # TCTI module to use (default is 'mssim')
-TCTI_MODULE=tss2-tcti-mssim
-ifdef with-tcti
-	TCTI_MODULE=tss2-tcti-$(with-tcti)
-	#@echo "Using tss2-tcti-"$(WITH_TCTI)
-endif
-LIBS += $(TCTI_MODULE)
+#TCTI_MODULE=tss2-tcti-mssim
+#ifdef with-tcti
+#	TCTI_MODULE=tss2-tcti-$(with-tcti)
+#	#@echo "Using tss2-tcti-"$(WITH_TCTI)
+#endif
+#LIBS += $(TCTI_MODULE)
 
 
 LDFLAGS_DYNAMIC = $(addprefix -l, $(LIBS))
@@ -60,9 +65,11 @@ SOURCES = $(shell find $(SRCDIR) -name '*.c')
 INCLUDE = -I$(INCDIR)
 
 OBJECTS =  $(addsuffix .o, $(addprefix $(OBJDIR)/common/, charra_log))
-OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/core/, charra_helper charra_key_mgr charra_rim_mgr charra_marshaling))
-OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/util/, cbor_util charra_util coap_util crypto_util io_util tpm2_util cli_util parser_util))
+#OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/core/, charra_helper charra_key_mgr charra_rim_mgr charra_marshaling))
+#OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/util/, cbor_util charra_util coap_util crypto_util io_util tpm2_util cli_util parser_util)) -> old version
+OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/util/, cbor_util coap_util io_util cli_util))
 OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/, ra_iot_memory_mgmt ra_iot_mbedtls ra_iot_crypto ra_iot_evidence_mgmt ra_iot_marshaling ra_iot_dto ra_iot_security))
+
 #OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/, ra_iot_memory_mgmt ra_iot_mbedtls ra_iot_crypto ra_iot_evidence_mgmt ra_iot_marshaling ra_iot_dto ra_iot_test ra_iot_security))
 #OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/test_ra_iot/, test_ra_iot))
 

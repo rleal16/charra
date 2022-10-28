@@ -20,6 +20,7 @@
 
 #define _X(...)
 
+
 #include "cli_util.h"
 
 #include "../common/charra_log.h"

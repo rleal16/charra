@@ -18,6 +18,9 @@
  * BSD-3-Clause).
  */
 
+
+
+
 #include "charra_marshaling.h"
 
 #include <assert.h>
@@ -27,7 +30,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tss2/tss2_tpm2_types.h>
+_X(#include <tss2/tss2_tpm2_types.h>)
 
 #include "../common/charra_log.h"
 #include "../common/charra_macro.h"
@@ -35,7 +38,7 @@
 #include "../util/cbor_util.h"
 #include "../util/tpm2_util.h"
 
-static CHARRA_RC charra_marshal_attestation_request_internal(
+_X(static CHARRA_RC charra_marshal_attestation_request_internal(
 	const msg_attestation_request_dto* attestation_request, UsefulBuf buf_in,
 	UsefulBufC* buf_out) {
 	charra_log_trace("<ENTER> %s()", __func__);
@@ -111,8 +114,9 @@ static CHARRA_RC charra_marshal_attestation_request_internal(
 		return CHARRA_RC_MARSHALING_ERROR;
 	}
 }
+)
 
-CHARRA_RC charra_marshal_attestation_request_size(
+_X(CHARRA_RC charra_marshal_attestation_request_size(
 	const msg_attestation_request_dto* attestation_request,
 	size_t* marshaled_data_len) {
 	charra_log_trace("<ENTER> %s()", __func__);
@@ -131,8 +135,9 @@ CHARRA_RC charra_marshal_attestation_request_size(
 
 	return charra_r;
 }
+)
 
-CHARRA_RC charra_marshal_attestation_request(
+_X(CHARRA_RC charra_marshal_attestation_request(
 	const msg_attestation_request_dto* attestation_request,
 	uint32_t* marshaled_data_len, uint8_t** marshaled_data) {
 	charra_log_trace("<ENTER> %s()", __func__);
@@ -181,9 +186,10 @@ CHARRA_RC charra_marshal_attestation_request(
 
 	return charra_r;
 }
+)
 
 // TODO implement this function using QCBOREncode_* functions
-CHARRA_RC charra_unmarshal_attestation_request(
+_X(CHARRA_RC charra_unmarshal_attestation_request(
 	const uint32_t marshaled_data_len, const uint8_t* marshaled_data,
 	msg_attestation_request_dto* attestation_request) {
 	msg_attestation_request_dto req = {0};
@@ -283,8 +289,9 @@ cbor_parse_error:
 
 	return CHARRA_RC_MARSHALING_ERROR;
 }
+)
 
-static CHARRA_RC charra_marshal_attestation_response_internal(
+_X(static CHARRA_RC charra_marshal_attestation_response_internal(
 	const msg_attestation_response_dto* attestation_response, UsefulBuf buf_in,
 	UsefulBufC* buf_out) {
 	charra_log_trace("<ENTER> %s()", __func__);
@@ -335,8 +342,9 @@ static CHARRA_RC charra_marshal_attestation_response_internal(
 		return CHARRA_RC_MARSHALING_ERROR;
 	}
 }
+)
 
-CHARRA_RC charra_marshal_attestation_response_size(
+_X(CHARRA_RC charra_marshal_attestation_response_size(
 	const msg_attestation_response_dto* attestation_response,
 	size_t* marshaled_data_len) {
 	charra_log_trace("<ENTER> %s()", __func__);
@@ -355,8 +363,9 @@ CHARRA_RC charra_marshal_attestation_response_size(
 
 	return charra_r;
 }
+)
 
-CHARRA_RC charra_marshal_attestation_response(
+_X(CHARRA_RC charra_marshal_attestation_response(
 	const msg_attestation_response_dto* attestation_response,
 	uint32_t* marshaled_data_len, uint8_t** marshaled_data) {
 	charra_log_trace("<ENTER> %s()", __func__);
@@ -402,9 +411,10 @@ CHARRA_RC charra_marshal_attestation_response(
 
 	return charra_r;
 }
+)
 
 // TODO implement this function using  QCBORDecode_* functions
-CHARRA_RC charra_unmarshal_attestation_response(
+_X(CHARRA_RC charra_unmarshal_attestation_response(
 	const uint32_t marshaled_data_len, const uint8_t* marshaled_data,
 	msg_attestation_response_dto* attestation_response) {
 	msg_attestation_response_dto res = {0};
@@ -475,3 +485,4 @@ cbor_parse_error:
 
 	return CHARRA_RC_MARSHALING_ERROR;
 }
+)

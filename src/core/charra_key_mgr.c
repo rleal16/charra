@@ -18,18 +18,20 @@
  * BSD-3-Clause).
  */
 
+#define _X(...)
+
 #include "charra_key_mgr.h"
 
 #include <inttypes.h>
 #include <string.h>
-#include <tss2/tss2_esys.h>
-#include <tss2/tss2_tpm2_types.h>
+_X(#include <tss2/tss2_esys.h>)
+_X(#include <tss2/tss2_tpm2_types.h>)
 
 #include "../common/charra_error.h"
 #include "../common/charra_log.h"
-#include "../util/tpm2_util.h"
+_X(#include "../util/tpm2_util.h")
 
-CHARRA_RC charra_load_tpm2_key(ESYS_CONTEXT* ctx, const uint32_t key_len,
+_X(CHARRA_RC charra_load_tpm2_key(ESYS_CONTEXT* ctx, const uint32_t key_len,
 	const uint8_t* key, ESYS_TR* key_handle, TPM2B_PUBLIC** out_public) {
 	TSS2_RC r = TSS2_RC_SUCCESS;
 	if (memcmp(key, "PK.RSA.default", key_len) == 0) {
@@ -45,9 +47,9 @@ CHARRA_RC charra_load_tpm2_key(ESYS_CONTEXT* ctx, const uint32_t key_len,
 	}
 
 	return CHARRA_RC_SUCCESS;
-}
+})
 
-CHARRA_RC charra_load_external_public_key(
+_X(CHARRA_RC charra_load_external_public_key(
 	ESYS_CONTEXT* ctx, TPM2B_PUBLIC* external_public_key, ESYS_TR* key_handle) {
 	TSS2_RC r = TSS2_RC_SUCCESS;
 	if (external_public_key == NULL) {
@@ -63,4 +65,4 @@ CHARRA_RC charra_load_external_public_key(
 	}
 
 	return CHARRA_RC_SUCCESS;
-}
+})

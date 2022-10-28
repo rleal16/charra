@@ -29,17 +29,18 @@
 #include "../util/io_util.h"
 #include "../util/parser_util.h"
 
-uint32_t pcr_selection_index = 0;
-uint32_t pcr_set_index = 0;
+_X(uint32_t pcr_selection_index = 0;)
+_X(uint32_t pcr_set_index = 0;)
 uint32_t line_number = 1;
 
-static void free_reference_pcrs(
+_X(static void free_reference_pcrs(
 	uint8_t** reference_pcrs, uint32_t reference_pcr_selection_len) {
 	for (uint32_t i = 0; i < reference_pcr_selection_len; i++) {
 		free(reference_pcrs[i]);
 	}
 	free(reference_pcrs);
 }
+)
 
 /**
  * @brief Check that the last reference PCR set was complete and then compute
@@ -56,7 +57,7 @@ static void free_reference_pcrs(
  * @returns CHARRA_RC_SUCCESS on success, CHARRA_RC_NO_MATCH when the digests
  * did not match, CHARRA_RC_ERROR on errors.
  */
-static CHARRA_RC handle_end_of_pcr_set(uint8_t** reference_pcrs,
+_X(static CHARRA_RC handle_end_of_pcr_set(uint8_t** reference_pcrs,
 	const uint8_t* reference_pcr_selection,
 	const uint32_t reference_pcr_selection_len,
 	const TPMS_ATTEST* const attest_struct) {
@@ -85,6 +86,7 @@ static CHARRA_RC handle_end_of_pcr_set(uint8_t** reference_pcrs,
 	}
 	return rc;
 }
+)
 
 /**
  * @brief Parse one line from the reference PCR file holding an PCR index and
@@ -98,7 +100,7 @@ static CHARRA_RC handle_end_of_pcr_set(uint8_t** reference_pcrs,
  * @param reference_pcr_selection_len the number of PCR indexes.
  * @returns CHARRA_RC_SUCCESS on success, CHARRA_RC_ERROR on errors.
  */
-static CHARRA_RC parse_pcr_value_line(char* index_char, char* eol,
+_X(static CHARRA_RC parse_pcr_value_line(char* index_char, char* eol,
 	uint8_t** reference_pcrs, const uint8_t* reference_pcr_selection,
 	const uint32_t reference_pcr_selection_len) {
 	if (pcr_selection_index < reference_pcr_selection_len) {
@@ -129,7 +131,9 @@ static CHARRA_RC parse_pcr_value_line(char* index_char, char* eol,
 	}
 	return CHARRA_RC_SUCCESS;
 }
+)
 
+_X(
 CHARRA_RC charra_check_pcr_digest_against_reference(const char* filename,
 	const uint8_t* reference_pcr_selection,
 	const uint32_t reference_pcr_selection_len,
@@ -240,3 +244,4 @@ returns:
 	free_reference_pcrs(reference_pcrs, reference_pcr_selection_len);
 	return charra_rc;
 }
+)

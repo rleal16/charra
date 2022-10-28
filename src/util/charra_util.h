@@ -18,13 +18,16 @@
  * BSD-3-Clause).
  */
 
+#define _X(...)
+
+#ifndef _X
 #include <inttypes.h>
 #include <stdbool.h>
-#include <tss2/tss2_esys.h>
-#include <tss2/tss2_mu.h>
-#include <tss2/tss2_tpm2_types.h>
+_X(#include <tss2/tss2_esys.h>)
+_X(#include <tss2/tss2_mu.h>)
+_X(#include <tss2/tss2_tpm2_types.h>)
 
-#include "../common/charra_error.h"
+_X(#include "../common/charra_error.h")
 
 #ifndef CHARRA_UTIL_H
 #define CHARRA_UTIL_H
@@ -37,7 +40,7 @@
  * @return CHARRA_RC_SUCCESS on success.
  * @return CHARRA_RC_ERROR on error.
  */
-CHARRA_RC charra_random_bytes(const uint32_t len, uint8_t* random_bytes);
+_X(CHARRA_RC charra_random_bytes(const uint32_t len, uint8_t* random_bytes);)
 
 /**
  * @brief Retrieve random bytes from a TPM.
@@ -47,8 +50,8 @@ CHARRA_RC charra_random_bytes(const uint32_t len, uint8_t* random_bytes);
  * @return CHARRA_RC_SUCCESS on success.
  * @return CHARRA_RC_ERROR on error.
  */
-CHARRA_RC charra_random_bytes_from_tpm(
-	const uint32_t len, uint8_t* random_bytes);
+_X(CHARRA_RC charra_random_bytes_from_tpm(
+	const uint32_t len, uint8_t* random_bytes);)
 
 /**
  * @brief Verifies a TPM 2.0 quote using the TPM.
@@ -61,24 +64,25 @@ CHARRA_RC charra_random_bytes_from_tpm(
  * result.
  * @return TSS2_RC The TSS return code.
  */
-CHARRA_RC charra_verify_tpm2_quote_signature_with_tpm(ESYS_CONTEXT* ctx,
+_X(CHARRA_RC charra_verify_tpm2_quote_signature_with_tpm(ESYS_CONTEXT* ctx,
 	const ESYS_TR sig_key_handle, const TPM2_ALG_ID hash_algo_id,
 	const TPM2B_ATTEST* attest_buf, TPMT_SIGNATURE* signature,
-	TPMT_TK_VERIFIED** validation);
+	TPMT_TK_VERIFIED** validation);)
 
-CHARRA_RC charra_unmarshal_tpm2_quote(size_t attest_buf_len,
-	const uint8_t* attest_buf, TPMS_ATTEST* attest_struct);
+_X(CHARRA_RC charra_unmarshal_tpm2_quote(size_t attest_buf_len,
+	const uint8_t* attest_buf, TPMS_ATTEST* attest_struct);)
 
-bool charra_verify_tpm2_quote_qualifying_data(uint16_t qualifying_data_len,
+_X(bool charra_verify_tpm2_quote_qualifying_data(uint16_t qualifying_data_len,
 	const uint8_t* const qualifying_data,
-	const TPMS_ATTEST* const attest_struct);
+	const TPMS_ATTEST* const attest_struct);)
 
-bool charra_verify_tpm2_quote_pcrs(TPM2_ALG_ID hash_algo_id,
+_X(bool charra_verify_tpm2_quote_pcrs(TPM2_ALG_ID hash_algo_id,
 	const uint8_t* const qualifying_data,
-	const TPMS_ATTEST* const attest_struct);
+	const TPMS_ATTEST* const attest_struct);)
 
-bool charra_verify_tpm2_quote_pcr_composite_digest(
+_X(bool charra_verify_tpm2_quote_pcr_composite_digest(
 	const TPMS_ATTEST* const attest_struct, const uint8_t* const pcr_composite,
-	const uint16_t pcr_composite_len);
+	const uint16_t pcr_composite_len);)
 
 #endif /* CHARRA_UTIL_H */
+#endif

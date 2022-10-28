@@ -18,6 +18,9 @@
  * BSD-3-Clause).
  */
 
+#define _X(...)
+
+#ifndef _X
 #include "charra_util.h"
 
 #include <assert.h>
@@ -31,25 +34,26 @@
 #include <mbedtls/sha1.h>
 #include <mbedtls/sha256.h>
 #include <mbedtls/sha512.h>
+#endif
 
-#include <tss2/tss2_esys.h>
-#include <tss2/tss2_mu.h>
-#include <tss2/tss2_tctildr.h>
-#include <tss2/tss2_tpm2_types.h>
+_X(#include <tss2/tss2_esys.h>)
+_X(#include <tss2/tss2_mu.h>)
+_X(#include <tss2/tss2_tctildr.h>)
+_X(#include <tss2/tss2_tpm2_types.h>)
 
 #include "../common/charra_error.h"
 #include "../common/charra_log.h"
-#include "io_util.h"
-#include "tpm2_util.h"
+_X(#include "io_util.h")
+_X(#include "tpm2_util.h")
 
 #define CHARRA_UNUSED __attribute__((unused))
 
-static const unsigned char mbedtls_personalization[] =
-	"CHARRA_mbedtls_random_personalization";
-static const unsigned char mbedtls_personalization_len =
-	sizeof(mbedtls_personalization);
+_X(static const unsigned char mbedtls_personalization[] =
+	"CHARRA_mbedtls_random_personalization";)
+_X(static const unsigned char mbedtls_personalization_len =
+	sizeof(mbedtls_personalization);)
 
-CHARRA_RC charra_random_bytes(const uint32_t len, uint8_t* random_bytes) {
+_X(CHARRA_RC charra_random_bytes(const uint32_t len, uint8_t* random_bytes) {
 	CHARRA_RC charra_r = CHARRA_RC_SUCCESS;
 	/* initialize contexts */
 	mbedtls_entropy_context entropy = {0};
@@ -81,8 +85,9 @@ error:
 
 	return charra_r;
 }
+)
 
-CHARRA_RC charra_random_bytes_from_tpm(
+_X(CHARRA_RC charra_random_bytes_from_tpm(
 	const uint32_t len, uint8_t* random_bytes) {
 	assert(len <= sizeof(TPMU_HA));
 
@@ -133,8 +138,9 @@ error:
 
 	return charra_rc;
 }
+)
 
-TSS2_RC charra_verify_tpm2_quote_signature_with_tpm(ESYS_CONTEXT* ctx,
+_X(TSS2_RC charra_verify_tpm2_quote_signature_with_tpm(ESYS_CONTEXT* ctx,
 	const ESYS_TR sig_key_handle, const TPM2_ALG_ID hash_algo_id,
 	const TPM2B_ATTEST* attest_buf, TPMT_SIGNATURE* signature,
 	TPMT_TK_VERIFIED** validation) {
@@ -180,8 +186,9 @@ error:
 
 	return tss2_r;
 }
+)
 
-CHARRA_RC charra_unmarshal_tpm2_quote(size_t attest_buf_len,
+_X(CHARRA_RC charra_unmarshal_tpm2_quote(size_t attest_buf_len,
 	const uint8_t* attest_buf, TPMS_ATTEST* attest_struct) {
 	CHARRA_RC charra_rc = CHARRA_RC_SUCCESS;
 	TSS2_RC tss2_rc = TSS2_RC_SUCCESS;
@@ -221,8 +228,9 @@ error:
 
 	return charra_rc;
 }
+)
 
-bool charra_verify_tpm2_quote_qualifying_data(uint16_t qualifying_data_len,
+_X(bool charra_verify_tpm2_quote_qualifying_data(uint16_t qualifying_data_len,
 	const uint8_t* const qualifying_data,
 	const TPMS_ATTEST* const attest_struct) {
 
@@ -243,12 +251,12 @@ bool charra_verify_tpm2_quote_qualifying_data(uint16_t qualifying_data_len,
 
 	return true;
 }
-
+)
 /* TODO Add specific versions of this function for all supported hash algos,
  * i.e. charra_compute_pcr_composite_digest_sha256_from_ptr_array, etc.,
  * invoking this generic funtion internally with TPM2_SHA256_DIGEST_SIZE, etc.
  */
-CHARRA_RC charra_compute_pcr_composite_digest_from_ptr_array(
+_X(CHARRA_RC charra_compute_pcr_composite_digest_from_ptr_array(
 	uint16_t hash_algo_digest_size CHARRA_UNUSED,
 	const uint8_t* expected_pcr_values[] CHARRA_UNUSED,
 	size_t expected_pcr_values_len CHARRA_UNUSED,
@@ -256,8 +264,9 @@ CHARRA_RC charra_compute_pcr_composite_digest_from_ptr_array(
 	// TODO: to be implemented
 	return CHARRA_RC_NOT_YET_IMPLEMENTED;
 }
+)
 
-bool charra_verify_tpm2_quote_pcr_composite_digest(
+_X(bool charra_verify_tpm2_quote_pcr_composite_digest(
 	const TPMS_ATTEST* const attest_struct,
 	const uint8_t* const pcr_composite_digest,
 	const uint16_t pcr_composite_digest_len) {
@@ -276,3 +285,4 @@ bool charra_verify_tpm2_quote_pcr_composite_digest(
 
 	return true;
 }
+)
