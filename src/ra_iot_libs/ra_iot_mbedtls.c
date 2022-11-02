@@ -485,7 +485,7 @@ int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *encr_data, u
 
     unsigned char *buf = encr_data;
     const char *pers = "rsa_decrypt";
-    memset(result, 0, sizeof( result ) );
+    memset(result, 0, sizeof( *result ) );
     
     /* ----- Seeding the random number generator ----- */
 

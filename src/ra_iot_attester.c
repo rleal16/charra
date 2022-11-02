@@ -18,11 +18,6 @@
  * BSD-3-Clause).
  */
 
-// to mar
-
-
-#define _X(s)
-
 
 #include <arpa/inet.h>
 #include <coap2/coap.h>
@@ -37,17 +32,11 @@
 #include "common/charra_log.h"
 #include "common/charra_macro.h"
 
-_X(#include "core/charra_dto.h")
-_X(#include "core/charra_helper.h")
-_X(#include "core/charra_key_mgr.h")
-_X(#include "core/charra_marshaling.h")
 
 #include "util/cbor_util.h"
 #include "util/cli_util.h"
 #include "util/coap_util.h"
 #include "util/io_util.h"
-
-_X(#include "util/tpm2_util.h")
 
 
 #define PRINT_RES(x) (x ? "Ok!" : "Failed!")
@@ -363,9 +352,9 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
 		goto error;
 	}
 
-	/* --- TPM quote --- */
+	/* --- Evidence --- */
 
-	charra_log_info("[" LOG_NAME "] Preparing TPM quote data.");
+	charra_log_info("[" LOG_NAME "] Preparing attestation data (evidence).");
 
 	/* nonce */
 	charra_log_info("Received nonce of length %d:", request.nonce_len);
@@ -396,6 +385,10 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
     ra_iot_attest_dto attest_data;
     res = ra_iot_gen_evidence(request, &attest_data);
     charra_log_info("[" LOG_NAME "] Reading and parsing the evidence: %s\n", (res ? "Ok!!": "Failed!!"));
+
+	printf("\n\n Attestation DATA!!\n");
+	print_attest_data(&attest_data);
+	printf("\n-------------------\n");
 
 	/* --- send response data --- */
 	/* Preparing attestation data for encryption and signing */
@@ -449,6 +442,8 @@ static void coap_attest_handler(struct coap_context_t* ctx CHARRA_UNUSED,
     memcpy(response.public_key, &pk_bytes, sizeof(pk_bytes));
     memcpy(response.attestation_data, encr_attest_data, response.attestation_data_len);
     memcpy(response.signature, signature, signature_len);
+
+
 
 	/* marshal response */
 	charra_log_info("[" LOG_NAME "] Marshaling response to CBOR.");

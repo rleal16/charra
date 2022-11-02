@@ -17,9 +17,7 @@
  * @license BSD 3-Clause "New" or "Revised" License (SPDX-License-Identifier:
  * BSD-3-Clause).
  */
-#ifndef _X
-#define _X(...)
-#endif
+
 
 
 #ifndef IO_UTIL_H
@@ -33,7 +31,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-_X(#include <tss2/tss2_tpm2_types.h>)
 
 
 
@@ -72,20 +69,6 @@ void charra_print_hex(const charra_log_t level, const size_t buf_len,
 void charra_print_str(const charra_log_t level, const size_t buf_len,
 	const uint8_t* const buf, const char* prefix, const char* postfix);
 
-#ifndef _X
-/**
- * @brief Print PCR content of selected PCRs.
- *
- * @param level the log level to print at
- * @param pcr_selection the indexes of selected PCRs
- * @param pcr_selection_len the number of PCRs to print
- * @param pcrs the content of the PCRs
- */
-void charra_print_pcr_content(const charra_log_t level,
-	const uint8_t* pcr_selection, const uint32_t pcr_selection_len,
-	uint8_t** pcrs);
-#endif
-
 /**
  * @brief Checks if file is existing.
  *
@@ -115,28 +98,4 @@ CHARRA_RC charra_io_read_file(
  */
 void charra_free_file_buffer(char** file_content);
 
-
-#ifndef _X
-/**
- * @brief read binary file of unknown length into a cvector. Used for IMA event
- * log reading, which is a char device. The cvector will be initialized inside
- * this function.
- *
- * @param[in] filename the path of the file to be read
- * @param[out] file_content A pointer to the cvector, assumed to be
- * uninitialized upon calling.
- * @param[out] file_content_len The actual length of the file (aka the size of
- * file_content).
- * @return CHARRA_RC CHARRA_RC_SUCCESS on success, otherwise CHARRA_RC_ERROR
- */
-CHARRA_RC charra_io_read_continuous_binary_file(
-	const char* filename, uint8_t** file_content, size_t* file_content_len);
-
-/**
- * @brief free cvector holding the file content.
- *
- * @param[in] file_content A pointer to the cvector.
- */
-void charra_free_continous_file_buffer(uint8_t** file_content);
-#endif
 #endif /* IO_UTIL_H */

@@ -18,9 +18,6 @@
  * BSD-3-Clause).
  */
 
-
-#define _X(...)
-
 #include <arpa/inet.h>
 #include <coap2/coap.h>
 #include <getopt.h>
@@ -29,24 +26,15 @@
 #include <stdio.h>
 #include <string.h>
 
-_X(#include <tss2/tss2_tctildr.h>)
-_X(#include <tss2/tss2_tpm2_types.h>)
-
 
 #include <unistd.h>
 
 #include "common/charra_log.h"
 #include "common/charra_macro.h"
-_X(#include "core/charra_dto.h")
-_X(#include "core/charra_key_mgr.h")
-_X(#include "core/charra_marshaling.h")
-_X(#include "core/charra_rim_mgr.h")
-_X(#include "util/charra_util.h")
 #include "util/cli_util.h"
 #include "util/coap_util.h"
-_X(#include "util/crypto_util.h")
 #include "util/io_util.h"
-_X(#include "util/tpm2_util.h")
+
 
 
 
@@ -87,20 +75,10 @@ unsigned int dst_port = 5683;		 // default port
 #define PERIODIC_ATTESTATION_WAIT_TIME_S                                       \
 	2 // Wait time between attestations in seconds
 
-// TODO: Make PCR selection configurable via CLI
-_X(static uint8_t tpm_pcr_selection[TPM2_MAX_PCRS] = {0, 1, 2, 3, 4, 5, 6, 7, 10};
-static uint32_t tpm_pcr_selection_len = 9;)
-
 static uint32_t claim_selection_len = 9;
 
 uint16_t attestation_response_timeout =
 	30; // timeout when waiting for attestation answer in seconds
-
-
-_X(char* reference_pcr_file_path = "reference-pcrs.txt";
-bool use_ima_event_log = false;
-char* ima_event_log_path =
-	"/sys/kernel/security/ima/binary_runtime_measurements";)
 
 // for DTLS-PSK
 bool use_dtls_psk = false;
@@ -172,11 +150,6 @@ int main(int argc, char** argv) {
 			{
 				.dst_host = dst_host,
 				.timeout = &attestation_response_timeout,
-				_X(.reference_pcr_file_path = &reference_pcr_file_path,
-				.tpm_pcr_selection = tpm_pcr_selection,
-				.tpm_pcr_selection_len = &tpm_pcr_selection_len,
-				.use_ima_event_log = &use_ima_event_log,
-				.ima_event_log_path = &ima_event_log_path,)
 				.dtls_psk_identity = &dtls_psk_identity,
 			},
 	};
@@ -558,6 +531,10 @@ static coap_response_t coap_attest_handler(
     att_results.valid_against_ref_values = false;
 	att_results.valid_claims = false;
     
+	printf("\n\nAttestation data\n");
+	print_attest_data(&att_data);
+	printf("****************\n");
+
 	/* Verify the claims integrity, using the logs (maybe) */
     res = check_claims_integrity(response.event_log, response.event_log_len, att_data, &att_results);
     charra_log_info("[" LOG_NAME "] Claim Integrity Results: %s\n", (res ? "Ok!" : "Failed!"));
