@@ -6,7 +6,8 @@
 
 /**
  * @file coap_util.h
- * @author Michael Eckel (michael.eckel@sit.fraunhofer.de)
+ * @note This code is based on the corresponding code in https://github.com/Fraunhofer-SIT/charra
+ * @author Michael Eckel (michael.eckel@sit.fraunhofer.de) (CHARRA Author)
  * @brief
  * @version 0.1
  * @date 2019-09-19
@@ -21,7 +22,7 @@
 #ifndef COAP_UTIL_H
 #define COAP_UTIL_H
 
-#include "../common/charra_error.h"
+#include "../common/ra_iot_error.h"
 #include <coap2/coap.h>
 #include <stdbool.h>
 
@@ -74,7 +75,7 @@ typedef uint8_t coap_message_t;
  * @return coap_context_t* the Coap context.
  * @return NULL if an error occurred.
  */
-coap_context_t* charra_coap_new_context(const bool enable_coap_block_mode);
+coap_context_t* ra_iot_coap_new_context(const bool enable_coap_block_mode);
 
 /**
  * @brief Creates a CoAP server endpoint.
@@ -86,7 +87,7 @@ coap_context_t* charra_coap_new_context(const bool enable_coap_block_mode);
  * @return coap_endpoint_t* the CoAP endpoint.
  * @return NULL if an error occurred.
  */
-coap_endpoint_t* charra_coap_new_endpoint(coap_context_t* coap_context,
+coap_endpoint_t* ra_iot_coap_new_endpoint(coap_context_t* coap_context,
 	const char* listen_address, const uint16_t port,
 	const coap_proto_t coap_protocol);
 
@@ -100,7 +101,7 @@ coap_endpoint_t* charra_coap_new_endpoint(coap_context_t* coap_context,
  * @return coap_session_t* the CoAP session.
  * @return NULL if an error occurred.
  */
-coap_session_t* charra_coap_new_client_session(coap_context_t* coap_context,
+coap_session_t* ra_iot_coap_new_client_session(coap_context_t* coap_context,
 	const char* dest_address, const uint16_t port,
 	const coap_proto_t coap_protocol);
 
@@ -117,7 +118,7 @@ coap_session_t* charra_coap_new_client_session(coap_context_t* coap_context,
  * @return coap_session_t* the CoAP session.
  * @return NULL if an error occurred.
  */
-coap_session_t* charra_coap_new_client_session_psk(coap_context_t* coap_context,
+coap_session_t* ra_iot_coap_new_client_session_psk(coap_context_t* coap_context,
 	const char* dest_address, const uint16_t port,
 	const coap_proto_t coap_protocol, const char* identity, const uint8_t* key,
 	unsigned key_length);
@@ -134,7 +135,7 @@ coap_session_t* charra_coap_new_client_session_psk(coap_context_t* coap_context,
  * @return coap_session_t* the CoAP session.
  * @return NULL if an error occurred.
  */
-coap_session_t* charra_coap_new_client_session_pki(coap_context_t* coap_context,
+coap_session_t* ra_iot_coap_new_client_session_pki(coap_context_t* coap_context,
 	const char* dest_address, const uint16_t port,
 	const coap_proto_t coap_protocol, coap_dtls_pki_t* dtls_pki);
 
@@ -153,7 +154,7 @@ coap_session_t* charra_coap_new_client_session_pki(coap_context_t* coap_context,
  * @return coap_pdu_t* the created CoAP PDU.
  * @return NULL in case of an error.
  */
-coap_pdu_t* charra_coap_new_request(coap_session_t* session,
+coap_pdu_t* ra_iot_coap_new_request(coap_session_t* session,
 	coap_message_t msg_type, coap_request_t method, coap_optlist_t** options,
 	const uint8_t* data, const size_t data_len);
 
@@ -165,7 +166,7 @@ coap_pdu_t* charra_coap_new_request(coap_session_t* session,
  * @param resource_name the resource name.
  * @param handler the method handler function.
  */
-void charra_coap_add_resource(struct coap_context_t* coap_context,
+void ra_iot_coap_add_resource(struct coap_context_t* coap_context,
 	const coap_request_t method, const char* resource_name,
 	const coap_method_handler_t handler);
 
@@ -179,7 +180,7 @@ void charra_coap_add_resource(struct coap_context_t* coap_context,
  * @param verify_peer_public_key true if the structure shall be setup to
  * validate the peers' public key, false otherwise
  */
-CHARRA_RC charra_coap_setup_dtls_pki_for_rpk(coap_dtls_pki_t* dtls_pki,
+RA_IOT_RC ra_iot_coap_setup_dtls_pki_for_rpk(coap_dtls_pki_t* dtls_pki,
 	char* private_key_path, char* public_key_path, char* peer_public_key_path,
 	bool verify_peer_public_key);
 
@@ -192,7 +193,7 @@ CHARRA_RC charra_coap_setup_dtls_pki_for_rpk(coap_dtls_pki_t* dtls_pki,
  * @param[out] log_level the variable into which the log level is written.
  * @return 0 on success, -1 on error.
  */
-int charra_coap_log_level_from_str(
+int ra_iot_coap_log_level_from_str(
 	const char* log_level_str, coap_log_t* log_level);
 
 /**
@@ -201,6 +202,6 @@ int charra_coap_log_level_from_str(
  * @param method the CoAP request method.
  * @return const char* the string representation of a CoAP request method.
  */
-const char* charra_coap_method_to_str(const coap_request_t method);
+const char* ra_iot_coap_method_to_str(const coap_request_t method);
 
 #endif /* COAP_UTIL_H */

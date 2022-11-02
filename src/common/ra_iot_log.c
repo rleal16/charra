@@ -4,9 +4,10 @@
  ****************************************************************************/
 
 /**
- * @file charra_log.c
+ * @file ra_iot_log.c
  * @author rxi (https://github.com/rxi) (original author)
- * @author Michael Eckel (michael.eckel@sit.fraunhofer.de)
+ * @note This code is based on the corresponding code in https://github.com/Fraunhofer-SIT/charra
+ * @author Michael Eckel (michael.eckel@sit.fraunhofer.de) (CHARRA Author)
  * @brief
  * @version 0.1
  * @date 2019-09-19
@@ -16,7 +17,7 @@
  * @license MIT License (SPDX-License-Identifier: MIT).
  */
 
-#include "charra_log.h"
+#include "ra_iot_log.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -26,54 +27,54 @@
 
 static struct {
 	void* udata;
-	charra_log_LockFn lock;
+	ra_iot_log_LockFn lock;
 	FILE* fp;
-	charra_log_t level;
+	ra_iot_log_t level;
 	int quiet;
 } L;
 
-static const char* const charra_level_names[6] = {[CHARRA_LOG_TRACE] = "TRACE",
-	[CHARRA_LOG_DEBUG] = "DEBUG",
-	[CHARRA_LOG_INFO] = "INFO",
-	[CHARRA_LOG_WARN] = "WARN",
-	[CHARRA_LOG_ERROR] = "ERROR",
-	[CHARRA_LOG_FATAL] = "FATAL"};
+static const char* const ra_iot_level_names[6] = {[RA_IOT_LOG_TRACE] = "TRACE",
+	[RA_IOT_LOG_DEBUG] = "DEBUG",
+	[RA_IOT_LOG_INFO] = "INFO",
+	[RA_IOT_LOG_WARN] = "WARN",
+	[RA_IOT_LOG_ERROR] = "ERROR",
+	[RA_IOT_LOG_FATAL] = "FATAL"};
 
-#ifndef CHARRA_LOG_DISABLE_COLOR
-static const char* charra_level_colors[] = {
+#ifndef RA_IOT_LOG_DISABLE_COLOR
+static const char* ra_iot_level_colors[] = {
 	"\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"};
 #endif
 
-static void charra_log_lock(void) {
+static void ra_iot_log_lock(void) {
 	if (L.lock) {
 		L.lock(L.udata, 1);
 	}
 }
 
-static void charra_log_unlock(void) {
+static void ra_iot_log_unlock(void) {
 	if (L.lock) {
 		L.lock(L.udata, 0);
 	}
 }
 
-void charra_log_set_udata(void* udata) { L.udata = udata; }
+void ra_iot_log_set_udata(void* udata) { L.udata = udata; }
 
-void charra_log_set_lock(charra_log_LockFn fn) { L.lock = fn; }
+void ra_iot_log_set_lock(ra_iot_log_LockFn fn) { L.lock = fn; }
 
-void charra_log_set_fp(FILE* fp) { L.fp = fp; }
+void ra_iot_log_set_fp(FILE* fp) { L.fp = fp; }
 
-void charra_log_set_level(charra_log_t level) { L.level = level; }
+void ra_iot_log_set_level(ra_iot_log_t level) { L.level = level; }
 
-void charra_log_set_quiet(int enable) { L.quiet = enable ? 1 : 0; }
+void ra_iot_log_set_quiet(int enable) { L.quiet = enable ? 1 : 0; }
 
-void charra_log_log(
-	charra_log_t level, const char* file, int line, const char* fmt, ...) {
+void ra_iot_log_log(
+	ra_iot_log_t level, const char* file, int line, const char* fmt, ...) {
 	if (level < L.level) {
 		return;
 	}
 
 	/* acquire lock */
-	charra_log_lock();
+	ra_iot_log_lock();
 
 	/* get current time */
 	time_t t = time(NULL);
@@ -84,11 +85,11 @@ void charra_log_log(
 		va_list args;
 		char buf[16];
 		buf[strftime(buf, sizeof(buf), "%H:%M:%S", lt)] = '\0';
-#ifndef CHARRA_LOG_DISABLE_COLOR
+#ifndef RA_IOT_LOG_DISABLE_COLOR
 		fprintf(stderr, "%s %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ", buf,
-			charra_level_colors[level], charra_level_names[level], file, line);
+			ra_iot_level_colors[level], ra_iot_level_names[level], file, line);
 #else
-		fprintf(stderr, "%s %-5s %s:%d: ", buf, charra_level_names[level], file,
+		fprintf(stderr, "%s %-5s %s:%d: ", buf, ra_iot_level_names[level], file,
 			line);
 #endif
 		va_start(args, fmt);
@@ -103,7 +104,7 @@ void charra_log_log(
 		va_list args;
 		char buf[32];
 		buf[strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", lt)] = '\0';
-		fprintf(L.fp, "%s %-5s %s:%d: ", buf, charra_level_names[level], file,
+		fprintf(L.fp, "%s %-5s %s:%d: ", buf, ra_iot_level_names[level], file,
 			line);
 		va_start(args, fmt);
 		vfprintf(L.fp, fmt, args);
@@ -113,16 +114,16 @@ void charra_log_log(
 	}
 
 	/* release lock */
-	charra_log_unlock();
+	ra_iot_log_unlock();
 }
 
-void charra_log_log_raw(charra_log_t level, const char* fmt, ...) {
+void ra_iot_log_log_raw(ra_iot_log_t level, const char* fmt, ...) {
 	if (level < L.level) {
 		return;
 	}
 
 	/* acquire lock */
-	charra_log_lock();
+	ra_iot_log_lock();
 
 	/* log to stderr */
 	if (!L.quiet) {
@@ -143,16 +144,16 @@ void charra_log_log_raw(charra_log_t level, const char* fmt, ...) {
 	}
 
 	/* release lock */
-	charra_log_unlock();
+	ra_iot_log_unlock();
 }
 
-int charra_log_level_from_str(
-	const char* log_level_str, charra_log_t* log_level) {
+int ra_iot_log_level_from_str(
+	const char* log_level_str, ra_iot_log_t* log_level) {
 	if (log_level_str != NULL) {
 		int array_size =
-			sizeof(charra_level_names) / sizeof(charra_level_names[0]);
+			sizeof(ra_iot_level_names) / sizeof(ra_iot_level_names[0]);
 		for (int i = 0; i < array_size; i++) {
-			const char* name = charra_level_names[i];
+			const char* name = ra_iot_level_names[i];
 			if (name == NULL) {
 				continue;
 			}

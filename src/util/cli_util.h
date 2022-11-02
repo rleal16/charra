@@ -6,7 +6,8 @@
 
 /**
  * @file command_line_util.h
- * @author Dominik Lorych (dominik.lorych@sit.fraunhofer.de)
+ * @note This code is based on the corresponding code in https://github.com/Fraunhofer-SIT/charra
+ * @author Michael Eckel (michael.eckel@sit.fraunhofer.de) (CHARRA Author)
  * @brief Provides command line parsing for verifier & attester.
  * @version 0.1
  * @date 2021-02-18
@@ -18,7 +19,7 @@
  * BSD-3-Clause).
  */
 
-#include "../common/charra_log.h"
+#include "../common/ra_iot_log.h"
 #include <coap2/coap.h>
 #include <stdbool.h>
 
@@ -32,7 +33,7 @@ typedef enum {
  * which might geht modified by the CLI parser
  */
 typedef struct {
-	charra_log_t* charra_log_level;
+	ra_iot_log_t* ra_iot_log_level;
 	coap_log_t* coap_log_level;
 	unsigned int* port;
 	bool* use_dtls_psk;
