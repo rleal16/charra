@@ -5,9 +5,9 @@
  ****************************************************************************/
 
 /**
- * @file charra_macro.h
- * @author Michael Eckel (michael.eckel@sit.fraunhofer.de)
- * @brief General macros.
+ * @file ra_iot_macro.h
+ * @note This code is based on the corresponding code in https://github.com/Fraunhofer-SIT/charra
+ * @author Michael Eckel (michael.eckel@sit.fraunhofer.de) (CHARRA Author)
  * @version 0.1
  * @date 2021-03-17
  *
@@ -18,28 +18,28 @@
  * BSD-3-Clause).
  */
 
-#ifndef CHARRA_MACRO_H
-#define CHARRA_MACRO_H
+#ifndef RA_IOT_MACRO_H
+#define RA_IOT_MACRO_H
 
 #include <stdlib.h>
 
-#define charra_free_and_null_ex(var, func_name)                                \
+#define ra_iot_free_and_null_ex(var, func_name)                                \
 	{                                                                          \
 		func_name(var);                                                        \
 		var = NULL;                                                            \
 	}
 
-#define charra_free_and_null(var)                                              \
-	{ charra_free_and_null_ex(var, free); }
+#define ra_iot_free_and_null(var)                                              \
+	{ ra_iot_free_and_null_ex(var, free); }
 
-#define charra_free_if_not_null_ex(var, func_name)                             \
+#define ra_iot_free_if_not_null_ex(var, func_name)                             \
 	{                                                                          \
 		if (var != NULL) {                                                     \
-			charra_free_and_null_ex(var, func_name);                           \
+			ra_iot_free_and_null_ex(var, func_name);                           \
 		}                                                                      \
 	}
 
-#define charra_free_if_not_null(var)                                           \
-	{ charra_free_if_not_null_ex(var, free); }
+#define ra_iot_free_if_not_null(var)                                           \
+	{ ra_iot_free_if_not_null_ex(var, free); }
 
-#endif /* CHARRA_MACRO_H */
+#endif /* RA_IOT_MACRO_H */

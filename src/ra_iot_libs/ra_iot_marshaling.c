@@ -41,7 +41,7 @@ int ra_iot_unmarshal_attestion_data(mbedtls_rsa_context *sig_key, mbedtls_rsa_co
 static int ra_iot_marshal_attestation_response_internal(
 	const ra_iot_msg_attestation_response_dto* attestation_response, UsefulBuf buf_in,
 	UsefulBufC* buf_out) {
-	//charra_log_trace("<ENTER> %s()", __func__);
+	//ra_iot_log_trace("<ENTER> %s()", __func__);
 	printf("In ra_iot_marshal_attestation_response_internal\n");
 	/* verify input */
 	assert(attestation_response != NULL);
@@ -94,7 +94,7 @@ static int ra_iot_marshal_attestation_response_internal(
 int ra_iot_marshal_attestation_response_size(
 	const ra_iot_msg_attestation_response_dto* attestation_response,
 	size_t* marshaled_data_len) {
-	//charra_log_trace("<ENTER> %s()", __func__);
+	//ra_iot_log_trace("<ENTER> %s()", __func__);
 
     int ret_code = 0;
 
@@ -115,7 +115,7 @@ int ra_iot_marshal_attestation_response_size(
 int ra_iot_marshal_attestation_response(
 	const ra_iot_msg_attestation_response_dto* attestation_response,
 	uint32_t* marshaled_data_len, uint8_t** marshaled_data) {
-	//charra_log_trace("<ENTER> %s()", __func__);
+	//ra_iot_log_trace("<ENTER> %s()", __func__);
 
 	int ret_code = 1;
 
@@ -172,30 +172,30 @@ int ra_iot_unmarshal_attestation_response(
 	QCBORDecode_Init(&dc, marshaled_data_buf, QCBOR_DECODE_MODE_NORMAL);
 
 	/* parse root array */
-	if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY)))
+	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY)))
 		goto cbor_parse_error;
 
 	/* parse "attestation-data" (bytes) */
-	if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	res.attestation_data_len = item.val.string.len;
 	memcpy(&(res.attestation_data), item.val.string.ptr, res.attestation_data_len);
 
 	/* parse "signature" (bytes) */
-	if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	res.signature_len = item.val.string.len;
 	memcpy(&(res.signature), item.val.string.ptr, res.signature_len);
 
 	/* parse "public_key" (bytes) */
-	if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	res.public_key_len = item.val.string.len;
 	memcpy(
 		&(res.public_key), item.val.string.ptr, res.public_key_len);
 
 	/* parse "event-log" (bytes) */
-	if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	res.event_log_len = item.val.string.len;
 	uint8_t* event_log = (uint8_t*)malloc(res.event_log_len);
@@ -384,22 +384,22 @@ int ra_iot_unmarshal_attestation_request(
 
 	QCBORDecode_Init(&dc, marshaled_data_buf, QCBOR_DECODE_MODE_NORMAL);
 
-	if (charra_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY))
+	if (ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY))
 		goto cbor_parse_error;
 
 	/* parse "nonce" (bytes) */
-	if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	req.nonce_len = item.val.string.len;
 	memcpy(&(req.nonce), item.val.string.ptr, req.nonce_len);
 
 
-	/* if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_INT64)))
+	/* if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_INT64)))
 		goto cbor_parse_error;
 	req.claim_selections_len = (uint32_t)item.val.uint64; */
 
 	/* parse array "claim selections" */
-	if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY)))
+	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY)))
 		goto cbor_parse_error;
 
 	/* initialize array and array length */
@@ -407,14 +407,14 @@ int ra_iot_unmarshal_attestation_request(
 
 	/* go through all elements */
 	for (uint32_t i = 0; i < req.claim_selections_len; ++i) {
-		if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+		if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 			goto cbor_parse_error;
 		req.claim_selections[i].selection_len = item.val.string.len;
 		memcpy(&(req.claim_selections[i].selection), item.val.string.ptr, req.claim_selections[i].selection_len);
 	}
 #if marshal_verifier_pub_key
 	/* parse "public_key" (bytes) */
-	 if ((cborerr = charra_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	 if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	req.public_key_len = item.val.string.len;
 	memcpy(
@@ -422,9 +422,9 @@ int ra_iot_unmarshal_attestation_request(
 #endif
 
 	/* parse "get_logs" (bool) */
-	if ((cborerr = charra_cbor_get_next(&dc, &item, CHARRA_CBOR_TYPE_BOOLEAN)))
+	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, RA_IOT_CBOR_TYPE_BOOLEAN)))
 		goto cbor_parse_error;
-	req.get_logs = charra_cbor_get_bool_val(&item);
+	req.get_logs = ra_iot_cbor_get_bool_val(&item);
 
 	/* expect end of CBOR data */
 	if ((cborerr = QCBORDecode_Finish(&dc))) {

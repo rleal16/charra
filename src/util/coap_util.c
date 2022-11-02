@@ -6,7 +6,8 @@
 
 /**
  * @file coap_util.c
- * @author Michael Eckel (michael.eckel@sit.fraunhofer.de)
+ * @note This code is based on the corresponding code in https://github.com/Fraunhofer-SIT/charra
+ * @author Michael Eckel (michael.eckel@sit.fraunhofer.de) (CHARRA Author)
  * @brief
  * @version 0.1
  * @date 2019-09-19
@@ -25,11 +26,11 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../common/charra_log.h"
+#include "../common/ra_iot_log.h"
 #include "../util/io_util.h"
 
 #define LOG_NAME "coap-util"
-#define CHARRA_UNUSED __attribute__((unused))
+#define RA_IOT_UNUSED __attribute__((unused))
 
 static const char* const coap_level_names[10] = {[LOG_EMERG] = "EMERG",
 	[LOG_ALERT] = "ALERT",
@@ -49,7 +50,7 @@ static int verify_rpk_peer_callback(const char* cn,
 
 /* --- function definitions ----------------------------------------------- */
 
-coap_context_t* charra_coap_new_context(const bool enable_coap_block_mode) {
+coap_context_t* ra_iot_coap_new_context(const bool enable_coap_block_mode) {
 	/* startup */
 	coap_startup();
 
@@ -66,7 +67,7 @@ coap_context_t* charra_coap_new_context(const bool enable_coap_block_mode) {
 	return coap_context;
 }
 
-coap_endpoint_t* charra_coap_new_endpoint(coap_context_t* coap_context,
+coap_endpoint_t* ra_iot_coap_new_endpoint(coap_context_t* coap_context,
 	const char* listen_address, const uint16_t port,
 	const coap_proto_t coap_protocol) {
 	/* prepare address */
@@ -80,7 +81,7 @@ coap_endpoint_t* charra_coap_new_endpoint(coap_context_t* coap_context,
 	return coap_new_endpoint(coap_context, &addr, coap_protocol);
 }
 
-coap_session_t* charra_coap_new_client_session(coap_context_t* coap_context,
+coap_session_t* ra_iot_coap_new_client_session(coap_context_t* coap_context,
 	const char* dest_address, const uint16_t port,
 	const coap_proto_t coap_protocol) {
 	/* prepare address */
@@ -94,7 +95,7 @@ coap_session_t* charra_coap_new_client_session(coap_context_t* coap_context,
 	return coap_new_client_session(coap_context, NULL, &addr, coap_protocol);
 }
 
-coap_session_t* charra_coap_new_client_session_psk(coap_context_t* coap_context,
+coap_session_t* ra_iot_coap_new_client_session_psk(coap_context_t* coap_context,
 	const char* dest_address, const uint16_t port,
 	const coap_proto_t coap_protocol, const char* identity, const uint8_t* key,
 	unsigned key_length) {
@@ -110,7 +111,7 @@ coap_session_t* charra_coap_new_client_session_psk(coap_context_t* coap_context,
 		coap_context, NULL, &addr, coap_protocol, identity, key, key_length);
 }
 
-coap_session_t* charra_coap_new_client_session_pki(coap_context_t* coap_context,
+coap_session_t* ra_iot_coap_new_client_session_pki(coap_context_t* coap_context,
 	const char* dest_address, const uint16_t port,
 	const coap_proto_t coap_protocol, coap_dtls_pki_t* dtls_pki) {
 	/* prepare address */
@@ -125,14 +126,14 @@ coap_session_t* charra_coap_new_client_session_pki(coap_context_t* coap_context,
 		coap_context, NULL, &addr, coap_protocol, dtls_pki);
 }
 
-coap_pdu_t* charra_coap_new_request(coap_session_t* session,
+coap_pdu_t* ra_iot_coap_new_request(coap_session_t* session,
 	coap_message_t msg_type, coap_request_t method, coap_optlist_t** options,
 	const uint8_t* data, const size_t data_len) {
 	coap_pdu_t* pdu = NULL;
 
 	/* create new PDU */
 	if ((pdu = coap_new_pdu(session)) == NULL) {
-		charra_log_error("[" LOG_NAME "] Cannot create PDU");
+		ra_iot_log_error("[" LOG_NAME "] Cannot create PDU");
 		goto error;
 	}
 
@@ -150,14 +151,14 @@ coap_pdu_t* charra_coap_new_request(coap_session_t* session,
 
 	/* add token to PDU */
 	if (coap_add_token(pdu, token.length, token.data) == 0) {
-		charra_log_error("[" LOG_NAME "] Cannot add token to request");
+		ra_iot_log_error("[" LOG_NAME "] Cannot add token to request");
 		goto error;
 	}
 
 	/* add options to PDU */
 	if (options != NULL) {
 		if (coap_add_optlist_pdu(pdu, options) == 0) {
-			charra_log_error("[" LOG_NAME "] Cannot add options to request");
+			ra_iot_log_error("[" LOG_NAME "] Cannot add options to request");
 			goto error;
 		}
 	}
@@ -167,7 +168,7 @@ coap_pdu_t* charra_coap_new_request(coap_session_t* session,
 		/* let the underlying libcoap decide how this data should be sent */
 		if (coap_add_data_large_request(
 				session, pdu, data_len, data, NULL, NULL) == 0) {
-			charra_log_error(
+			ra_iot_log_error(
 				"[" LOG_NAME
 				"] Cannot add (large) data option list to request");
 			goto error;
@@ -186,11 +187,11 @@ error:
 	return NULL;
 }
 
-void charra_coap_add_resource(struct coap_context_t* coap_context,
+void ra_iot_coap_add_resource(struct coap_context_t* coap_context,
 	const coap_request_t method, const char* resource_name,
 	const coap_method_handler_t handler) {
-	charra_log_info("[" LOG_NAME "] Adding CoAP %s resource '%s'.",
-		charra_coap_method_to_str(method), resource_name);
+	ra_iot_log_info("[" LOG_NAME "] Adding CoAP %s resource '%s'.",
+		ra_iot_coap_method_to_str(method), resource_name);
 
 	coap_str_const_t* resource_uri = coap_new_str_const(
 		(uint8_t const*)resource_name, strlen(resource_name));
@@ -200,16 +201,16 @@ void charra_coap_add_resource(struct coap_context_t* coap_context,
 	coap_add_resource(coap_context, resource);
 }
 
-CHARRA_RC charra_coap_setup_dtls_pki_for_rpk(coap_dtls_pki_t* dtls_pki,
+RA_IOT_RC ra_iot_coap_setup_dtls_pki_for_rpk(coap_dtls_pki_t* dtls_pki,
 	char* private_key_path, char* public_key_path, char* peer_public_key_path,
 	bool verify_peer_public_key) {
 	// read public key file
 	char* public_key_file = NULL;
 	size_t public_key_file_length = 0;
-	CHARRA_RC rc = charra_io_read_file(
+	RA_IOT_RC rc = ra_iot_io_read_file(
 		public_key_path, &public_key_file, &public_key_file_length);
-	if (rc != CHARRA_RC_SUCCESS) {
-		charra_log_error(
+	if (rc != RA_IOT_RC_SUCCESS) {
+		ra_iot_log_error(
 			"[" LOG_NAME "] Cannot read file at path '%s'", public_key_path);
 		return rc;
 	}
@@ -217,10 +218,10 @@ CHARRA_RC charra_coap_setup_dtls_pki_for_rpk(coap_dtls_pki_t* dtls_pki,
 	// read private key file
 	char* private_key_file = NULL;
 	size_t private_key_file_length = 0;
-	rc = charra_io_read_file(
+	rc = ra_iot_io_read_file(
 		private_key_path, &private_key_file, &private_key_file_length);
-	if (rc != CHARRA_RC_SUCCESS) {
-		charra_log_error(
+	if (rc != RA_IOT_RC_SUCCESS) {
+		ra_iot_log_error(
 			"[" LOG_NAME "] Cannot read file at path '%s'", private_key_path);
 		return rc;
 	}
@@ -256,10 +257,10 @@ CHARRA_RC charra_coap_setup_dtls_pki_for_rpk(coap_dtls_pki_t* dtls_pki,
 	dtls_pki->pki_key.key.asn1.private_key_len = private_key_file_length;
 	dtls_pki->pki_key.key.asn1.private_key_type = COAP_ASN1_PKEY_EC;
 
-	return CHARRA_RC_SUCCESS;
+	return RA_IOT_RC_SUCCESS;
 }
 
-int charra_coap_log_level_from_str(
+int ra_iot_coap_log_level_from_str(
 	const char* log_level_str, coap_log_t* log_level) {
 	if (log_level_str != NULL) {
 		int array_size = sizeof(coap_level_names) / sizeof(coap_level_names[0]);
@@ -279,7 +280,7 @@ int charra_coap_log_level_from_str(
 	return -1;
 }
 
-const char* charra_coap_method_to_str(const coap_request_t method) {
+const char* ra_iot_coap_method_to_str(const coap_request_t method) {
 	switch (method) {
 	case COAP_REQUEST_GET:
 		return "GET";
@@ -322,38 +323,38 @@ const char* charra_coap_method_to_str(const coap_request_t method) {
  */
 static int verify_rpk_peer_callback(const char* cn,
 	const uint8_t* asn1_public_cert, size_t asn1_length,
-	coap_session_t* session CHARRA_UNUSED, unsigned depth CHARRA_UNUSED,
+	coap_session_t* session RA_IOT_UNUSED, unsigned depth RA_IOT_UNUSED,
 	int validated, void* arg) {
-	charra_log_info("[" LOG_NAME "] Checking peers public key for equivalence "
+	ra_iot_log_info("[" LOG_NAME "] Checking peers public key for equivalence "
 					"against peers' known public key.");
 	if (strcmp("RPK", cn) == 0 && validated == 1) {
 		char* reference = NULL;
 		size_t reference_length = 0;
-		CHARRA_RC rc =
-			charra_io_read_file((char*)arg, &reference, &reference_length);
-		if (rc == CHARRA_RC_SUCCESS) {
+		RA_IOT_RC rc =
+			ra_iot_io_read_file((char*)arg, &reference, &reference_length);
+		if (rc == RA_IOT_RC_SUCCESS) {
 			if (reference_length == asn1_length) {
 				if (memcmp(reference, asn1_public_cert, reference_length) ==
 					0) {
 					return 1;
 				}
 			}
-			charra_log_error("[" LOG_NAME
+			ra_iot_log_error("[" LOG_NAME
 							 "] DTLS-RPK: The public key of the peer could not "
 							 "be verified with the reference key at path '%s'.",
 				(char*)arg);
-			charra_print_hex(CHARRA_LOG_DEBUG, reference_length, (uint8_t*) reference,
+			ra_iot_print_hex(RA_IOT_LOG_DEBUG, reference_length, (uint8_t*) reference,
 				"Reference public key of peer: ", "\n", false);
-			charra_print_hex(CHARRA_LOG_DEBUG, asn1_length, asn1_public_cert,
+			ra_iot_print_hex(RA_IOT_LOG_DEBUG, asn1_length, asn1_public_cert,
 				"Actual public key of peer: ", "\n", false);
 			return 0;
 		}
-		charra_log_error("[" LOG_NAME "] DTLS-RPK: The reference key of the "
+		ra_iot_log_error("[" LOG_NAME "] DTLS-RPK: The reference key of the "
 						 "peer at path '%s' could not be opened.",
 			(char*)arg);
 		return 0;
 	}
-	charra_log_error(
+	ra_iot_log_error(
 		"[" LOG_NAME
 		"] DTLS-RPK: Unexpected error while verifying peers' public key");
 	return 0;

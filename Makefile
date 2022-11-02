@@ -6,10 +6,10 @@ CFLAGS = -std=c11 -g -pedantic -Wall -Wextra \
          -fdata-sections -ffunction-sections
 
 ifdef disable-log
-	CFLAGS += -DCHARRA_LOG_DISABLE
+	CFLAGS += -DRA_IOT_LOG_DISABLE
 endif
 ifdef disable-log-color
-	CFLAGS += -DCHARRA_LOG_DISABLE_COLOR
+	CFLAGS += -DRA_IOT_LOG_DISABLE_COLOR
 endif
 
 
@@ -49,7 +49,7 @@ SOURCES = $(shell find $(SRCDIR) -name '*.c')
 
 INCLUDE = -I$(INCDIR)
 
-OBJECTS =  $(addsuffix .o, $(addprefix $(OBJDIR)/common/, charra_log))
+OBJECTS =  $(addsuffix .o, $(addprefix $(OBJDIR)/common/, ra_iot_log))
 OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/util/, cbor_util coap_util io_util cli_util))
 OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/, ra_iot_memory_mgmt ra_iot_mbedtls ra_iot_crypto ra_iot_evidence_mgmt ra_iot_marshaling ra_iot_dto ra_iot_security))
 

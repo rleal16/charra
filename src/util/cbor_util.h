@@ -6,7 +6,8 @@
 
 /**
  * @file cbor_util.h
- * @author Michael Eckel (michael.eckel@sit.fraunhofer.de)
+ * @note This code is based on the corresponding code in https://github.com/Fraunhofer-SIT/charra
+ * @author Michael Eckel (michael.eckel@sit.fraunhofer.de) (CHARRA Author)
  * @brief
  * @version 0.1
  * @date 2019-09-19
@@ -24,9 +25,9 @@
 #include <qcbor/qcbor.h>
 #include <stdlib.h>
 
-#include "../common/charra_error.h"
+#include "../common/ra_iot_error.h"
 
-#define CHARRA_CBOR_TYPE_BOOLEAN QCBOR_TYPE_OPTTAG - 1
+#define RA_IOT_CBOR_TYPE_BOOLEAN QCBOR_TYPE_OPTTAG - 1
 
 /**
  * @brief Returns a human-readable presentation of a CBOR type.
@@ -42,10 +43,10 @@ const char* cbor_type_string(const uint8_t type);
  * @param ctx
  * @param decoded_item
  * @param expected_type the expected CBOR element type
- * @return CHARRA_RC_SUCCESS in case of success
- * @return CHARRA_RC_MARSHALING_ERROR in case an error occurred
+ * @return RA_IOT_RC_SUCCESS in case of success
+ * @return RA_IOT_RC_MARSHALING_ERROR in case an error occurred
  */
-CHARRA_RC charra_cbor_get_next(
+RA_IOT_RC ra_iot_cbor_get_next(
 	QCBORDecodeContext* ctx, QCBORItem* decoded_item, uint8_t expected_type);
 
 /**
@@ -55,7 +56,7 @@ CHARRA_RC charra_cbor_get_next(
  * @return true if the boolean value of the CBOR item is \c true
  * @return false if the boolean value of the CBOR item is \c false
  */
-bool charra_cbor_get_bool_val(QCBORItem* item);
+bool ra_iot_cbor_get_bool_val(QCBORItem* item);
 
 /**
  * @brief Returns a human-readable presentation of a CBOR error.
@@ -63,6 +64,6 @@ bool charra_cbor_get_bool_val(QCBORItem* item);
  * @param err the CBOR error
  * @return const char* the string representation of the CBOR error
  */
-const char* charra_cbor_err_str(QCBORError err);
+const char* ra_iot_cbor_err_str(QCBORError err);
 
 #endif /* CBOR_UTIL_H */
