@@ -1,4 +1,4 @@
-#include "ra_iot_dto.h"
+#include "ra2iot_dto.h"
 
 /* 
 Use log data to assess claim integrity.
@@ -6,4 +6,4 @@ Use log data to assess claim integrity.
 Please, note that there might be other ways of assessing the integrity of the claims, without using the claims themselves; 
 In fact, in some of those cases, we might be assessing the device integrity instead of its claims (directly).
 */
-int check_claims_integrity(const uint8_t *event_logs, const uint32_t event_logs_len, const ra_iot_attest_dto att_data, attest_res *att_results);
+int check_claims_integrity(const uint8_t *event_logs, const uint32_t event_logs_len, const ra2iot_attest_dto att_data, attest_res *att_results);

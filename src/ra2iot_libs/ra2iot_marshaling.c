@@ -1,4 +1,4 @@
-#include "ra_iot_marshaling.h"
+#include "ra2iot_marshaling.h"
 
 #include <assert.h>
 #include <inttypes.h>
@@ -9,9 +9,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "ra_iot_dto.h"
-#include "ra_iot_memory_mgmt.h"
-#include "ra_iot_evidence_mgmt.h"
+#include "ra2iot_dto.h"
+#include "ra2iot_memory_mgmt.h"
+#include "ra2iot_evidence_mgmt.h"
 
 #include "../util/cbor_util.h" // temporary include for unmarshalling functions
 
@@ -20,16 +20,16 @@
 /* ***************** Unmarshalling the attestation data ***************** */
 /* ********************************************************************** */
 
-int ra_iot_unmarshal_attestion_data(mbedtls_rsa_context *sig_key, mbedtls_rsa_context *encr_key, ra_iot_msg_attestation_response_dto *req, ra_iot_attest_dto *att_data){
+int ra2iot_unmarshal_attestion_data(mbedtls_rsa_context *sig_key, mbedtls_rsa_context *encr_key, ra2iot_msg_attestation_response_dto *req, ra2iot_attest_dto *att_data){
 	int res = 0;
 	uint8_t decr_res[512];
 
-	res = ra_iot_verify_decrypt(sig_key, encr_key, req->attestation_data, req->attestation_data_len, req->signature, decr_res);
+	res = ra2iot_verify_decrypt(sig_key, encr_key, req->attestation_data, req->attestation_data_len, req->signature, decr_res);
 	if(res == 0)
 		return 0;
 
-    printf("ra_iot_verify_decrypt: %s\n", (res ? "Ok!" : "Bad!"));
-    memcpy(att_data, decr_res, sizeof(ra_iot_attest_dto));
+    printf("ra2iot_verify_decrypt: %s\n", (res ? "Ok!" : "Bad!"));
+    memcpy(att_data, decr_res, sizeof(ra2iot_attest_dto));
 	
     return res;
 }
@@ -38,11 +38,11 @@ int ra_iot_unmarshal_attestion_data(mbedtls_rsa_context *sig_key, mbedtls_rsa_co
 /* **************** (Un) Marshalling the attestation response **************** */
 /* *************************************************************************** */
 
-static int ra_iot_marshal_attestation_response_internal(
-	const ra_iot_msg_attestation_response_dto* attestation_response, UsefulBuf buf_in,
+static int ra2iot_marshal_attestation_response_internal(
+	const ra2iot_msg_attestation_response_dto* attestation_response, UsefulBuf buf_in,
 	UsefulBufC* buf_out) {
-	//ra_iot_log_trace("<ENTER> %s()", __func__);
-	printf("In ra_iot_marshal_attestation_response_internal\n");
+	//ra2iot_log_trace("<ENTER> %s()", __func__);
+	printf("In ra2iot_marshal_attestation_response_internal\n");
 	/* verify input */
 	assert(attestation_response != NULL);
 	assert(attestation_response->attestation_data != NULL);
@@ -91,10 +91,10 @@ static int ra_iot_marshal_attestation_response_internal(
 }
 
 
-int ra_iot_marshal_attestation_response_size(
-	const ra_iot_msg_attestation_response_dto* attestation_response,
+int ra2iot_marshal_attestation_response_size(
+	const ra2iot_msg_attestation_response_dto* attestation_response,
 	size_t* marshaled_data_len) {
-	//ra_iot_log_trace("<ENTER> %s()", __func__);
+	//ra2iot_log_trace("<ENTER> %s()", __func__);
 
     int ret_code = 0;
 
@@ -103,7 +103,7 @@ int ra_iot_marshal_attestation_response_size(
 	UsefulBuf buf_in = {.len = SIZE_MAX, .ptr = NULL};
 	UsefulBufC buf_out = {0};
 
-	if ((ret_code = ra_iot_marshal_attestation_response_internal(
+	if ((ret_code = ra2iot_marshal_attestation_response_internal(
 			 attestation_response, buf_in, &buf_out)) == 1) {
 		*marshaled_data_len = buf_out.len;
 	}
@@ -112,10 +112,10 @@ int ra_iot_marshal_attestation_response_size(
 }
 
 
-int ra_iot_marshal_attestation_response(
-	const ra_iot_msg_attestation_response_dto* attestation_response,
+int ra2iot_marshal_attestation_response(
+	const ra2iot_msg_attestation_response_dto* attestation_response,
 	uint32_t* marshaled_data_len, uint8_t** marshaled_data) {
-	//ra_iot_log_trace("<ENTER> %s()", __func__);
+	//ra2iot_log_trace("<ENTER> %s()", __func__);
 
 	int ret_code = 1;
 
@@ -130,7 +130,7 @@ int ra_iot_marshal_attestation_response(
 
 	/* compute size of marshaled data */
 	UsefulBuf buf_in = {.len = 0, .ptr = NULL};
-	if ((ret_code = ra_iot_marshal_attestation_response_size(
+	if ((ret_code = ra2iot_marshal_attestation_response_size(
 			 attestation_response, &(buf_in.len))) != 1) {
 		printf("Could not compute size of marshaled data.\n");
 		return ret_code;
@@ -146,7 +146,7 @@ int ra_iot_marshal_attestation_response(
 
 	/* encode */
 	UsefulBufC buf_out = {.len = 0, .ptr = NULL};
-	if ((ret_code = ra_iot_marshal_attestation_response_internal(
+	if ((ret_code = ra2iot_marshal_attestation_response_internal(
 			 attestation_response, buf_in, &buf_out)) != 1) {
 		printf("Could not marshal data.\n");
 		return ret_code;
@@ -159,10 +159,10 @@ int ra_iot_marshal_attestation_response(
 	return ret_code;
 }
 
-int ra_iot_unmarshal_attestation_response(
+int ra2iot_unmarshal_attestation_response(
 	const uint32_t marshaled_data_len, const uint8_t* marshaled_data,
-	ra_iot_msg_attestation_response_dto* attestation_response) {
-	ra_iot_msg_attestation_response_dto res = {0};
+	ra2iot_msg_attestation_response_dto* attestation_response) {
+	ra2iot_msg_attestation_response_dto res = {0};
 
 	QCBORError cborerr = QCBOR_SUCCESS;
 	UsefulBufC marshaled_data_buf = {marshaled_data, marshaled_data_len};
@@ -172,30 +172,30 @@ int ra_iot_unmarshal_attestation_response(
 	QCBORDecode_Init(&dc, marshaled_data_buf, QCBOR_DECODE_MODE_NORMAL);
 
 	/* parse root array */
-	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY)))
+	if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY)))
 		goto cbor_parse_error;
 
 	/* parse "attestation-data" (bytes) */
-	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	res.attestation_data_len = item.val.string.len;
 	memcpy(&(res.attestation_data), item.val.string.ptr, res.attestation_data_len);
 
 	/* parse "signature" (bytes) */
-	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	res.signature_len = item.val.string.len;
 	memcpy(&(res.signature), item.val.string.ptr, res.signature_len);
 
 	/* parse "public_key" (bytes) */
-	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	res.public_key_len = item.val.string.len;
 	memcpy(
 		&(res.public_key), item.val.string.ptr, res.public_key_len);
 
 	/* parse "event-log" (bytes) */
-	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	res.event_log_len = item.val.string.len;
 	uint8_t* event_log = (uint8_t*)malloc(res.event_log_len);
@@ -239,8 +239,8 @@ cbor_parse_error:
 /* ***************** (Un) Marshalling the attestation request ***************** */
 /* **************************************************************************** */
 
-static int ra_iot_marshal_attestation_request_internal(
-	const ra_iot_msg_attestation_request_dto* attestation_request, UsefulBuf buf_in,
+static int ra2iot_marshal_attestation_request_internal(
+	const ra2iot_msg_attestation_request_dto* attestation_request, UsefulBuf buf_in,
 	UsefulBufC* buf_out) {
 
 	/* verify input */
@@ -252,7 +252,7 @@ static int ra_iot_marshal_attestation_request_internal(
 	assert(attestation_request->claim_selections->selection_len <= 512);
 	assert(attestation_request->claim_selections->selection != NULL);
 
-	assert(attestation_request->nonce_len <= 20); // is defined as 128 in the structure, but is 20 in the ra_iot_attest_dto structure -- to be fixed!
+	assert(attestation_request->nonce_len <= 20); // is defined as 128 in the structure, but is 20 in the ra2iot_attest_dto structure -- to be fixed!
 	assert(attestation_request->nonce != NULL);
 
 	/* No need to check get_logs, currently */
@@ -302,8 +302,8 @@ static int ra_iot_marshal_attestation_request_internal(
 }
 
 
-int ra_iot_marshal_attestation_request_size(
-	const ra_iot_msg_attestation_request_dto* attestation_request,
+int ra2iot_marshal_attestation_request_size(
+	const ra2iot_msg_attestation_request_dto* attestation_request,
 	size_t* marshaled_data_len) {
 
 	int ret_code = 1;
@@ -313,7 +313,7 @@ int ra_iot_marshal_attestation_request_size(
 	UsefulBuf buf_in = {.len = SIZE_MAX, .ptr = NULL};
 	UsefulBufC buf_out = {0};
 
-	if ((ret_code = ra_iot_marshal_attestation_request_internal(
+	if ((ret_code = ra2iot_marshal_attestation_request_internal(
 			 attestation_request, buf_in, &buf_out)) == 1) {
 		*marshaled_data_len = buf_out.len;
 	}
@@ -321,8 +321,8 @@ int ra_iot_marshal_attestation_request_size(
 	return ret_code;
 }
 
-int ra_iot_marshal_attestation_request(
-	const ra_iot_msg_attestation_request_dto* attestation_request,
+int ra2iot_marshal_attestation_request(
+	const ra2iot_msg_attestation_request_dto* attestation_request,
 	uint32_t* marshaled_data_len, uint8_t** marshaled_data) {
 
 	int ret_code = 1;
@@ -337,12 +337,12 @@ int ra_iot_marshal_attestation_request(
 	assert(attestation_request->claim_selections->selection_len <= 512);
 	assert(attestation_request->claim_selections->selection != NULL);
 
-	assert(attestation_request->nonce_len <= 20); // is defined as 128 in the structure, but is 20 in the ra_iot_attest_dto structure -- to be fixed!
+	assert(attestation_request->nonce_len <= 20); // is defined as 128 in the structure, but is 20 in the ra2iot_attest_dto structure -- to be fixed!
 	assert(attestation_request->nonce != NULL);
 
 	/* compute size of marshaled data */
 	UsefulBuf buf_in = {.len = 0, .ptr = NULL};
-	if ((ret_code = ra_iot_marshal_attestation_request_size(
+	if ((ret_code = ra2iot_marshal_attestation_request_size(
 			 attestation_request, &(buf_in.len))) != 1) {
 		printf("Could not compute size of marshaled data.\n");
 		return ret_code;
@@ -358,7 +358,7 @@ int ra_iot_marshal_attestation_request(
 
 	/* encode */
 	UsefulBufC buf_out = {.len = 0, .ptr = NULL};
-	if ((ret_code = ra_iot_marshal_attestation_request_internal(
+	if ((ret_code = ra2iot_marshal_attestation_request_internal(
 			 attestation_request, buf_in, &buf_out)) != 1) {
 		printf("Could not marshal data.\n");
 		return ret_code;
@@ -372,10 +372,10 @@ int ra_iot_marshal_attestation_request(
 }
 
 
-int ra_iot_unmarshal_attestation_request(
+int ra2iot_unmarshal_attestation_request(
 	const uint32_t marshaled_data_len, const uint8_t* marshaled_data,
-	ra_iot_msg_attestation_request_dto* attestation_request) {
-	ra_iot_msg_attestation_request_dto req = {0};
+	ra2iot_msg_attestation_request_dto* attestation_request) {
+	ra2iot_msg_attestation_request_dto req = {0};
 
 	QCBORError cborerr = QCBOR_SUCCESS;
 	UsefulBufC marshaled_data_buf = {marshaled_data, marshaled_data_len};
@@ -384,22 +384,22 @@ int ra_iot_unmarshal_attestation_request(
 
 	QCBORDecode_Init(&dc, marshaled_data_buf, QCBOR_DECODE_MODE_NORMAL);
 
-	if (ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY))
+	if (ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY))
 		goto cbor_parse_error;
 
 	/* parse "nonce" (bytes) */
-	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	req.nonce_len = item.val.string.len;
 	memcpy(&(req.nonce), item.val.string.ptr, req.nonce_len);
 
 
-	/* if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_INT64)))
+	/* if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_INT64)))
 		goto cbor_parse_error;
 	req.claim_selections_len = (uint32_t)item.val.uint64; */
 
 	/* parse array "claim selections" */
-	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY)))
+	if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_ARRAY)))
 		goto cbor_parse_error;
 
 	/* initialize array and array length */
@@ -407,14 +407,14 @@ int ra_iot_unmarshal_attestation_request(
 
 	/* go through all elements */
 	for (uint32_t i = 0; i < req.claim_selections_len; ++i) {
-		if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+		if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 			goto cbor_parse_error;
 		req.claim_selections[i].selection_len = item.val.string.len;
 		memcpy(&(req.claim_selections[i].selection), item.val.string.ptr, req.claim_selections[i].selection_len);
 	}
 #if marshal_verifier_pub_key
 	/* parse "public_key" (bytes) */
-	 if ((cborerr = ra_iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
+	 if ((cborerr = ra2iot_cbor_get_next(&dc, &item, QCBOR_TYPE_BYTE_STRING)))
 		goto cbor_parse_error;
 	req.public_key_len = item.val.string.len;
 	memcpy(
@@ -422,9 +422,9 @@ int ra_iot_unmarshal_attestation_request(
 #endif
 
 	/* parse "get_logs" (bool) */
-	if ((cborerr = ra_iot_cbor_get_next(&dc, &item, RA_IOT_CBOR_TYPE_BOOLEAN)))
+	if ((cborerr = ra2iot_cbor_get_next(&dc, &item, RA2IOT_CBOR_TYPE_BOOLEAN)))
 		goto cbor_parse_error;
-	req.get_logs = ra_iot_cbor_get_bool_val(&item);
+	req.get_logs = ra2iot_cbor_get_bool_val(&item);
 
 	/* expect end of CBOR data */
 	if ((cborerr = QCBORDecode_Finish(&dc))) {

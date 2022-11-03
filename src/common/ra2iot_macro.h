@@ -5,7 +5,7 @@
  ****************************************************************************/
 
 /**
- * @file ra_iot_macro.h
+ * @file ra2iot_macro.h
  * @note This code is based on the corresponding code in https://github.com/Fraunhofer-SIT/charra
  * @author Michael Eckel (michael.eckel@sit.fraunhofer.de) (CHARRA Author)
  * @version 0.1
@@ -18,28 +18,28 @@
  * BSD-3-Clause).
  */
 
-#ifndef RA_IOT_MACRO_H
-#define RA_IOT_MACRO_H
+#ifndef RA2IOT_MACRO_H
+#define RA2IOT_MACRO_H
 
 #include <stdlib.h>
 
-#define ra_iot_free_and_null_ex(var, func_name)                                \
+#define ra2iot_free_and_null_ex(var, func_name)                                \
 	{                                                                          \
 		func_name(var);                                                        \
 		var = NULL;                                                            \
 	}
 
-#define ra_iot_free_and_null(var)                                              \
-	{ ra_iot_free_and_null_ex(var, free); }
+#define ra2iot_free_and_null(var)                                              \
+	{ ra2iot_free_and_null_ex(var, free); }
 
-#define ra_iot_free_if_not_null_ex(var, func_name)                             \
+#define ra2iot_free_if_not_null_ex(var, func_name)                             \
 	{                                                                          \
 		if (var != NULL) {                                                     \
-			ra_iot_free_and_null_ex(var, func_name);                           \
+			ra2iot_free_and_null_ex(var, func_name);                           \
 		}                                                                      \
 	}
 
-#define ra_iot_free_if_not_null(var)                                           \
-	{ ra_iot_free_if_not_null_ex(var, free); }
+#define ra2iot_free_if_not_null(var)                                           \
+	{ ra2iot_free_if_not_null_ex(var, free); }
 
-#endif /* RA_IOT_MACRO_H */
+#endif /* RA2IOT_MACRO_H */

@@ -6,10 +6,10 @@ CFLAGS = -std=c11 -g -pedantic -Wall -Wextra \
          -fdata-sections -ffunction-sections
 
 ifdef disable-log
-	CFLAGS += -DRA_IOT_LOG_DISABLE
+	CFLAGS += -DRA2IOT_LOG_DISABLE
 endif
 ifdef disable-log-color
-	CFLAGS += -DRA_IOT_LOG_DISABLE_COLOR
+	CFLAGS += -DRA2IOT_LOG_DISABLE_COLOR
 endif
 
 
@@ -49,12 +49,12 @@ SOURCES = $(shell find $(SRCDIR) -name '*.c')
 
 INCLUDE = -I$(INCDIR)
 
-OBJECTS =  $(addsuffix .o, $(addprefix $(OBJDIR)/common/, ra_iot_log))
+OBJECTS =  $(addsuffix .o, $(addprefix $(OBJDIR)/common/, ra2iot_log))
 OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/util/, cbor_util coap_util io_util cli_util))
-OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra_iot_libs/, ra_iot_memory_mgmt ra_iot_mbedtls ra_iot_crypto ra_iot_evidence_mgmt ra_iot_marshaling ra_iot_dto ra_iot_security))
+OBJECTS += $(addsuffix .o, $(addprefix $(OBJDIR)/ra2iot_libs/, ra2iot_memory_mgmt ra2iot_mbedtls ra2iot_crypto ra2iot_evidence_mgmt ra2iot_marshaling ra2iot_dto ra2iot_security))
 
-verifier_target = ra_iot_attester
-attester_target = ra_iot_verifier
+verifier_target = ra2iot_attester
+attester_target = ra2iot_verifier
 
 
 
@@ -112,7 +112,7 @@ $(OBJDIR)/util/%.o: $(SRCDIR)/util/%.c
 	@mkdir -p $(@D)
 	$(CC) $< $(INCLUDE) $(LIBINCLUDE) $(LDPATH) $(LDFLAGS) $(CFLAGS) -g -o $@ -c
 
-$(OBJDIR)/ra_iot_libs/%.o: $(SRCDIR)/ra_iot_libs/%.c
+$(OBJDIR)/ra2iot_libs/%.o: $(SRCDIR)/ra2iot_libs/%.c
 	@mkdir -p $(@D)
 	$(CC) $< $(INCLUDE) $(LIBINCLUDE) $(LDPATH) $(LDFLAGS) $(CFLAGS) -g -o $@ -c
 
@@ -139,7 +139,7 @@ clean:
 	$(RM) bin/*
 	$(RM) obj/common/*.*
 	$(RM) obj/util/*.*
-	$(RM) obj/ra_iot_libs/*.*
+	$(RM) obj/ra2iot_libs/*.*
 	$(RM) obj/*.*
 
 cleanlibs: clean

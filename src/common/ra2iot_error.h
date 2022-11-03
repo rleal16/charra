@@ -5,7 +5,7 @@
  ****************************************************************************/
 
 /**
- * @file RA_IOT_error.h
+ * @file RA2IOT_error.h
  * @note This code is based on the corresponding code in https://github.com/Fraunhofer-SIT/charra
  * @author Michael Eckel (michael.eckel@sit.fraunhofer.de) (CHARRA Author)
  * @brief
@@ -19,22 +19,22 @@
  * BSD-3-Clause).
  */
 
-#ifndef RA_IOT_ERROR_H
-#define RA_IOT_ERROR_H
+#ifndef RA2IOT_ERROR_H
+#define RA2IOT_ERROR_H
 
 #include <inttypes.h>
 
-typedef uint32_t RA_IOT_RC;
-#define RA_IOT_RC_SUCCESS ((RA_IOT_RC)0x00000000)
-#define RA_IOT_RC_ERROR ((RA_IOT_RC)0x00000001)
-#define RA_IOT_RC_CRYPTO_ERROR ((RA_IOT_RC)0x0001ffff)
-#define RA_IOT_RC_NOT_YET_IMPLEMENTED ((RA_IOT_RC)0xeeeeee)
-#define RA_IOT_RC_BAD_ARGUMENT ((RA_IOT_RC)0x0000ffff)
-#define RA_IOT_RC_MARSHALING_ERROR ((RA_IOT_RC)0x0000fffe)
-#define RA_IOT_RC_VERIFICATION_FAILED ((RA_IOT_RC)0x000000ff)
-#define RA_IOT_RC_NO_MATCH ((RA_IOT_RC)0x01010101)
-#define RA_IOT_RC_CLI_ERROR ((RA_IOT_RC)0x0000aaaa)
-#define RA_IOT_RC_COAP_ERROR ((RA_IOT_RC)0x0000C0AF)
-#define RA_IOT_RC_TIMEOUT ((RA_IOT_RC)0x0000000f)
+typedef uint32_t RA2IOT_RC;
+#define RA2IOT_RC_SUCCESS ((RA2IOT_RC)0x00000000)
+#define RA2IOT_RC_ERROR ((RA2IOT_RC)0x00000001)
+#define RA2IOT_RC_CRYPTO_ERROR ((RA2IOT_RC)0x0001ffff)
+#define RA2IOT_RC_NOT_YET_IMPLEMENTED ((RA2IOT_RC)0xeeeeee)
+#define RA2IOT_RC_BAD_ARGUMENT ((RA2IOT_RC)0x0000ffff)
+#define RA2IOT_RC_MARSHALING_ERROR ((RA2IOT_RC)0x0000fffe)
+#define RA2IOT_RC_VERIFICATION_FAILED ((RA2IOT_RC)0x000000ff)
+#define RA2IOT_RC_NO_MATCH ((RA2IOT_RC)0x01010101)
+#define RA2IOT_RC_CLI_ERROR ((RA2IOT_RC)0x0000aaaa)
+#define RA2IOT_RC_COAP_ERROR ((RA2IOT_RC)0x0000C0AF)
+#define RA2IOT_RC_TIMEOUT ((RA2IOT_RC)0x0000000f)
 
-#endif /* RA_IOT_ERROR_H */
+#endif /* RA2IOT_ERROR_H */

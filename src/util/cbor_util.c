@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../common/ra_iot_log.h"
+#include "../common/ra2iot_log.h"
 
 const char* cbor_type_string(const uint8_t type) {
 	switch (type) {
@@ -83,44 +83,44 @@ const char* cbor_type_string(const uint8_t type) {
 		return "CborDoubleType";
 	case QCBOR_TYPE_MAP_AS_ARRAY:
 		return "CborMapAsArrayType";
-	case RA_IOT_CBOR_TYPE_BOOLEAN:
+	case RA2IOT_CBOR_TYPE_BOOLEAN:
 		return "CharraCborBooleanType";
 	default:
 		return "UNKNOWN";
 	}
 }
 
-RA_IOT_RC ra_iot_cbor_get_next(
+RA2IOT_RC ra2iot_cbor_get_next(
 	QCBORDecodeContext* ctx, QCBORItem* decoded_item, uint8_t expected_type) {
 	uint8_t type = 0;
 	bool is_expected_type = false;
 
 	if (QCBORDecode_GetNext(ctx, decoded_item)) {
-		ra_iot_log_error("CBOR Parser: Error getting next item");
-		return RA_IOT_RC_MARSHALING_ERROR;
+		ra2iot_log_error("CBOR Parser: Error getting next item");
+		return RA2IOT_RC_MARSHALING_ERROR;
 	}
 
 	if (expected_type != QCBOR_TYPE_NONE) {
 		/* expect particular CBOR type */
 		type = decoded_item->uDataType;
 		is_expected_type = type == expected_type;
-		if (expected_type == RA_IOT_CBOR_TYPE_BOOLEAN) {
+		if (expected_type == RA2IOT_CBOR_TYPE_BOOLEAN) {
 			is_expected_type =
 				type == QCBOR_TYPE_FALSE || type == QCBOR_TYPE_TRUE;
 		}
 		if (!is_expected_type) {
-			ra_iot_log_error("CBOR parser: expected type %s, found type %s.",
+			ra2iot_log_error("CBOR parser: expected type %s, found type %s.",
 				cbor_type_string(expected_type), cbor_type_string(type));
-			return RA_IOT_RC_MARSHALING_ERROR;
+			return RA2IOT_RC_MARSHALING_ERROR;
 		}
-		ra_iot_log_debug("CBOR parser: found type %s.", cbor_type_string(type));
+		ra2iot_log_debug("CBOR parser: found type %s.", cbor_type_string(type));
 	}
 
 	/* return positive result */
-	return RA_IOT_RC_SUCCESS;
+	return RA2IOT_RC_SUCCESS;
 }
 
-bool ra_iot_cbor_get_bool_val(QCBORItem* item) {
+bool ra2iot_cbor_get_bool_val(QCBORItem* item) {
 	if (item->uDataType == QCBOR_TYPE_TRUE) {
 		return true;
 	}

@@ -1,13 +1,13 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "ra_iot_crypto.h"
+#include "ra2iot_crypto.h"
 
 
 #define KEY_SIZE 2048
 
-#ifndef RA_IOT_DTO_H
-#define RA_IOT_DTO_H
+#ifndef RA2IOT_DTO_H
+#define RA2IOT_DTO_H
 
 /* General structure that contains information related with a set of reference values */
 typedef struct {
@@ -37,7 +37,7 @@ typedef struct {
 	uint32_t nonce_len; // o tamanho do nonce
 	uint8_t data[210]; // Dummy data. Cannot be larger than 210 due to mbedtls RSA encryption limitations
 	uint32_t data_len; // o tamanho dos dados
-} ra_iot_attest_dto;
+} ra2iot_attest_dto;
 
 
 // Struct to save the attestation results
@@ -64,7 +64,7 @@ typedef struct {
 	uint8_t public_key[KEY_SIZE]; // public key the attester must use to encrypt the evidence
 
 	bool get_logs; // true if the verifier wants logs
-} ra_iot_msg_attestation_request_dto;
+} ra2iot_msg_attestation_request_dto;
 
 
 typedef struct {
@@ -79,13 +79,13 @@ typedef struct {
 
 	uint32_t event_log_len; // log size
 	uint8_t* event_log; // dummy variable representing event logs
-} ra_iot_msg_attestation_response_dto;
+} ra2iot_msg_attestation_response_dto;
 
 
 // Test functions
-int attest_resp_cmp(ra_iot_msg_attestation_response_dto attest_res1, ra_iot_msg_attestation_response_dto attest_res2);
+int attest_resp_cmp(ra2iot_msg_attestation_response_dto attest_res1, ra2iot_msg_attestation_response_dto attest_res2);
 void print_nonce(const uint32_t nonce_len, const uint8_t *nonce);
-void print_attest_data(const ra_iot_attest_dto *att_data);
+void print_attest_data(const ra2iot_attest_dto *att_data);
 void print_parsed_claim_selections(const parsed_claim_selections cs);
 
 #endif

@@ -25,8 +25,8 @@
 #define IO_UTIL_H
 
 
-#include "../common/ra_iot_error.h"
-#include "../common/ra_iot_log.h"
+#include "../common/ra2iot_error.h"
+#include "../common/ra2iot_log.h"
 
 
 #include <stdbool.h>
@@ -35,8 +35,8 @@
 
 
 
-#define RA_IOT_BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define RA_IOT_BYTE_TO_BINARY(byte)                                            \
+#define RA2IOT_BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define RA2IOT_BYTE_TO_BINARY(byte)                                            \
 	(byte & 0x80 ? '1' : '0'), (byte & 0x40 ? '1' : '0'),                      \
 		(byte & 0x20 ? '1' : '0'), (byte & 0x10 ? '1' : '0'),                  \
 		(byte & 0x08 ? '1' : '0'), (byte & 0x04 ? '1' : '0'),                  \
@@ -53,7 +53,7 @@
  * @param upper_case true: print in uppercase (e.g. "012..ABCDEF"); false: print
  * in lowercase (e.g. "012..abcdef").
  */
-void ra_iot_print_hex(const ra_iot_log_t level, const size_t buf_len,
+void ra2iot_print_hex(const ra2iot_log_t level, const size_t buf_len,
 	const uint8_t* const buf, const char* prefix, const char* postfix,
 	const bool upper_case);
 
@@ -67,7 +67,7 @@ void ra_iot_print_hex(const ra_iot_log_t level, const size_t buf_len,
  * empty ("").
  * @param postfix  A postfix to the output, e.g. "\n", or leave it empty ("").
  */
-void ra_iot_print_str(const ra_iot_log_t level, const size_t buf_len,
+void ra2iot_print_str(const ra2iot_log_t level, const size_t buf_len,
 	const uint8_t* const buf, const char* prefix, const char* postfix);
 
 /**
@@ -75,7 +75,7 @@ void ra_iot_print_str(const ra_iot_log_t level, const size_t buf_len,
  *
  * @param filename the path of the file
  */
-RA_IOT_RC check_file_existence(const char* filename);
+RA2IOT_RC check_file_existence(const char* filename);
 
 /**
  * @brief read file into a buffer. The buffer will be initialized in this
@@ -86,9 +86,9 @@ RA_IOT_RC check_file_existence(const char* filename);
  * upon calling.
  * @param[out] file_content_len The actual length of the file (aka the size of
  * file_content).
- * @return RA_IOT_RC RA_IOT_RC_SUCCESS on success, otherwise RA_IOT_RC_ERROR
+ * @return RA2IOT_RC RA2IOT_RC_SUCCESS on success, otherwise RA2IOT_RC_ERROR
  */
-RA_IOT_RC ra_iot_io_read_file(
+RA2IOT_RC ra2iot_io_read_file(
 	const char* filename, char** file_content, size_t* file_content_len);
 
 /**
@@ -97,6 +97,6 @@ RA_IOT_RC ra_iot_io_read_file(
  *
  * @param[in] file_content A pointer to the buffer.
  */
-void ra_iot_free_file_buffer(char** file_content);
+void ra2iot_free_file_buffer(char** file_content);
 
 #endif /* IO_UTIL_H */

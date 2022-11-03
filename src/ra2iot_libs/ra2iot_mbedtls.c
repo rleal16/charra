@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <mbedtls/asn1write.h>
 // Do teste
-#include "ra_iot_mbedtls.h"
+#include "ra2iot_mbedtls.h"
 /*
 #include <mbedtls/platform.h>
 #include <mbedtls/error.h>
@@ -56,7 +56,7 @@ void print_mpi(mbedtls_mpi mpi){
     
 }
 
-void ra_iot_mbedtls_print_rsa_pubkey(mbedtls_rsa_context rsa){
+void ra2iot_mbedtls_print_rsa_pubkey(mbedtls_rsa_context rsa){
     printf("N:\n");
     print_mpi(rsa.N);
     printf("\nE:\n");
@@ -104,7 +104,7 @@ void save_ecrypt_to_str(uint8_t *input, int i_len, char *output){
 /************* Cryptographic Functions *************/
 /***************************************************/
 
-int ra_iot_mbedtls_gen_rsa_key( char *path ){
+int ra2iot_mbedtls_gen_rsa_key( char *path ){
 
     int ret = 1;
     int exit_code = 0;
@@ -210,7 +210,7 @@ exit:
 }
 
 
-int ra_iot_mbedtls_load_pub_key_from_buffer(pub_key_dto *pk_buffer, mbedtls_rsa_context *rsa) 
+int ra2iot_mbedtls_load_pub_key_from_buffer(pub_key_dto *pk_buffer, mbedtls_rsa_context *rsa) 
 {
 
     int ret = 1;
@@ -245,7 +245,7 @@ exit:
 }
 
 /* Load public key from a file to a bufffer */
-int ra_iot_mbedtls_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes) 
+int ra2iot_mbedtls_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes) 
 {
 
     FILE *f;
@@ -298,7 +298,7 @@ exit:
 
 }
 
-int ra_iot_mbedtls_load_pub_key(char *filename, mbedtls_rsa_context *rsa) 
+int ra2iot_mbedtls_load_pub_key(char *filename, mbedtls_rsa_context *rsa) 
 {
 
     FILE *f;
@@ -344,7 +344,7 @@ exit:
 
 }
 
-int ra_iot_mbedtls_load_priv_key(char *filename, mbedtls_rsa_context *rsa)
+int ra2iot_mbedtls_load_priv_key(char *filename, mbedtls_rsa_context *rsa)
 {
     FILE *f;
     int ret = 1;
@@ -410,7 +410,7 @@ exit:
 
 }
 
-int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], size_t i_len, unsigned char *output)
+int ra2iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], size_t i_len, unsigned char *output)
 {    
     
     int ret = 1;
@@ -475,7 +475,7 @@ exit:
     return exit_code;
 }
 
-int ra_iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result){
+int ra2iot_mbedtls_decrypt(mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result){
     
     int ret = 1;
     int exit_code = 0;
@@ -530,7 +530,7 @@ exit:
 
 }
 
-int ra_iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature){
+int ra2iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature){
 
     int ret = 1;
     int exit_code = 0;
@@ -568,7 +568,7 @@ exit:
     return exit_code;
 }
 
-int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature){
+int ra2iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature){
 
     int ret = 1;
     int exit_code = 0;
@@ -608,7 +608,7 @@ exit:
 /************* mbedtls utils functions *************/
 /***************************************************/
 
-int ra_iot_mbedtls_gen_rand_bytes(const uint32_t nonce_len, uint8_t* nonce) {
+int ra2iot_mbedtls_gen_rand_bytes(const uint32_t nonce_len, uint8_t* nonce) {
 	int ret = 1;
 	/* initialize contexts */
 	mbedtls_ctr_drbg_context ctr_drbg;
