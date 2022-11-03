@@ -104,7 +104,7 @@ int verify_nonce(const uint32_t nonce_len, const uint8_t* nonce, const uint32_t 
 
 int ra2iot_create_attestation_request(ra2iot_msg_attestation_request_dto *req, mbedtls_rsa_context *pub_key){
     req->nonce_len = 20;
-    ra2iot_generate_nonce(req->nonce_len, &(req->nonce));
+    ra2iot_generate_nonce(req->nonce_len, (unsigned char *) &(req->nonce));
     
     req->claim_selections_len = 5;
     for(int i = 0; i<(int)req->claim_selections_len; i++){

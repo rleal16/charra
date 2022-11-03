@@ -278,8 +278,8 @@ int ra2iot_mbedtls_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes)
     //rsa.len = ( mbedtls_mpi_bitlen( &(rsa.N) ) + 7 ) >> 3;
     //mbedtls_printf( "Writing to binary\n\n");
     fflush(stdout);
-    if( ( ret = mbedtls_mpi_write_binary( &N, &(pk_bytes->N), 256 ) ) != 0 ||
-        ( ret = mbedtls_mpi_write_binary( &E, &(pk_bytes->E), 256 ) ) != 0 )
+    if( ( ret = mbedtls_mpi_write_binary( &N, (unsigned char *) &(pk_bytes->N), 256 ) ) != 0 ||
+        ( ret = mbedtls_mpi_write_binary( &E, (unsigned char *) &(pk_bytes->E), 256 ) ) != 0 )
     {
         mbedtls_printf( "Writing to binary failed\n  ! mbedtls_mpi_write_binary returned %d\n\n", ret );
         fclose( f );
@@ -439,11 +439,11 @@ int ra2iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], siz
     }
 
     //if( strlen(input) > 100 )
-    int max_size_allowed = 256-11;
+    size_t max_size_allowed = 256-11;
     //if( strlen(input) > max_size_allowed)
     if( i_len > max_size_allowed)
     {
-        mbedtls_printf( " Input data larger than %d characters. Size is %ld\n\n", max_size_allowed, i_len );
+        mbedtls_printf( " Input data larger than %ld characters. Size is %ld\n\n", max_size_allowed, i_len );
         goto exit;
     }
 
