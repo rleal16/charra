@@ -3,9 +3,9 @@
 #include <string.h>
 #include <inttypes.h>
 //#include <stdbool.h>
-#include "ra_iot_dto.h"
-#include "ra_iot_mbedtls.h"
-#include "ra_iot_evidence_mgmt.h"
+#include "ra2iot_dto.h"
+#include "ra2iot_mbedtls.h"
+#include "ra2iot_evidence_mgmt.h"
 
 
 static void get_substr(const char *str, char *substr, size_t start, size_t end){
@@ -13,20 +13,20 @@ static void get_substr(const char *str, char *substr, size_t start, size_t end){
 }
 
 /* This version just fills event log with a string */
-int ra_iot_get_log_data(uint8_t *event_log, uint32_t *event_log_len){
+int ra2iot_get_log_data(uint8_t *event_log, uint32_t *event_log_len){
     sprintf((char*)event_log, "Event logs data");
     *event_log_len = strlen((char *)event_log)+1;
     return 1; // SUCCESS
 }
 
 
-int ra_iot_load_ref_values(const ra_iot_msg_attestation_request_dto req, ref_values_dto *ref_values){
+int ra2iot_load_ref_values(const ra2iot_msg_attestation_request_dto req, ref_values_dto *ref_values){
     char data[256], substr[256];
     int i;
     printf("\t\t\tInside: Reference values\n");
     parsed_claim_selections claim_selection;
     
-    if(!ra_iot_parse_claim_selections(req.claim_selections_len, req.claim_selections, &claim_selection)){
+    if(!ra2iot_parse_claim_selections(req.claim_selections_len, req.claim_selections, &claim_selection)){
         printf("Loading Reference Values: Error parsing claim selections\n");
         return 0;
     }
@@ -67,7 +67,7 @@ int ra_iot_load_ref_values(const ra_iot_msg_attestation_request_dto req, ref_val
 }
 
 
-bool ra_iot_check_ref_values(const ref_values_dto ref_vals, const ra_iot_attest_dto att_data, attest_res *att_res){
+bool ra2iot_check_ref_values(const ref_values_dto ref_vals, const ra2iot_attest_dto att_data, attest_res *att_res){
     
     return (
         att_res->valid_against_ref_values = 
@@ -76,7 +76,7 @@ bool ra_iot_check_ref_values(const ref_values_dto ref_vals, const ra_iot_attest_
         );
 }
 
-void ra_iot_print_attest_res(attest_res att){
+void ra2iot_print_attest_res(attest_res att){
 
     //printf("Signature: %s\n", PRINT_BOOL(att.valid_signature_size));
     printf("Attestation Signature: %s\n", PRINT_BOOL(att.valid_attest_data_signature));
@@ -85,9 +85,9 @@ void ra_iot_print_attest_res(attest_res att){
     printf("Valid Claims: %s\n", PRINT_BOOL(att.valid_claims));
 }
 
-int ra_iot_generate_nonce(const uint32_t nonce_len, uint8_t* nonce) {
+int ra2iot_generate_nonce(const uint32_t nonce_len, uint8_t* nonce) {
 	
-    return ra_iot_mbedtls_gen_rand_bytes(nonce_len, nonce);
+    return ra2iot_mbedtls_gen_rand_bytes(nonce_len, nonce);
 }
 
 int verify_nonce(const uint32_t nonce_len, const uint8_t* nonce, const uint32_t ref_nonce_len, const uint8_t* ref_nonce){
@@ -102,9 +102,9 @@ int verify_nonce(const uint32_t nonce_len, const uint8_t* nonce, const uint32_t 
     return 1; 
 }
 
-int ra_iot_create_attestation_request(ra_iot_msg_attestation_request_dto *req, mbedtls_rsa_context *pub_key){
+int ra2iot_create_attestation_request(ra2iot_msg_attestation_request_dto *req, mbedtls_rsa_context *pub_key){
     req->nonce_len = 20;
-    ra_iot_generate_nonce(req->nonce_len, &(req->nonce));
+    ra2iot_generate_nonce(req->nonce_len, &(req->nonce));
     
     req->claim_selections_len = 5;
     for(int i = 0; i<(int)req->claim_selections_len; i++){
@@ -115,7 +115,7 @@ int ra_iot_create_attestation_request(ra_iot_msg_attestation_request_dto *req, m
 
     pub_key_dto pk_bytes;
     printf("Writing the signing public key to \"buffer structure\" for marshalling\n");
-    int res = ra_iot_load_pub_key_to_buffer("verifier_keys/rsa_pub.txt", &pk_bytes);
+    int res = ra2iot_load_pub_key_to_buffer("verifier_keys/rsa_pub.txt", &pk_bytes);
     printf("\tWriting to binary %s\n", (res ? "was Successful!" : "Failed!"));
 
 
@@ -132,8 +132,8 @@ int ra_iot_create_attestation_request(ra_iot_msg_attestation_request_dto *req, m
 
 }
 
-int ra_iot_parse_claim_selections(const uint32_t claim_selection_len, const claim_selection_dto *claim_selections, parsed_claim_selections *parsed_res){
-    printf("In ra_iot_parse_claim_selections\n");
+int ra2iot_parse_claim_selections(const uint32_t claim_selection_len, const claim_selection_dto *claim_selections, parsed_claim_selections *parsed_res){
+    printf("In ra2iot_parse_claim_selections\n");
     parsed_res->claim_selections_len = claim_selection_len;
     int i;
     for(i=0; i<(int)claim_selection_len; i++){
@@ -145,7 +145,7 @@ int ra_iot_parse_claim_selections(const uint32_t claim_selection_len, const clai
 }
 
 
-static int ra_iot_get_evidence_data(const parsed_claim_selections claim_selection, ra_iot_attest_dto *att_data){
+static int ra2iot_get_evidence_data(const parsed_claim_selections claim_selection, ra2iot_attest_dto *att_data){
     char data[256], substr[256];
     int i;
     
@@ -183,29 +183,29 @@ static int ra_iot_get_evidence_data(const parsed_claim_selections claim_selectio
     return 1;
 }
 
-int ra_iot_gen_evidence(const ra_iot_msg_attestation_request_dto req, ra_iot_attest_dto *att_data){
+int ra2iot_gen_evidence(const ra2iot_msg_attestation_request_dto req, ra2iot_attest_dto *att_data){
     parsed_claim_selections parsed_cs;
 
     /* Copy the nonce */
     att_data->nonce_len = req.nonce_len;
     memcpy(att_data->nonce, req.nonce, req.nonce_len);
-    //ra_iot_parse_claim_selections(req.claim_selections_len, req.claim_selections, &parsed_cs2);
+    //ra2iot_parse_claim_selections(req.claim_selections_len, req.claim_selections, &parsed_cs2);
     
     /* Parse (interpret) the claim selections */
-    if(ra_iot_parse_claim_selections(req.claim_selections_len, req.claim_selections, &parsed_cs)!=1)
+    if(ra2iot_parse_claim_selections(req.claim_selections_len, req.claim_selections, &parsed_cs)!=1)
         return 0;
     printf("\n\tAFTER: Parsed Claims selections output\n");
     print_claim_selections(req.claim_selections_len, req.claim_selections);
     printf("\n\t--------------------------------------\n");
     /* Get the evidence data */
-    if(ra_iot_get_evidence_data(parsed_cs, att_data)!=1)
+    if(ra2iot_get_evidence_data(parsed_cs, att_data)!=1)
         return 0;
 
     return 1; // Success
 }
 
 
-int appraise_evidence(const ra_iot_msg_attestation_request_dto ref_req, const ra_iot_attest_dto data, attest_res *res){
+int appraise_evidence(const ra2iot_msg_attestation_request_dto ref_req, const ra2iot_attest_dto data, attest_res *res){
     ref_values_dto ref_values;
     // Compare the nonces using the one in ref_req as reference
     if(!(res->valid_nonce = (bool) verify_nonce(data.nonce_len, data.nonce, ref_req.nonce_len, ref_req.nonce))){
@@ -213,7 +213,7 @@ int appraise_evidence(const ra_iot_msg_attestation_request_dto ref_req, const ra
         return 0;
     }
     
-    if(!ra_iot_load_ref_values(ref_req, &ref_values)){
+    if(!ra2iot_load_ref_values(ref_req, &ref_values)){
         printf("Error loading reference values\n");
         res->valid_against_ref_values = false;
         return 0;
@@ -224,7 +224,7 @@ int appraise_evidence(const ra_iot_msg_attestation_request_dto ref_req, const ra
     printf("-> Ref Values: %s\n", ref_values.ref_values);
 
 
-    if(!ra_iot_check_ref_values(ref_values, data, res))
+    if(!ra2iot_check_ref_values(ref_values, data, res))
         return 0;
 
     return 1;
@@ -253,7 +253,7 @@ void print_claim_selections(const uint32_t claim_selection_len, const claim_sele
     fflush(stdout);
 }
 
-void print_attestation_request(const ra_iot_msg_attestation_request_dto req){
+void print_attestation_request(const ra2iot_msg_attestation_request_dto req){
     
     //printf("Nonce (%d): %s\n", req.nonce_len, req.nonce);
     print_nonce(req.nonce_len, req.nonce);
@@ -265,7 +265,7 @@ void print_attestation_request(const ra_iot_msg_attestation_request_dto req){
     printf("Get logs: %s\n", (req.get_logs ? "True" : "False"));
 }
 
-int cmp_attestation_request(const ra_iot_msg_attestation_request_dto ref_req, const ra_iot_msg_attestation_request_dto req){
+int cmp_attestation_request(const ra2iot_msg_attestation_request_dto ref_req, const ra2iot_msg_attestation_request_dto req){
     // Compare the nonces using the one in ref_req as reference
     if(!verify_nonce(req.nonce_len, req.nonce, ref_req.nonce_len, ref_req.nonce))
         return 0;

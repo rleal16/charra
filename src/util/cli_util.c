@@ -22,7 +22,7 @@
 
 #include "cli_util.h"
 
-#include "../common/ra_iot_log.h"
+#include "../common/ra2iot_log.h"
 #include "coap_util.h"
 #include "io_util.h"
 #include <errno.h>
@@ -76,10 +76,10 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 			printf("\nUsage: %s [OPTIONS]\n", log_name);
 			printf(
 				"     --help:                     Print this help message.\n");
-			printf(" -v, --verbose:                  Set RA_IOT and CoAP "
+			printf(" -v, --verbose:                  Set RA2IOT and CoAP "
 				   "log-level "
 				   "to DEBUG.\n");
-			printf(" -l, --log-level=LEVEL:          Set RA_IOT log-level to "
+			printf(" -l, --log-level=LEVEL:          Set RA2IOT log-level to "
 				   "LEVEL. "
 				   "Available are: TRACE, DEBUG, INFO, WARN, ERROR, FATAL. "
 				   "Default is INFO.\n");
@@ -177,16 +177,16 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 		}
 
 		else if (identifier == 'v') { // verbose logging
-			*(variables->common_config.ra_iot_log_level) = RA_IOT_LOG_DEBUG;
+			*(variables->common_config.ra2iot_log_level) = RA2IOT_LOG_DEBUG;
 			*(variables->common_config.coap_log_level) = LOG_DEBUG;
 			continue;
 		}
 
-		else if (identifier == 'l') { // set log level for ra_iot
-			int result = ra_iot_log_level_from_str(
-				optarg, variables->common_config.ra_iot_log_level);
+		else if (identifier == 'l') { // set log level for ra2iot
+			int result = ra2iot_log_level_from_str(
+				optarg, variables->common_config.ra2iot_log_level);
 			if (result != 0) {
-				ra_iot_log_error("[%s] Error while parsing '-l/--log-level': "
+				ra2iot_log_error("[%s] Error while parsing '-l/--log-level': "
 								 "Unrecognized argument %s",
 					log_name, optarg);
 				return -1;
@@ -195,10 +195,10 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 		}
 
 		else if (identifier == 'c') { // set log level for libcoap
-			int result = ra_iot_coap_log_level_from_str(
+			int result = ra2iot_coap_log_level_from_str(
 				optarg, variables->common_config.coap_log_level);
 			if (result != 0) {
-				ra_iot_log_error(
+				ra2iot_log_error(
 					"[%s] Error while parsing '-c/--coap-log-level': "
 					"Unrecognized argument %s",
 					log_name, optarg);
@@ -212,7 +212,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 			*(variables->common_config.port) =
 				(unsigned int)strtoul(optarg, &end, 10);
 			if (*(variables->common_config.port) == 0 || end == optarg) {
-				ra_iot_log_error(
+				ra2iot_log_error(
 					"[%s] Error while parsing '--port': Port could not be "
 					"parsed",
 					log_name);
@@ -244,11 +244,11 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 			*variables->common_config.use_dtls_rpk = true;
 			char* path = malloc(strlen(optarg));
 			strcpy(path, optarg);
-			if (check_file_existence(path) == RA_IOT_RC_SUCCESS) {
+			if (check_file_existence(path) == RA2IOT_RC_SUCCESS) {
 				*(variables->common_config.dtls_rpk_private_key_path) = path;
 				continue;
 			} else {
-				ra_iot_log_error(
+				ra2iot_log_error(
 					"[%s] DTLS-RPK: private key file '%s' does not exist.",
 					log_name, path);
 				return -1;
@@ -259,11 +259,11 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 			*variables->common_config.use_dtls_rpk = true;
 			char* path = malloc(strlen(optarg));
 			strcpy(path, optarg);
-			if (check_file_existence(path) == RA_IOT_RC_SUCCESS) {
+			if (check_file_existence(path) == RA2IOT_RC_SUCCESS) {
 				*(variables->common_config.dtls_rpk_public_key_path) = path;
 				continue;
 			} else {
-				ra_iot_log_error(
+				ra2iot_log_error(
 					"[%s] DTLS-RPK: public key file '%s' does not exist.",
 					log_name, path);
 				return -1;
@@ -274,12 +274,12 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 			*variables->common_config.use_dtls_rpk = true;
 			char* path = malloc(strlen(optarg));
 			strcpy(path, optarg);
-			if (check_file_existence(path) == RA_IOT_RC_SUCCESS) {
+			if (check_file_existence(path) == RA2IOT_RC_SUCCESS) {
 				*(variables->common_config.dtls_rpk_peer_public_key_path) =
 					path;
 				continue;
 			} else {
-				ra_iot_log_error("[%s] DTLS-RPK: peers' public key file '%s' "
+				ra2iot_log_error("[%s] DTLS-RPK: peers' public key file '%s' "
 								 "does not exist.",
 					log_name, path);
 				return -1;
@@ -294,7 +294,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 				*variables->common_config.dtls_rpk_verify_peer_public_key =
 					true;
 			} else {
-				ra_iot_log_error("[%s] Error while parsing '--verify-peer': "
+				ra2iot_log_error("[%s] Error while parsing '--verify-peer': "
 								 "'%s' could not be parsed as 0 or 1.",
 					log_name, optarg);
 				return -1;
@@ -305,7 +305,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 		if (caller == VERIFIER && identifier == 'a') { // set IP address
 			int argument_length = strlen(optarg);
 			if (argument_length > 15) {
-				ra_iot_log_error(
+				ra2iot_log_error(
 					"[%s] Error while parsing '--ip': Input too long "
 					"for IPv4 address",
 					log_name);
@@ -320,7 +320,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 			*(variables->verifier_config.timeout) =
 				(uint16_t)strtoul(optarg, &end, 10);
 			if (*(variables->verifier_config.timeout) == 0 || end == optarg) {
-				ra_iot_log_error(
+				ra2iot_log_error(
 					"[%s] Error while parsing '--port': Port could not "
 					"be parsed",
 					log_name);
@@ -350,7 +350,7 @@ int parse_command_line_arguments(int argc, char** argv, cli_config* variables) {
 		else {
 			// undefined behaviour, probably because getopt_long returned an
 			// identifier which is not checked here
-			ra_iot_log_error(
+			ra2iot_log_error(
 				"[%s] Error: Undefined behaviour while parsing command line",
 				log_name);
 			return -1;

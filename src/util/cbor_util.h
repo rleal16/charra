@@ -25,9 +25,9 @@
 #include <qcbor/qcbor.h>
 #include <stdlib.h>
 
-#include "../common/ra_iot_error.h"
+#include "../common/ra2iot_error.h"
 
-#define RA_IOT_CBOR_TYPE_BOOLEAN QCBOR_TYPE_OPTTAG - 1
+#define RA2IOT_CBOR_TYPE_BOOLEAN QCBOR_TYPE_OPTTAG - 1
 
 /**
  * @brief Returns a human-readable presentation of a CBOR type.
@@ -43,10 +43,10 @@ const char* cbor_type_string(const uint8_t type);
  * @param ctx
  * @param decoded_item
  * @param expected_type the expected CBOR element type
- * @return RA_IOT_RC_SUCCESS in case of success
- * @return RA_IOT_RC_MARSHALING_ERROR in case an error occurred
+ * @return RA2IOT_RC_SUCCESS in case of success
+ * @return RA2IOT_RC_MARSHALING_ERROR in case an error occurred
  */
-RA_IOT_RC ra_iot_cbor_get_next(
+RA2IOT_RC ra2iot_cbor_get_next(
 	QCBORDecodeContext* ctx, QCBORItem* decoded_item, uint8_t expected_type);
 
 /**
@@ -56,7 +56,7 @@ RA_IOT_RC ra_iot_cbor_get_next(
  * @return true if the boolean value of the CBOR item is \c true
  * @return false if the boolean value of the CBOR item is \c false
  */
-bool ra_iot_cbor_get_bool_val(QCBORItem* item);
+bool ra2iot_cbor_get_bool_val(QCBORItem* item);
 
 /**
  * @brief Returns a human-readable presentation of a CBOR error.
@@ -64,6 +64,6 @@ bool ra_iot_cbor_get_bool_val(QCBORItem* item);
  * @param err the CBOR error
  * @return const char* the string representation of the CBOR error
  */
-const char* ra_iot_cbor_err_str(QCBORError err);
+const char* ra2iot_cbor_err_str(QCBORError err);
 
 #endif /* CBOR_UTIL_H */

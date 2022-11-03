@@ -8,8 +8,8 @@
 #include <mbedtls/md.h>
 #include <mbedtls/pk.h>
 
-#ifndef RA_IOT_MBEDTLS_H
-#define RA_IOT_MBEDTLS_H
+#ifndef RA2IOT_MBEDTLS_H
+#define RA2IOT_MBEDTLS_H
 
 #define mbedtls_printf          printf
 #define mbedtls_exit            exit
@@ -34,24 +34,24 @@ void load_ecrypt_from_str(uint8_t *input, int i_len, unsigned char *output);
 void save_ecrypt_to_str(uint8_t *input, int i_len, char *output);
 
 int pk_write_rsa_pubkey( unsigned char **p, unsigned char *start, mbedtls_rsa_context *rsa );
-int ra_iot_mbedtls_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes);
-int ra_iot_mbedtls_load_pub_key_from_buffer(pub_key_dto *pk_buffer, mbedtls_rsa_context *rsa);
+int ra2iot_mbedtls_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes);
+int ra2iot_mbedtls_load_pub_key_from_buffer(pub_key_dto *pk_buffer, mbedtls_rsa_context *rsa);
 
 
 
 int cpm_pub_keys(mbedtls_rsa_context rsa1, mbedtls_rsa_context rsa2);
-int ra_iot_mbedtls_gen_rsa_key( char *path );
-int ra_iot_mbedtls_load_pub_key(char *filename, mbedtls_rsa_context *rsa);
-int ra_iot_mbedtls_load_priv_key(char *filename, mbedtls_rsa_context *rsa);
-int ra_iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], size_t i_len, unsigned char *output );
-int ra_iot_mbedtls_decrypt( mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result );
-int ra_iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature);
-int ra_iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature);
-void ra_iot_mbedtls_print_rsa_pubkey(mbedtls_rsa_context rsa);
+int ra2iot_mbedtls_gen_rsa_key( char *path );
+int ra2iot_mbedtls_load_pub_key(char *filename, mbedtls_rsa_context *rsa);
+int ra2iot_mbedtls_load_priv_key(char *filename, mbedtls_rsa_context *rsa);
+int ra2iot_mbedtls_encrypt( mbedtls_rsa_context *key, unsigned char input[], size_t i_len, unsigned char *output );
+int ra2iot_mbedtls_decrypt( mbedtls_rsa_context *key, unsigned char *encr_data, unsigned char *result );
+int ra2iot_mbedtls_sign(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature);
+int ra2iot_mbedtls_verify_sig(mbedtls_rsa_context *key, unsigned char *data, size_t data_len, unsigned char *signature);
+void ra2iot_mbedtls_print_rsa_pubkey(mbedtls_rsa_context rsa);
 
 /***************************************************/
 /************* mbedtls util functions *************/
 /***************************************************/
 
-int ra_iot_mbedtls_gen_rand_bytes(const uint32_t nonce_len, uint8_t* nonce);
+int ra2iot_mbedtls_gen_rand_bytes(const uint32_t nonce_len, uint8_t* nonce);
 #endif

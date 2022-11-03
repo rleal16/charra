@@ -1,4 +1,4 @@
-#include "test_ra_iot.h"
+#include "test_ra2iot.h"
 #include <string.h>
 #include <assert.h>
 
@@ -8,7 +8,7 @@
 
 #pragma region debug_functions
 
-int t_equal_attest_res_lens(ra_iot_msg_attestation_response_dto attest1, ra_iot_msg_attestation_response_dto attest2){
+int t_equal_attest_res_lens(ra2iot_msg_attestation_response_dto attest1, ra2iot_msg_attestation_response_dto attest2){
     int eq = 1;
     if((int) attest1.attestation_data_len != (int) attest2.attestation_data_len){
         printf("Attestation Data Lengths are different (%d - %d)!\n", (int)attest1.attestation_data_len, (int)attest2.attestation_data_len);
@@ -36,7 +36,7 @@ int t_eq_data(uint8_t *dt1, uint8_t *dt2){
     return memcmp(dt1, dt2, sizeof(*dt1)) == 0;
 }
 
-int t_equal_attest_res_data(ra_iot_msg_attestation_response_dto attest1, ra_iot_msg_attestation_response_dto attest2){
+int t_equal_attest_res_data(ra2iot_msg_attestation_response_dto attest1, ra2iot_msg_attestation_response_dto attest2){
     int eq = 1;
     if(t_eq_data(attest1.attestation_data, attest2.attestation_data) != 1){
         printf("Attestation data are different!\n");
@@ -58,7 +58,7 @@ int t_equal_attest_res_data(ra_iot_msg_attestation_response_dto attest1, ra_iot_
 }
 
 
-int t_attest_res_equal(ra_iot_msg_attestation_response_dto attest1, ra_iot_msg_attestation_response_dto attest2){
+int t_attest_res_equal(ra2iot_msg_attestation_response_dto attest1, ra2iot_msg_attestation_response_dto attest2){
     printf("\nComparing attestation results...\n");
     int eq = t_equal_attest_res_lens(attest1, attest2);
     eq = eq && t_equal_attest_res_data(attest1, attest2);
@@ -68,7 +68,7 @@ int t_attest_res_equal(ra_iot_msg_attestation_response_dto attest1, ra_iot_msg_a
 #pragma endregion
 
 
-void ra_iot_pipeline_test(){
+void ra2iot_pipeline_test(){
     int res;
 
     printf("/* ************************************************** */\n");
@@ -85,11 +85,11 @@ void ra_iot_pipeline_test(){
     /* Generate encryption and signature keys */
     printf("********** Generate encryption and signature keys ********** \n");
 #if 0
-    ra_iot_gen_rsa_key("attester_keys/"); // generate the attester's keys
-    ra_iot_load_pub_key("attester_keys/rsa_pub.txt", &sig_pub_key);
-    ra_iot_load_priv_key("attester_keys/rsa_priv.txt", &sig_priv_key);
+    ra2iot_gen_rsa_key("attester_keys/"); // generate the attester's keys
+    ra2iot_load_pub_key("attester_keys/rsa_pub.txt", &sig_pub_key);
+    ra2iot_load_priv_key("attester_keys/rsa_priv.txt", &sig_priv_key);
 #else
-    res = ra_iot_gen_rsa_keypair("attester_keys/", &sig_pub_key, &sig_priv_key);
+    res = ra2iot_gen_rsa_keypair("attester_keys/", &sig_pub_key, &sig_priv_key);
     printf("\nAttester's key generation: %s\n", PRINT_RES(res));
 #endif
 
@@ -100,11 +100,11 @@ void ra_iot_pipeline_test(){
     printf("\tPrivate key is: %s\n", PRINT_RES(mbedtls_rsa_check_privkey(&sig_priv_key) == 0));
 
 #if 0
-    ra_iot_gen_rsa_key("verifier_keys/"); // generate the verifiers's keys
-    ra_iot_load_pub_key("verifier_keys/rsa_pub.txt", &encr_pub_key);
-    ra_iot_load_priv_key("verifier_keys/rsa_priv.txt", &encr_priv_key);
+    ra2iot_gen_rsa_key("verifier_keys/"); // generate the verifiers's keys
+    ra2iot_load_pub_key("verifier_keys/rsa_pub.txt", &encr_pub_key);
+    ra2iot_load_priv_key("verifier_keys/rsa_priv.txt", &encr_priv_key);
 #else
-    res = ra_iot_gen_rsa_keypair("verifier_keys/", &encr_pub_key, &encr_priv_key);
+    res = ra2iot_gen_rsa_keypair("verifier_keys/", &encr_pub_key, &encr_priv_key);
     printf("\nVerifier's key generation: %s\n", PRINT_RES(res));
 #endif
     printf("\nChecking Verifier keys\n");
@@ -133,19 +133,19 @@ void ra_iot_pipeline_test(){
     printf("\t\t********************************************************************\n");
     printf("\t\t********** Generating and \"Sending\" Attestation Request **********\n");
     printf("\t\t********************************************************************\n\n");
-    ra_iot_msg_attestation_request_dto req = {0};
+    ra2iot_msg_attestation_request_dto req = {0};
 
     uint32_t req_buf_len = 0;
     uint8_t* req_buf = NULL;
 
     printf("Creating the Attestation Request\n");
-    res = ra_iot_create_attestation_request(&req, &encr_pub_key);
+    res = ra2iot_create_attestation_request(&req, &encr_pub_key);
     print_attestation_request(req);
     printf("----------------------------------------\n\n");
     
     
     printf("Marshalling the Attestation Request\n"); // tested later, when unmarshalling
-    res = ra_iot_marshal_attestation_request(&req, &req_buf_len, &req_buf);
+    res = ra2iot_marshal_attestation_request(&req, &req_buf_len, &req_buf);
     printf("Marshalling seems %s\n", (res ? "OK!" : "Bad!"));
 
     printf("----------------------------------------\n\n");
@@ -169,8 +169,8 @@ void ra_iot_pipeline_test(){
     
     /* Unmarshalling the Attestation Request */
     printf("Unmarshal Attestation Request\n");
-    ra_iot_msg_attestation_request_dto out_req = {0};
-    res = ra_iot_unmarshal_attestation_request(req_buf_len, req_buf, &out_req);
+    ra2iot_msg_attestation_request_dto out_req = {0};
+    res = ra2iot_unmarshal_attestation_request(req_buf_len, req_buf, &out_req);
     printf("\tAtt. Request UnMarshalling seems %s\n", (res ? "OK!" : "Bad!"));
 
 
@@ -180,7 +180,7 @@ void ra_iot_pipeline_test(){
     printf("Converting the unmarshalled Verifier's public key to a intermediate \"buffer structure\"\n");
     memcpy(&encr_key_bytes, out_req.public_key, sizeof(out_req.public_key));
     printf("Converting Verifiers's public key from bytes to mbedtls_rsa_context for encryption\n");
-    res = ra_iot_load_pub_key_from_buffer(&encr_key_bytes, &ver_key);
+    res = ra2iot_load_pub_key_from_buffer(&encr_key_bytes, &ver_key);
     printf("Converting bytes to mbedtls_rsa_context: %s\n", (res ? "Ok!" : "Failed!"));
 
     // verifying the unmarshaled public key
@@ -221,7 +221,7 @@ void ra_iot_pipeline_test(){
 
     pub_key_dto pk_bytes;
     printf("Writing the signing public key to \"buffer structure\" for marshalling\n");
-    res = ra_iot_load_pub_key_to_buffer("attester_keys/rsa_pub.txt", &pk_bytes);
+    res = ra2iot_load_pub_key_to_buffer("attester_keys/rsa_pub.txt", &pk_bytes);
     printf("\tWriting to binary %s\n", (res ? "was Successful!" : "Failed!"));
     fflush(stdout);
     #pragma endregion
@@ -229,8 +229,8 @@ void ra_iot_pipeline_test(){
     #pragma region evidence_gen
 
     printf("\n\n************ Parsing Claim Selections and Generating Evidence ************\n\n");
-    ra_iot_attest_dto att_data;
-    res = ra_iot_gen_evidence(out_req, &att_data);
+    ra2iot_attest_dto att_data;
+    res = ra2iot_gen_evidence(out_req, &att_data);
     printf("Reading and parsing the evidence: %s\n", (res ? "Ok!!": "Failed!!"));
     print_attest_data(&att_data);
     
@@ -242,11 +242,11 @@ void ra_iot_pipeline_test(){
     /* Encrypt and sign attestation data */
     printf("\n\n********** Preparing Attestation Data for Encryption and Signing **********\n");
     int i;
-    size_t attest_data_buf_len = sizeof(ra_iot_attest_dto);
-    uint8_t attest_data_buf[sizeof(ra_iot_attest_dto)];
+    size_t attest_data_buf_len = sizeof(ra2iot_attest_dto);
+    uint8_t attest_data_buf[sizeof(ra2iot_attest_dto)];
 
     memset(attest_data_buf, 0, attest_data_buf_len);
-    memcpy((void *)attest_data_buf, (void *)&att_data, sizeof(ra_iot_attest_dto));
+    memcpy((void *)attest_data_buf, (void *)&att_data, sizeof(ra2iot_attest_dto));
 
     printf("----------------------------------------\n");
     uint8_t encr_attest_data[256];
@@ -266,12 +266,12 @@ void ra_iot_pipeline_test(){
 #if 0
     // estava a usar isto para encriptar: strlen((char*)attest_data_buf)
 
-    if(ra_iot_encrypt(&encr_pub_key, attest_data_buf, sizeof(ra_iot_attest_dto), encr_attest_data) != 1){
+    if(ra2iot_encrypt(&encr_pub_key, attest_data_buf, sizeof(ra2iot_attest_dto), encr_attest_data) != 1){
         printf("Error encrypting!!\n");
         
     }else{
         printf("Key size is %zu\n", encr_pub_key.len);
-        printf("Data was encrypted! Size was: %zu\n", sizeof(ra_iot_attest_dto));
+        printf("Data was encrypted! Size was: %zu\n", sizeof(ra2iot_attest_dto));
 
     }
     
@@ -279,7 +279,7 @@ void ra_iot_pipeline_test(){
     
     /* Sign the encrypted attestation data */
 
-    if(ra_iot_sign(&sig_priv_key, encr_attest_data, encr_attest_data_len, signature) != 1){
+    if(ra2iot_sign(&sig_priv_key, encr_attest_data, encr_attest_data_len, signature) != 1){
 
         printf("Error signing!!\n");
         goto exit;
@@ -290,7 +290,7 @@ void ra_iot_pipeline_test(){
     }
 #else
     
-    res = ra_iot_encrypt_sign(&ver_key, &sig_priv_key, attest_data_buf, attest_data_buf_len, signature, encr_attest_data);
+    res = ra2iot_encrypt_sign(&ver_key, &sig_priv_key, attest_data_buf, attest_data_buf_len, signature, encr_attest_data);
     printf("\tEncrypting and Signing: %s\n", (res ? "Ok!!": "Failed!!"));
 #endif
 
@@ -302,7 +302,7 @@ void ra_iot_pipeline_test(){
     uint32_t event_log_len;
     if(out_req.get_logs){
         printf("Getting the logs!\n");
-        ra_iot_get_log_data(event_log, &event_log_len);
+        ra2iot_get_log_data(event_log, &event_log_len);
         printf("-> Event log generated: [%d]: %s\n", event_log_len, event_log);   
     }
     printf("----------------------------------------\n");
@@ -313,7 +313,7 @@ void ra_iot_pipeline_test(){
     printf("\n\n********** Creating the attestation response **********\n");
     
     /* Create attestation response */
-    ra_iot_msg_attestation_response_dto attest_start = {
+    ra2iot_msg_attestation_response_dto attest_start = {
         .attestation_data = {0},
         .attestation_data_len = encr_attest_data_len,
         .signature = {0},
@@ -342,7 +342,7 @@ void ra_iot_pipeline_test(){
     /* Marshal attestation response */
     uint32_t res_buf_len = 0;
     uint8_t* res_buf = NULL;
-    if (ra_iot_marshal_attestation_response(&attest_start, &res_buf_len, &res_buf) != 1) {
+    if (ra2iot_marshal_attestation_response(&attest_start, &res_buf_len, &res_buf) != 1) {
         printf("Error marshaling data.");
         goto exit;
     }else{
@@ -367,8 +367,8 @@ void ra_iot_pipeline_test(){
     printf("\t\t******************************************************\n\n");
     
     /* unmarshal data */
-    ra_iot_msg_attestation_response_dto attest_unmarshaled;
-    res = ra_iot_unmarshal_attestation_response(res_buf_len, res_buf, &attest_unmarshaled);
+    ra2iot_msg_attestation_response_dto attest_unmarshaled;
+    res = ra2iot_unmarshal_attestation_response(res_buf_len, res_buf, &attest_unmarshaled);
     printf("Unmarshaling Attestation Response: %s\n", PRINT_RES(res));
     printf("----------------------------------------\n");
 
@@ -387,7 +387,7 @@ void ra_iot_pipeline_test(){
     printf("Converting the unmarshalled Attester's public key to a intermediate \"buffer structure\"\n");
     memcpy(&pk_bytes2, attest_unmarshaled.public_key, sizeof(attest_unmarshaled.public_key));
     printf("Converting Attester's public key from bytes to mbedtls_rsa_context\n");
-    res = ra_iot_load_pub_key_from_buffer(&pk_bytes2, &unmarshaled_key);
+    res = ra2iot_load_pub_key_from_buffer(&pk_bytes2, &unmarshaled_key);
     printf("Converting bytes to mbedtls_rsa_context: %s\n", (res ? "Ok!" : "Failed!"));
 
     // verifying the unmarshaled public key
@@ -428,10 +428,10 @@ void ra_iot_pipeline_test(){
     #pragma region unmarshall_attestation_data
     
     printf("\nUnmarshal attestation data:\n\t I.e. verifying the signature and decrypting the data\n");
-    ra_iot_attest_dto attest_dto_unmarshaled;
+    ra2iot_attest_dto attest_dto_unmarshaled;
 
-    int unmarshal_res = ra_iot_unmarshal_attestion_data(&unmarshaled_key, &encr_priv_key, &attest_unmarshaled, &attest_dto_unmarshaled);
-    printf("ra_iot_unmarshal_attestion_data: %s\n", (unmarshal_res ? "Ok!" : "Bad!"));
+    int unmarshal_res = ra2iot_unmarshal_attestion_data(&unmarshaled_key, &encr_priv_key, &attest_unmarshaled, &attest_dto_unmarshaled);
+    printf("ra2iot_unmarshal_attestion_data: %s\n", (unmarshal_res ? "Ok!" : "Bad!"));
     
     printf("\t(Changing old data a byte :D)\n");
     //att_data.nonce[0] = 'f';
@@ -469,7 +469,7 @@ void ra_iot_pipeline_test(){
     printf("\tEvidence Appraisal Overall Result: %s\n", (res ? "Ok!" : "Failed!"));
     #pragma endregion appraise_evidence
 
-    ra_iot_print_attest_res(results);
+    ra2iot_print_attest_res(results);
     printf("********** DONE!! -> %d **********\n", get_attest_results_overall(results));
 #pragma #endregion
 

@@ -19,7 +19,7 @@
  * BSD-3-Clause).
  */
 
-#include "../common/ra_iot_log.h"
+#include "../common/ra2iot_log.h"
 #include <coap2/coap.h>
 #include <stdbool.h>
 
@@ -33,7 +33,7 @@ typedef enum {
  * which might geht modified by the CLI parser
  */
 typedef struct {
-	ra_iot_log_t* ra_iot_log_level;
+	ra2iot_log_t* ra2iot_log_level;
 	coap_log_t* coap_log_level;
 	unsigned int* port;
 	bool* use_dtls_psk;
