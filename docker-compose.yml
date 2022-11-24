@@ -21,6 +21,8 @@ services:
     image: fraunhofer-sit/charra:1.5.1
     restart: unless-stopped
     container_name: charra-attester
+    networks:
+      - arcadian-net
     ports:
       - "127.0.0.1:5683:5683"
     #command: >
@@ -34,14 +36,62 @@ services:
     image: fraunhofer-sit/charra:1.5.1
     restart: unless-stopped
     container_name: charra-verifier
+    networks:
+      - arcadian-net
     #ports:
     #  - "127.0.0.1:5683:5683"
     #command: >
     #  /home/bob/charra/bin/ra_iot_verifier
     volumes:
       - ".:/home/bob/charra"
+    
 
+  attester_server:
+    
+    build: server/
+    container_name: charra-he_server
+    
+    command: python3 ./server.py
+
+    networks:
+      - arcadian-net
+    
+    extra_hosts:
+      - "localhost:host-gateway"
+      - "127.0.0.1:host-gateway"
+      - "0.0.0.0:host-gateway"
+    
+    ports:
+      - 1245:1245
+      #- "127.0.0.1:6900:6900"
+      #- "127.0.0.1:6901:6901"
+      #- "127.0.0.1:6902:6902"
+      #- "127.0.0.1:6903:6903"
+  
+  verifier_server:
+    
+    build: server/
+    container_name: charra-he_server
+    
+    command: python3 ./server.py
+
+    networks:
+      - arcadian-net
+    
+    extra_hosts:
+      - "localhost:host-gateway"
+      - "127.0.0.1:host-gateway"
+      - "0.0.0.0:host-gateway"
+    
+    ports:
+      - 1245:1245
+      #- "127.0.0.1:6900:6900"
+      #- "127.0.0.1:6901:6901"
+      #- "127.0.0.1:6902:6902"
+      #- "127.0.0.1:6903:6903"
+  
 
 networks:
-  pub_net:
-    external: true
+  arcadian-net:
+#  pub_net:
+#    external: true

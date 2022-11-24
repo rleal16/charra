@@ -3,6 +3,14 @@
 
 #ifndef RA2IOT_CYPTO_H
 #define RA2IOT_CYPTO_H
+
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+int request_he(char *addr, int port, unsigned char *msg, size_t msg_len);
+
+
 int ra2iot_write_rsa_pubkey( unsigned char **p, unsigned char *start, mbedtls_rsa_context *rsa );
 int ra2iot_load_pub_key_to_buffer(char *filename, pub_key_dto *pk_bytes);
 int ra2iot_load_pub_key_from_buffer(pub_key_dto *pk_buffer, mbedtls_rsa_context *rsa);
@@ -25,5 +33,9 @@ int ra2iot_verify_decrypt(mbedtls_rsa_context *pub_key, mbedtls_rsa_context *pri
 int ra2iot_gen_rsa_keypair(char *keys_filepath, mbedtls_rsa_context *pub_key, mbedtls_rsa_context *priv_key);
 
 void print_rsa_pub_key(mbedtls_rsa_context rsa);
+
+// register the device
+int ra2iot_register(char *server_addr, unsigned int server_port, char *gid, char *attributes);
+
 
 #endif
