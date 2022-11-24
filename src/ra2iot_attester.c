@@ -39,6 +39,10 @@
 #include "util/coap_util.h"
 #include "util/io_util.h"
 
+// ADDED to comunicate with hardened encryption
+#include <sys/socket.h>
+#include <unistd.h>
+
 
 #define PRINT_RES(x) (x ? "Ok!" : "Failed!")
 
@@ -82,6 +86,12 @@ char* dtls_rpk_private_key_path = "keys/attester.der";
 char* dtls_rpk_public_key_path = "keys/attester.pub.der";
 char* dtls_rpk_peer_public_key_path = "keys/verifier.pub.der";
 bool dtls_rpk_verify_peer_public_key = true;
+
+// For socket comunication with HE
+int server_sock = 0, clnt_fd;
+struct sockaddr_in server_addr;
+char host_addr[16] = "172.24.0.3";
+unsigned int host_port = 1234;
 
 /**
  * @brief SIGINT handler: set quit to 1 for graceful termination.
@@ -260,6 +270,33 @@ int main(int argc, char** argv) {
 		}
 	}
 
+
+
+	/* ********************************************** */
+	/* Preparing comunication with HE through sockets */
+	/* ********************************************** */
+	/* ra2iot_log_info("[" LOG_NAME "] Comunicating with HE Server...");
+    if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("\n Socket creation error \n");
+        return -1;
+    }
+	
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(1245);
+ 
+    // Convert IPv4 and IPv6 addresses from text to binary
+    // form
+    if (inet_pton(AF_INET, "172.24.0.5", &server_addr.sin_addr) <= 0) {
+        printf("\nInvalid address/ Address not supported \n");
+        return -1;
+    }
+ 
+    if ((clnt_fd = connect(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr))) < 0) {
+        printf("\nConnection Failed \n");
+        return -1;
+    } */
+
+
 	/* Create Signing key pair */
 	mbedtls_rsa_init( &pub_key, MBEDTLS_RSA_PKCS_V15, 0 );
 	mbedtls_rsa_init( &priv_key, MBEDTLS_RSA_PKCS_V15, 0 );
@@ -271,6 +308,7 @@ int main(int argc, char** argv) {
     ra2iot_log_info("[" LOG_NAME "] \tKey Pair is: %s", PRINT_RES(mbedtls_rsa_check_pub_priv(&pub_key, &priv_key) == 0));
     ra2iot_log_info("[" LOG_NAME "] \tPublic key is: %s", PRINT_RES(mbedtls_rsa_check_pubkey(&pub_key) == 0));
     ra2iot_log_info("[" LOG_NAME "] \tPrivate key is: %s", PRINT_RES(mbedtls_rsa_check_privkey(&priv_key) == 0));
+
 
 
 	/* register CoAP resource and resource handler */
@@ -303,6 +341,7 @@ finish:
 	coap_cleanup();
 	mbedtls_rsa_free( &pub_key );
     mbedtls_rsa_free( &priv_key );
+	close(clnt_fd);
 
 	return result;
 }
@@ -320,6 +359,47 @@ static void coap_attest_handler(struct coap_context_t* ctx RA2IOT_UNUSED,
 	struct coap_resource_t* resource, struct coap_session_t* session,
 	struct coap_pdu_t* in, struct coap_binary_t* token,
 	struct coap_string_t* query, struct coap_pdu_t* out) {
+
+	char msg[256];
+	sprintf(msg, "Do attester... fiz %d attestações\n", attestation_count+1);
+
+	// Um teste absurdo
+	ra2iot_log_info("[" LOG_NAME "] Comunicating with HE Server...");
+	
+	//request_he("172.24.0.3", 1245, msg);
+	//request_he("172.24.0.3", 1245, "\te mais isto...");
+
+/*     if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("\n Socket creation error \n");
+        return -1;
+    }
+	
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(1245);
+ 
+    // Convert IPv4 and IPv6 addresses from text to binary
+    // form
+    if (inet_pton(AF_INET, "172.24.0.5", &server_addr.sin_addr) <= 0) {
+        printf("\nInvalid address/ Address not supported \n");
+        return -1;
+    }
+ 
+    if ((clnt_fd = connect(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr))) < 0) {
+        printf("\nConnection Failed \n");
+        return -1;
+    }
+ */
+
+	/* char buffer[1024] = { 0 };
+	
+	uint8_t msg[128] = "sent from the attester...";
+    send(server_sock, msg, strlen(msg), 0);
+	//send(sock, msg2, strlen(msg2), 0);
+    ra2iot_log_info("[" LOG_NAME "] Messange sent to Hardened Encrpytion\n");
+    int valread = read(server_sock, buffer, 1024);
+    printf("%s\n", buffer);
+	fflush(stdout); */
+
 
 	int coap_r = 0;
 	int res;
@@ -414,7 +494,6 @@ static void coap_attest_handler(struct coap_context_t* ctx RA2IOT_UNUSED,
 	ra2iot_log_info("[" LOG_NAME "] \tPrivate key is: %s", PRINT_RES(mbedtls_rsa_check_privkey(&priv_key) == 0));
 	res = ra2iot_encrypt_sign(&verifier_key, &priv_key, attest_data_buf, attest_data_buf_len, signature, encr_attest_data);
     ra2iot_log_info("[" LOG_NAME "] \tEncrypting and Signing: %s", (res ? "Ok!!": "Failed!!"));
-
 
 
 	/* Read the event logs, if requested */

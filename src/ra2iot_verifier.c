@@ -26,10 +26,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-
-
 #include <unistd.h>
-
 #include "common/ra2iot_log.h"
 #include "common/ra2iot_macro.h"
 #include "util/cli_util.h"
@@ -37,7 +34,8 @@
 #include "util/io_util.h"
 
 
-
+// ADDED to comunicate with hardened encryption
+#include <sys/socket.h>
 
 
 /* ---------- Arcadian IoT Remote Attestation Libraries */
@@ -70,8 +68,19 @@ ra2iot_log_t ra2iot_log_level = RA2IOT_LOG_INFO;
 
 /* config */
 //char dst_host[16] = "127.0.0.1";	 // 15 characters for IPv4 plus \0
-char dst_host[16] = "172.21.0.2";
+char dst_host[16] = "172.24.0.4";
 unsigned int dst_port = 5683;		 // default port
+
+//char server_host[16] = "172.24.0.3";
+//unsigned int server_port = 1234;
+
+/* Um teste... */
+coap_context_t* coap_context_test = NULL;
+coap_session_t* coap_session_test = NULL;
+coap_optlist_t* coap_options_test = NULL;
+
+
+
 #define COAP_IO_PROCESS_TIME_MS 2000 // CoAP IO process time in milliseconds
 #define PERIODIC_ATTESTATION_WAIT_TIME_S                                       \
 	2 // Wait time between attestations in seconds
@@ -93,6 +102,16 @@ char* dtls_rpk_public_key_path = "keys/verifier.pub.der";
 char* dtls_rpk_peer_public_key_path = "keys/attester.pub.der";
 bool dtls_rpk_verify_peer_public_key = true;
 
+// For socket comunication
+//int sock = 0, valread, client_fd;
+//struct sockaddr_in serv_addr;
+
+// For socket comunication with HE
+int server_sock = 0, clnt_fd;
+struct sockaddr_in srvr_addr;
+char server_addr[16] = "172.24.0.4";
+unsigned int server_port = 1245;
+
 /* --- function forward declarations -------------------------------------- */
 
 /**
@@ -105,6 +124,12 @@ static void handle_sigint(int signum);
 static coap_response_t coap_attest_handler(struct coap_context_t* context,
 	coap_session_t* session, coap_pdu_t* sent, coap_pdu_t* received,
 	const coap_mid_t mid);
+
+
+static coap_response_t coap_response_test_handler(
+	struct coap_context_t* context,
+	coap_session_t* session, coap_pdu_t* sent,
+	coap_pdu_t* in, const coap_mid_t mid);
 
 /* --- static variables --------------------------------------------------- */
 // key-pair for encryption/decryption
@@ -239,9 +264,18 @@ int main(int argc, char** argv) {
 		goto cleanup;
 	}
 
+	ra2iot_log_info("[" LOG_NAME "] Initializing CoAP in block-wise mode.");
+	if ((coap_context_test = ra2iot_coap_new_context(true)) == NULL) {
+		ra2iot_log_error("[" LOG_NAME "] Cannot create CoAP context.");
+		result = RA2IOT_RC_COAP_ERROR;
+		goto cleanup;
+	}
+
 	/* register CoAP response handler */
 	ra2iot_log_info("[" LOG_NAME "] Registering CoAP response handler.");
 	coap_register_response_handler(coap_context, coap_attest_handler);
+
+	//coap_register_response_handler(coap_context_test, coap_response_test_handler);
 
 	if (use_dtls_psk) {
 		ra2iot_log_info(
@@ -287,7 +321,57 @@ int main(int argc, char** argv) {
 			result = RA2IOT_RC_COAP_ERROR;
 			goto cleanup;
 		}
+
+
+		//TEST
+		/* ra2iot_log_info(
+			"[" LOG_NAME "] Creating CoAP client session using UDP.");
+		if ((coap_session_test = ra2iot_coap_new_client_session(
+				 coap_context_test, server_host, server_port, COAP_PROTO_UDP)) == NULL) {
+			ra2iot_log_error(
+				"[" LOG_NAME "] Cannot create client session based on UDP.");
+			result = RA2IOT_RC_COAP_ERROR;
+			goto cleanup;
+		} */
+
+
 	}
+
+	/* ********************************************** */
+	/* Preparing comunication with HE through sockets */
+	/* ********************************************** */
+	ra2iot_log_info("[" LOG_NAME "] Comunicating with HE Server...");
+    if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("\n Socket creation error \n");
+        return -1;
+    }
+	
+    /* server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(1245);
+  */
+    // Convert IPv4 and IPv6 addresses from text to binary
+    // form
+   /*  if (inet_pton(AF_INET, "172.24.0.4", &server_addr.sin_addr) <= 0) {
+        printf("\nInvalid address/ Address not supported \n");
+        return -1;
+    }
+ 
+    if ((clnt_fd = connect(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr))) < 0) {
+        printf("\nConnection Failed \n");
+        return -1;
+    }
+ */
+	/* uint8_t msg[128] = "this is a text the i sent..";
+	printf("Sock is: %d\n", sock);
+    send(sock, msg, strlen(msg), 0);
+    printf("Hello message sent\n");
+    valread = read(sock, buffer, 1024);
+    printf("%s\n", buffer); */
+ 
+    // closing the connected socket
+    //close(client_fd);
+
+
 
 	/* Create key-pair for encryption/decryption */
 	ra2iot_log_info("[" LOG_NAME "] Generating RSA key.");
@@ -300,11 +384,24 @@ int main(int argc, char** argv) {
     ra2iot_log_info("[" LOG_NAME "] \tPublic key is: %s", PRINT_RES(mbedtls_rsa_check_pubkey(&pub_key) == 0));
     ra2iot_log_info("[" LOG_NAME "] \tPrivate key is: %s", PRINT_RES(mbedtls_rsa_check_privkey(&priv_key) == 0));
 
+	// register device
+	/* 
+	["auth1:at1", "auth1:at2"]
+	["auth2:at1", "auth2:at2"]
+	["auth3:at1", "auth3:at2"] 
+	*/
+	printf("\nRegistering...\n");
+	char server_addr[16] = "172.24.0.3";
+	unsigned int server_port = 1245;
+	ra2iot_register(server_addr, server_port, "gid1", "auth1:at1,auth2:at2,auth3:at1");
+
+
 	/* define needed variables */
 	ra2iot_msg_attestation_request_dto req = {0};
 
 	uint32_t req_buf_len = 0;
 	coap_pdu_t* pdu = NULL;
+	coap_pdu_t* pdu2 = NULL;
 	coap_mid_t mid = COAP_INVALID_MID;
 	int coap_io_process_time = -1;
 
@@ -354,6 +451,9 @@ int main(int argc, char** argv) {
 	}
 
 	/* CoAP options */
+
+	// DuP
+
 	ra2iot_log_info("[" LOG_NAME "] Adding CoAP option URI_PATH.");
 	if (coap_insert_optlist(
 			&coap_options, coap_new_optlist(COAP_OPTION_URI_PATH, 6,
@@ -371,7 +471,30 @@ int main(int argc, char** argv) {
 		goto cleanup;
 	}
 
+
+
+	ra2iot_log_info("[" LOG_NAME "] Adding CoAP option URI_PATH.");
+	if (coap_insert_optlist(
+			&coap_options_test, coap_new_optlist(COAP_OPTION_URI_PATH, 6,
+							   (const uint8_t*)"attest")) != 1) {
+		ra2iot_log_error("[" LOG_NAME "] Cannot add CoAP option URI_PATH.");
+		result = RA2IOT_RC_COAP_ERROR;
+		goto cleanup;
+	}
+	
+	/* ra2iot_log_info("[" LOG_NAME "] Adding CoAP option CONTENT_TYPE.");
+	if (coap_insert_optlist(&coap_options_test,
+			coap_new_optlist(COAP_OPTION_CONTENT_TYPE,
+				coap_mediatype_cbor_buf_len, coap_mediatype_cbor_buf)) != 1) {
+		ra2iot_log_error("[" LOG_NAME "] Cannot add CoAP option CONTENT_TYPE.");
+		result = RA2IOT_RC_COAP_ERROR;
+		goto cleanup;
+	} */
+
+
+
 	/* new CoAP request PDU */
+	//dup
 	ra2iot_log_info("[" LOG_NAME "] Creating request PDU.");
 	if ((pdu = ra2iot_coap_new_request(coap_session, COAP_MESSAGE_TYPE_CON,
 			 COAP_REQUEST_FETCH, &coap_options, req_buf, req_buf_len)) ==
@@ -381,9 +504,22 @@ int main(int argc, char** argv) {
 		goto cleanup;
 	}
 
+	/* uint8_t my_msg[] = "uma mensagem";
+	uint32_t my_msg_len = strlen(my_msg);
+	ra2iot_log_info("[" LOG_NAME "] Creating request PDU.");
+	if ((pdu2 = ra2iot_coap_new_request(coap_session_test, COAP_MESSAGE_TYPE_CON,
+			 COAP_REQUEST_FETCH, &coap_options_test, my_msg, my_msg_len)) ==
+		NULL) {
+		ra2iot_log_error("[" LOG_NAME "] Cannot create request PDU.");
+		result = RA2IOT_RC_ERROR;
+		goto cleanup;
+	} */
+
 	/* set timeout length */
 	coap_fixed_point_t coap_timeout = {attestation_response_timeout, 0};
 	coap_session_set_ack_timeout(coap_session, coap_timeout);
+	//TEST
+	//coap_session_set_ack_timeout(coap_session_test, coap_timeout);
 
 	/* send CoAP PDU */
 	ra2iot_log_info("[" LOG_NAME "] Sending CoAP message.");
@@ -433,6 +569,46 @@ int main(int argc, char** argv) {
 	// sleep(PERIODIC_ATTESTATION_WAIT_TIME_S);
 	// }
 
+	// TEST
+	/* send CoAP PDU TEST 
+	ra2iot_log_info("[" LOG_NAME "] Sending CoAP message. with TEST......!!!!");
+	if ((mid = coap_send_large(coap_session_test, pdu2)) == COAP_INVALID_MID) {
+		ra2iot_log_error("[" LOG_NAME "] Cannot send CoAP message.");
+		result = RA2IOT_RC_COAP_ERROR;
+		goto cleanup;
+	}
+
+	/* processing and waiting for response 
+	ra2iot_log_info("[" LOG_NAME "] Processing and waiting for response ...");
+	//uint16_t response_wait_time = 0;
+	while (!processing_response && !coap_can_exit(coap_context_test)) {
+		/* process CoAP I/O 
+		if ((coap_io_process_time = coap_io_process(
+				 coap_context_test, COAP_IO_PROCESS_TIME_MS)) == -1) {
+			ra2iot_log_error(
+				"[" LOG_NAME "] Error during CoAP I/O processing.");
+			result = RA2IOT_RC_COAP_ERROR;
+			goto cleanup;
+		}
+		/* This wait time is not 100% accurate, it only includes the elapsed
+		 * time inside the coap_io_process function. But should be good enough.
+		 
+		response_wait_time += coap_io_process_time;
+		if (response_wait_time >= (attestation_response_timeout * 1000)) {
+			ra2iot_log_error("[" LOG_NAME
+							 "] Timeout after %d ms while waiting for or "
+							 "processing attestation response.",
+				response_wait_time);
+			result = RA2IOT_RC_TIMEOUT;
+			goto cleanup;
+		} 
+	}
+
+	// normal exit from processing loop, set result to result of attestation
+	result = attestation_rc;
+	ra2iot_log_info("[" LOG_NAME "] Printing Attestation Results:\n");
+	ra2iot_print_attest_res(att_results);*/
+
 cleanup:
 	/* free CoAP memory */
 	ra2iot_free_if_not_null_ex(coap_options, coap_delete_optlist);
@@ -442,6 +618,9 @@ cleanup:
 
 	/* free variables */
 	ra2iot_free_if_not_null(req_buf);
+
+	// closing the connected socket
+    //close(clnt_fd);
 
 	coap_cleanup();
 
@@ -505,6 +684,11 @@ static coap_response_t coap_attest_handler(
 
 	ra2iot_log_info("[" LOG_NAME "] Starting verification.");
 
+	ra2iot_log_info("[" LOG_NAME "] Sending data to the HE server.");
+	
+	
+
+
 
 	/* load public part of attester's signature key */
 	pub_key_dto pk_bytes;
@@ -523,6 +707,21 @@ static coap_response_t coap_attest_handler(
 	ra2iot_attest_dto att_data;
 	int unmarshal_res = ra2iot_unmarshal_attestion_data(&attester_key, &priv_key, &response, &att_data);
     ra2iot_log_info("[" LOG_NAME "] Unmarshaling Attesation Data: %s\n", (unmarshal_res ? "Ok!" : "Bad!"));
+
+	//request_he(server_addr, server_port, att_data.nonce);
+	/* char buffer[1024] = { 0 };
+	
+	uint8_t msg[128] = "sent from the verifier...";
+    send(server_sock, msg, strlen(msg), 0);
+	//send(sock, msg2, strlen(msg2), 0);
+    ra2iot_log_info("[" LOG_NAME "] Messange sent to Hardened Encrpytion\n");
+    int valread = read(server_sock, buffer, 1024);
+    printf("%s\n", buffer); */
+
+	//request_he(server_addr, server_port, "Test do pipe no verifier");
+
+	//test_he_func(sock);
+
 
 	/* Initialize the attestation data structure */
 	att_results.valid_nonce = false;
@@ -573,3 +772,27 @@ cleanup:
 	processing_response = false;
 	return COAP_RESPONSE_OK;
 }
+
+
+
+/* 
+void coap_response_test_handler(int sockaddr, uint8_t *msg, uint32_t msg_len) {
+	
+	char buff[MAX];
+    int n;
+    for (;;) {
+        bzero(buff, sizeof(buff));
+        printf("Enter the string : ");
+        n = 0;
+        while ((buff[n++] = getchar()) != '\n')
+            ;
+        write(sockfd, buff, sizeof(buff));
+        bzero(buff, sizeof(buff));
+        read(sockfd, buff, sizeof(buff));
+        printf("From Server : %s", buff);
+        if ((strncmp(buff, "exit", 4)) == 0) {
+            printf("Client Exit...\n");
+            break;
+        }
+    }
+} */
